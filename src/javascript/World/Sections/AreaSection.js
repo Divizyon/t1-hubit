@@ -20,9 +20,8 @@ export default class IntroSection {
         this.container.updateMatrix()
 
         // this.setStatic()
-
+        this.setDikes()
         this.setFloor()
-        this.setBoundaries()
     }
 
     setFloor() {
@@ -40,98 +39,91 @@ export default class IntroSection {
         this.floor.updateMatrix()
         this.container.add(this.floor)
     }
-    
-    setBoundaries() {
-        // Sınır küplerinin boyutları
-        const width = 128 // Zeminin genişliği kadar
-        const height = 10 // Yükseklik
-        const thickness = 2 // Kalınlık
-        
-        // Sınır küplerinin materyal özellikleri
-        const boundaryMaterial = new THREE.MeshStandardMaterial({
-            color: 0x888888,
-            transparent: true,
-            opacity: 0.5,
-            roughness: 0.5,
-            metalness: 0.3
-        })
-        
-        // Sınır küplerini oluştur
-        this.boundaries = {
-            north: new THREE.Mesh(
-                new THREE.BoxGeometry(width, height, thickness),
-                boundaryMaterial
-            ),
-            south: new THREE.Mesh(
-                new THREE.BoxGeometry(width, height, thickness),
-                boundaryMaterial
-            ),
-            east: new THREE.Mesh(
-                new THREE.BoxGeometry(thickness, height, width),
-                boundaryMaterial
-            ),
-            west: new THREE.Mesh(
-                new THREE.BoxGeometry(thickness, height, width),
-                boundaryMaterial
-            )
+
+    setDikes() {
+        this.dikes = {}
+        this.dikes.brickOptions = {
+            base: this.resources.items.brickBase.scene,
+            collision: this.resources.items.brickCollision.scene,
+            offset: new THREE.Vector3(0, 0, 0.1),
+            rotation: new THREE.Euler(0, 0, 0),
+            duplicated: true,
+            shadow: { sizeX: 1.2, sizeY: 1.8, offsetZ: - 0.15, alpha: 0.35 },
+            mass: 0,
+            soundName: 'brick'
         }
-        
-        // Sınır küplerinin konumlarını ayarla
-        const halfWidth = width / 2
-        const halfHeight = height / 2
-        
-        // Kuzey sınırı (üst)
-        this.boundaries.north.position.set(0, halfHeight, -halfWidth)
-        this.boundaries.north.frustumCulled = false
-        this.boundaries.north.matrixAutoUpdate = false
-        
-        // Güney sınırı (alt)
-        this.boundaries.south.position.set(0, halfHeight, halfWidth)
-        this.boundaries.south.frustumCulled = false
-        this.boundaries.south.matrixAutoUpdate = false
-        
-        // Doğu sınırı (sağ)
-        this.boundaries.east.position.set(halfWidth, halfHeight, 0)
-        this.boundaries.east.frustumCulled = false
-        this.boundaries.east.matrixAutoUpdate = false
-        
-        // Batı sınırı (sol)
-        this.boundaries.west.position.set(-halfWidth, halfHeight, 0)
-        this.boundaries.west.frustumCulled = false
-        this.boundaries.west.matrixAutoUpdate = false
-        
-        // Sınır küplerini container'a ekle
-        for (const boundary of Object.values(this.boundaries)) {
-            boundary.updateMatrix()
-            this.container.add(boundary)
-        }
-        
-        // Fizik özelliklerini ekle
-        this.addPhysics()
-    }
-    
-    addPhysics() {
-        // Eğer walls nesnesi mevcutsa ve createStatic metodu varsa kullan
-        if (this.walls && typeof this.walls.createStatic === 'function') {
-            // Her bir sınır için fizik özelliklerini tanımla
-            for (const [direction, mesh] of Object.entries(this.boundaries)) {
-                const size = new THREE.Vector3()
-                mesh.geometry.computeBoundingBox()
-                mesh.geometry.boundingBox.getSize(size)
-                
-                // Walls/physics sistemine sınırları ekle
-                this.walls.createStatic({
-                    object: mesh,
-                    width: size.x,
-                    height: size.y,
-                    depth: size.z,
-                    position: mesh.position,
-                    rotation: mesh.rotation,
-                    autoUpdate: false
-                })
+
+        this.walls.add({
+            object: this.dikes.brickOptions,
+            shape:
+            {
+                type: 'brick',
+                equilibrateLastLine: true,
+                widthCount: 31,
+                heightCount: 1,
+                position: new THREE.Vector3(this.x - 16, this.y - 0, 0),
+                offsetWidth: new THREE.Vector3(0, 1.05, 0),
+                offsetHeight: new THREE.Vector3(0, 0, 0.45),
+                randomOffset: new THREE.Vector3(0, 0, 0),
+                randomRotation: new THREE.Vector3(0, 0, 0.2)
             }
-        } else {
-            console.warn('Walls objesi bulunamadı veya createStatic metodu mevcut değil!')
-        }
+        })
+
+        this.walls.add({
+            object: this.dikes.brickOptions,
+            shape:
+            {
+                type: 'brick',
+                equilibrateLastLine: true,
+                widthCount: 31,
+                heightCount: 1,
+                position: new THREE.Vector3(this.x + 16, this.y - 0, 0),
+                offsetWidth: new THREE.Vector3(0, 1.05, 0),
+                offsetHeight: new THREE.Vector3(0, 0, 0.45),
+                randomOffset: new THREE.Vector3(0, 0, 0),
+                randomRotation: new THREE.Vector3(0, 0, 0.2)
+            }
+        })
+
+        this.walls.add({
+            object:
+            {
+                ...this.dikes.brickOptions,
+                rotation: new THREE.Euler(0, 0, Math.PI * 0.5)
+            },
+            shape:
+            {
+                type: 'brick',
+                equilibrateLastLine: true,
+                widthCount: 31,
+                heightCount: 1,
+                position: new THREE.Vector3(this.x - 0, this.y + 16, 0),
+                offsetWidth: new THREE.Vector3(1.05, 0, 0),
+                offsetHeight: new THREE.Vector3(0, 0, 0.45),
+                randomOffset: new THREE.Vector3(0, 0, 0),
+                randomRotation: new THREE.Vector3(0, 0, 0.2)
+            }
+        })
+
+        this.walls.add({
+            object:
+            {
+                ...this.dikes.brickOptions,
+                rotation: new THREE.Euler(0, 0, Math.PI * 0.5)
+            },
+            shape:
+            {
+                type: 'brick',
+                equilibrateLastLine: true,
+                widthCount: 31,
+                heightCount: 1,
+                position: new THREE.Vector3(this.x + 0, this.y - 16, 0),
+                offsetWidth: new THREE.Vector3(1.05, 0, 0),
+                offsetHeight: new THREE.Vector3(0, 0, 0.45),
+                randomOffset: new THREE.Vector3(0, 0, 0),
+                randomRotation: new THREE.Vector3(0, 0, 0.2)
+            }
+        })
+
     }
 }
