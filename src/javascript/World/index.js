@@ -23,10 +23,8 @@ import Sounds from './Sounds.js'
 import gsap from 'gsap'
 import EasterEggs from './EasterEggs.js'
 
-export default class World
-{
-    constructor(_options)
-    {
+export default class World {
+    constructor(_options) {
         // Options
         this.config = _options.config
         this.debug = _options.debug
@@ -39,8 +37,7 @@ export default class World
         this.passes = _options.passes
 
         // Debug
-        if(this.debug)
-        {
+        if (this.debug) {
             this.debugFolder = this.debug.addFolder('world')
             this.debugFolder.open()
         }
@@ -57,10 +54,8 @@ export default class World
         this.setStartingScreen()
     }
 
-    start()
-    {
-        window.setTimeout(() =>
-        {
+    start() {
+        window.setTimeout(() => {
             this.camera.pan.enable()
         }, 2000)
 
@@ -78,8 +73,7 @@ export default class World
         this.setEasterEggs()
     }
 
-    setReveal()
-    {
+    setReveal() {
         this.reveal = {}
         this.reveal.matcapsProgress = 0
         this.reveal.floorShadowsProgress = 0
@@ -87,17 +81,14 @@ export default class World
         this.reveal.previousFloorShadowsProgress = null
 
         // Go method
-        this.reveal.go = () =>
-        {
+        this.reveal.go = () => {
             gsap.fromTo(this.reveal, { matcapsProgress: 0 }, { matcapsProgress: 1, duration: 3 })
             gsap.fromTo(this.reveal, { floorShadowsProgress: 0 }, { floorShadowsProgress: 1, duration: 3, delay: 0.5 })
             gsap.fromTo(this.shadows, { alpha: 0 }, { alpha: 0.5, duration: 3, delay: 0.5 })
 
-            if(this.sections.intro)
-            {
+            if (this.sections.intro) {
                 gsap.fromTo(this.sections.intro.instructions.arrows.label.material, { opacity: 0 }, { opacity: 1, duration: 0.3, delay: 0.5 })
-                if(this.sections.intro.otherInstructions)
-                {
+                if (this.sections.intro.otherInstructions) {
                     gsap.fromTo(this.sections.intro.otherInstructions.label.material, { opacity: 0 }, { opacity: 1, duration: 0.3, delay: 0.75 })
                 }
             }
@@ -106,37 +97,30 @@ export default class World
             this.physics.car.chassis.body.sleep()
             this.physics.car.chassis.body.position.set(0, 0, 12)
 
-            window.setTimeout(() =>
-            {
+            window.setTimeout(() => {
                 this.physics.car.chassis.body.wakeUp()
             }, 300)
 
             // Sound
             gsap.fromTo(this.sounds.engine.volume, { master: 0 }, { master: 0.7, duration: 0.5, delay: 0.3, ease: 'power2.in' })
-            window.setTimeout(() =>
-            {
+            window.setTimeout(() => {
                 this.sounds.play('reveal')
             }, 400)
 
             // Controls
-            if(this.controls.touch)
-            {
-                window.setTimeout(() =>
-                {
+            if (this.controls.touch) {
+                window.setTimeout(() => {
                     this.controls.touch.reveal()
                 }, 400)
             }
         }
 
         // Time tick
-        this.time.on('tick',() =>
-        {
+        this.time.on('tick', () => {
             // Matcap progress changed
-            if(this.reveal.matcapsProgress !== this.reveal.previousMatcapsProgress)
-            {
+            if (this.reveal.matcapsProgress !== this.reveal.previousMatcapsProgress) {
                 // Update each material
-                for(const _materialKey in this.materials.shades.items)
-                {
+                for (const _materialKey in this.materials.shades.items) {
                     const material = this.materials.shades.items[_materialKey]
                     material.uniforms.uRevealProgress.value = this.reveal.matcapsProgress
                 }
@@ -146,11 +130,9 @@ export default class World
             }
 
             // Matcap progress changed
-            if(this.reveal.floorShadowsProgress !== this.reveal.previousFloorShadowsProgress)
-            {
+            if (this.reveal.floorShadowsProgress !== this.reveal.previousFloorShadowsProgress) {
                 // Update each floor shadow
-                for(const _mesh of this.objects.floorShadows)
-                {
+                for (const _mesh of this.objects.floorShadows) {
                     _mesh.material.uniforms.uAlpha.value = this.reveal.floorShadowsProgress
                 }
 
@@ -160,16 +142,14 @@ export default class World
         })
 
         // Debug
-        if(this.debug)
-        {
+        if (this.debug) {
             this.debugFolder.add(this.reveal, 'matcapsProgress').step(0.0001).min(0).max(1).name('matcapsProgress')
             this.debugFolder.add(this.reveal, 'floorShadowsProgress').step(0.0001).min(0).max(1).name('floorShadowsProgress')
             this.debugFolder.add(this.reveal, 'go').name('reveal')
         }
     }
 
-    setStartingScreen()
-    {
+    setStartingScreen() {
         this.startingScreen = {}
 
         // Area
@@ -211,18 +191,15 @@ export default class World
         this.container.add(this.startingScreen.startLabel.mesh)
 
         // Progress
-        this.resources.on('progress', (_progress) =>
-        {
+        this.resources.on('progress', (_progress) => {
             // Update area
             this.startingScreen.area.floorBorder.material.uniforms.uAlpha.value = 1
             this.startingScreen.area.floorBorder.material.uniforms.uLoadProgress.value = _progress
         })
 
         // Ready
-        this.resources.on('ready', () =>
-        {
-            window.requestAnimationFrame(() =>
-            {
+        this.resources.on('ready', () => {
+            window.requestAnimationFrame(() => {
                 this.startingScreen.area.activate()
 
                 gsap.to(this.startingScreen.area.floorBorder.material.uniforms.uAlpha, { value: 0.3, duration: 0.3 })
@@ -232,8 +209,7 @@ export default class World
         })
 
         // On interact, reveal
-        this.startingScreen.area.on('interact', () =>
-        {
+        this.startingScreen.area.on('interact', () => {
             this.startingScreen.area.deactivate()
             gsap.to(this.startingScreen.area.floorBorder.material.uniforms.uProgress, { value: 0, duration: 0.3, delay: 0.4 })
 
@@ -241,29 +217,25 @@ export default class World
 
             this.start()
 
-            window.setTimeout(() =>
-            {
+            window.setTimeout(() => {
                 this.reveal.go()
             }, 600)
         })
     }
 
-    setSounds()
-    {
+    setSounds() {
         this.sounds = new Sounds({
             debug: this.debugFolder,
             time: this.time
         })
     }
 
-    setAxes()
-    {
+    setAxes() {
         this.axis = new THREE.AxesHelper()
         this.container.add(this.axis)
     }
 
-    setControls()
-    {
+    setControls() {
         this.controls = new Controls({
             config: this.config,
             sizes: this.sizes,
@@ -273,16 +245,14 @@ export default class World
         })
     }
 
-    setMaterials()
-    {
+    setMaterials() {
         this.materials = new Materials({
             resources: this.resources,
             debug: this.debugFolder
         })
     }
 
-    setFloor()
-    {
+    setFloor() {
         this.floor = new Floor({
             debug: this.debugFolder
         })
@@ -290,8 +260,7 @@ export default class World
         this.container.add(this.floor.container)
     }
 
-    setShadows()
-    {
+    setShadows() {
         this.shadows = new Shadows({
             time: this.time,
             debug: this.debugFolder,
@@ -301,8 +270,7 @@ export default class World
         this.container.add(this.shadows.container)
     }
 
-    setPhysics()
-    {
+    setPhysics() {
         this.physics = new Physics({
             config: this.config,
             debug: this.debug,
@@ -316,8 +284,7 @@ export default class World
         this.container.add(this.physics.models.container)
     }
 
-    setZones()
-    {
+    setZones() {
         this.zones = new Zones({
             time: this.time,
             physics: this.physics,
@@ -326,8 +293,7 @@ export default class World
         this.container.add(this.zones.container)
     }
 
-    setAreas()
-    {
+    setAreas() {
         this.areas = new Areas({
             config: this.config,
             resources: this.resources,
@@ -342,8 +308,7 @@ export default class World
         this.container.add(this.areas.container)
     }
 
-    setTiles()
-    {
+    setTiles() {
         this.tiles = new Tiles({
             resources: this.resources,
             objects: this.objects,
@@ -351,16 +316,14 @@ export default class World
         })
     }
 
-    setWalls()
-    {
+    setWalls() {
         this.walls = new Walls({
             resources: this.resources,
             objects: this.objects
         })
     }
 
-    setObjects()
-    {
+    setObjects() {
         this.objects = new Objects({
             time: this.time,
             resources: this.resources,
@@ -378,8 +341,7 @@ export default class World
         // })
     }
 
-    setCar()
-    {
+    setCar() {
         this.car = new Car({
             time: this.time,
             resources: this.resources,
@@ -397,8 +359,7 @@ export default class World
         this.container.add(this.car.container)
     }
 
-    setSections()
-    {
+    setSections() {
         this.sections = {}
 
         // Generic options
@@ -456,47 +417,46 @@ export default class World
         })
         this.container.add(this.sections.intro.container)
 
-        // Crossroads
-        this.sections.crossroads = new CrossroadsSection({
-            ...options,
-            x: 0,
-            y: - 30
-        })
-        this.container.add(this.sections.crossroads.container)
+        // // Crossroads
+        // this.sections.crossroads = new CrossroadsSection({
+        //     ...options,
+        //     x: 0,
+        //     y: - 30
+        // })
+        // this.container.add(this.sections.crossroads.container)
 
-        // Projects
-        this.sections.projects = new ProjectsSection({
-            ...options,
-            x: 30,
-            y: - 30
-            // x: 0,
-            // y: 0
-        })
-        this.container.add(this.sections.projects.container)
+        // // Projects
+        // this.sections.projects = new ProjectsSection({
+        //     ...options,
+        //     x: 30,
+        //     y: - 30
+        //     // x: 0,
+        //     // y: 0
+        // })
+        // this.container.add(this.sections.projects.container)
 
-        // Information
-        this.sections.information = new InformationSection({
-            ...options,
-            x: 1.2,
-            y: - 55
-            // x: 0,
-            // y: - 10
-        })
-        this.container.add(this.sections.information.container)
+        // // Information
+        // this.sections.information = new InformationSection({
+        //     ...options,
+        //     x: 1.2,
+        //     y: - 55
+        //     // x: 0,
+        //     // y: - 10
+        // })
+        // this.container.add(this.sections.information.container)
 
-        // Playground
-        this.sections.playground = new PlaygroundSection({
-            ...options,
-            x: - 38,
-            y: - 34
-            // x: - 15,
-            // y: - 4
-        })
-        this.container.add(this.sections.playground.container)
+        // // Playground
+        // this.sections.playground = new PlaygroundSection({
+        //     ...options,
+        //     x: - 38,
+        //     y: - 34
+        //     // x: - 15,
+        //     // y: - 4
+        // })
+        // this.container.add(this.sections.playground.container)
     }
 
-    setEasterEggs()
-    {
+    setEasterEggs() {
         this.easterEggs = new EasterEggs({
             resources: this.resources,
             car: this.car,

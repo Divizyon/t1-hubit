@@ -1,9 +1,8 @@
 import * as THREE from 'three'
+import { createFloor } from '../../Utils/CreateFloor'
 
-export default class IntroSection
-{
-    constructor(_options)
-    {
+export default class IntroSection {
+    constructor(_options) {
         // Options
         this.config = _options.config
         this.time = _options.time
@@ -21,16 +20,23 @@ export default class IntroSection
         this.container.matrixAutoUpdate = false
         this.container.updateMatrix()
 
-        this.setStatic()
+        // this.setStatic()
         this.setInstructions()
         this.setOtherInstructions()
         this.setTitles()
         this.setTiles()
         this.setDikes()
+
+        this.setFloor()
     }
 
-    setStatic()
-    {
+    setFloor() {
+        // Define shader materials for the floor
+        const floor = createFloor()
+        this.container.add(floor);
+    }
+
+    setStatic() {
         this.objects.add({
             base: this.resources.items.introStaticBase.scene,
             collision: this.resources.items.introStaticCollision.scene,
@@ -40,8 +46,7 @@ export default class IntroSection
         })
     }
 
-    setInstructions()
-    {
+    setInstructions() {
         this.instructions = {}
 
         /**
@@ -63,8 +68,7 @@ export default class IntroSection
         this.instructions.arrows.label.mesh = new THREE.Mesh(this.instructions.arrows.label.geometry, this.instructions.arrows.label.material)
         this.container.add(this.instructions.arrows.label.mesh)
 
-        if(!this.config.touch)
-        {
+        if (!this.config.touch) {
             // Keys
             this.instructions.arrows.up = this.objects.add({
                 base: this.resources.items.introArrowKeyBase.scene,
@@ -109,10 +113,8 @@ export default class IntroSection
         }
     }
 
-    setOtherInstructions()
-    {
-        if(this.config.touch)
-        {
+    setOtherInstructions() {
+        if (this.config.touch) {
             return
         }
 
@@ -157,8 +159,7 @@ export default class IntroSection
         })
     }
 
-    setTitles()
-    {
+    setTitles() {
         // Title
         this.objects.add({
             base: this.resources.items.introBBase.scene,
@@ -167,7 +168,7 @@ export default class IntroSection
             rotation: new THREE.Euler(0, 0, 0),
             shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: - 0.6, alpha: 0.4 },
             mass: 1.5,
-            soundName: 'brick'
+            soundName: 'horn'
         })
         this.objects.add({
             base: this.resources.items.introRBase.scene,
@@ -275,16 +276,14 @@ export default class IntroSection
         })
     }
 
-    setTiles()
-    {
+    setTiles() {
         this.tiles.add({
             start: new THREE.Vector2(0, - 4.5),
             delta: new THREE.Vector2(0, - 4.5)
         })
     }
 
-    setDikes()
-    {
+    setDikes() {
         this.dikes = {}
         this.dikes.brickOptions = {
             base: this.resources.items.brickBase.scene,
@@ -421,8 +420,7 @@ export default class IntroSection
             }
         })
 
-        if(!this.config.touch)
-        {
+        if (!this.config.touch) {
             this.walls.add({
                 object:
                 {
