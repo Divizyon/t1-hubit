@@ -4,7 +4,7 @@ export function createFloor(options = {}) {
     // Default options
     const defaultOptions = {
         size: new THREE.Vector3(30, 30, 1),
-        color: 0x00ff00,
+        color: 0xd6c685,
         fade: {
             top: true,
             right: true,

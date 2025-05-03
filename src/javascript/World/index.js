@@ -10,6 +10,7 @@ import Areas from './Areas.js'
 import Tiles from './Tiles.js'
 import Walls from './Walls.js'
 import IntroSection from './Sections/IntroSection.js'
+import AreaSection from './Sections/AreaSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
 import CrossroadsSection from './Sections/CrossroadsSection.js'
 import InformationSection from './Sections/InformationSection.js'
@@ -417,6 +418,15 @@ export default class World {
         })
         this.container.add(this.sections.intro.container)
 
+        // Area
+        this.sections.area = new AreaSection({
+            ...options,
+            x: 0,
+            y: 0
+        })
+        this.container.add(this.sections.area.container)
+        
+
         // // Crossroads
         // this.sections.crossroads = new CrossroadsSection({
         //     ...options,
@@ -445,7 +455,7 @@ export default class World {
         // })
         // this.container.add(this.sections.information.container)
 
-        // // Playground
+        // Playground
         // this.sections.playground = new PlaygroundSection({
         //     ...options,
         //     x: - 38,
