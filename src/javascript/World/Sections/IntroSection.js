@@ -1,9 +1,8 @@
 import * as THREE from 'three'
+import { createFloor } from '../../Utils/CreateFloor'
 
-export default class IntroSection
-{
-    constructor(_options)
-    {
+export default class IntroSection {
+    constructor(_options) {
         // Options
         this.config = _options.config
         this.time = _options.time
@@ -21,16 +20,21 @@ export default class IntroSection
         this.container.matrixAutoUpdate = false
         this.container.updateMatrix()
 
-        this.setStatic()
+        // this.setStatic()
         this.setInstructions()
         this.setOtherInstructions()
         this.setTitles()
         this.setTiles()
-        this.setDikes()
+        this.setFloor()
     }
 
-    setStatic()
-    {
+    setFloor() {
+        // Define shader materials for the floor
+        const floor = createFloor()
+        this.container.add(floor);
+    }
+
+    setStatic() {
         this.objects.add({
             base: this.resources.items.introStaticBase.scene,
             collision: this.resources.items.introStaticCollision.scene,
@@ -40,8 +44,7 @@ export default class IntroSection
         })
     }
 
-    setInstructions()
-    {
+    setInstructions() {
         this.instructions = {}
 
         /**
@@ -63,8 +66,7 @@ export default class IntroSection
         this.instructions.arrows.label.mesh = new THREE.Mesh(this.instructions.arrows.label.geometry, this.instructions.arrows.label.material)
         this.container.add(this.instructions.arrows.label.mesh)
 
-        if(!this.config.touch)
-        {
+        if (!this.config.touch) {
             // Keys
             this.instructions.arrows.up = this.objects.add({
                 base: this.resources.items.introArrowKeyBase.scene,
@@ -109,10 +111,8 @@ export default class IntroSection
         }
     }
 
-    setOtherInstructions()
-    {
-        if(this.config.touch)
-        {
+    setOtherInstructions() {
+        if (this.config.touch) {
             return
         }
 
@@ -157,8 +157,7 @@ export default class IntroSection
         })
     }
 
-    setTitles()
-    {
+    setTitles() {
         // Title
         this.objects.add({
             base: this.resources.items.introBBase.scene,
@@ -167,7 +166,7 @@ export default class IntroSection
             rotation: new THREE.Euler(0, 0, 0),
             shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: - 0.6, alpha: 0.4 },
             mass: 1.5,
-            soundName: 'brick'
+            soundName: 'horn'
         })
         this.objects.add({
             base: this.resources.items.introRBase.scene,
@@ -275,189 +274,11 @@ export default class IntroSection
         })
     }
 
-    setTiles()
-    {
+    setTiles() {
         this.tiles.add({
             start: new THREE.Vector2(0, - 4.5),
             delta: new THREE.Vector2(0, - 4.5)
         })
     }
 
-    setDikes()
-    {
-        this.dikes = {}
-        this.dikes.brickOptions = {
-            base: this.resources.items.brickBase.scene,
-            collision: this.resources.items.brickCollision.scene,
-            offset: new THREE.Vector3(0, 0, 0.1),
-            rotation: new THREE.Euler(0, 0, 0),
-            duplicated: true,
-            shadow: { sizeX: 1.2, sizeY: 1.8, offsetZ: - 0.15, alpha: 0.35 },
-            mass: 0.5,
-            soundName: 'brick'
-        }
-
-        // this.walls.add({
-        //     object:
-        //     {
-        //         ...this.dikes.brickOptions,
-        //         rotation: new THREE.Euler(0, 0, Math.PI * 0.5)
-        //     },
-        //     shape:
-        //     {
-        //         type: 'brick',
-        //         equilibrateLastLine: true,
-        //         widthCount: 3,
-        //         heightCount: 2,
-        //         position: new THREE.Vector3(this.x + 0, this.y - 4, 0),
-        //         offsetWidth: new THREE.Vector3(1.05, 0, 0),
-        //         offsetHeight: new THREE.Vector3(0, 0, 0.45),
-        //         randomOffset: new THREE.Vector3(0, 0, 0),
-        //         randomRotation: new THREE.Vector3(0, 0, 0.2)
-        //     }
-        // })
-
-        this.walls.add({
-            object: this.dikes.brickOptions,
-            shape:
-            {
-                type: 'brick',
-                equilibrateLastLine: true,
-                widthCount: 5,
-                heightCount: 2,
-                position: new THREE.Vector3(this.x - 12, this.y - 13, 0),
-                offsetWidth: new THREE.Vector3(0, 1.05, 0),
-                offsetHeight: new THREE.Vector3(0, 0, 0.45),
-                randomOffset: new THREE.Vector3(0, 0, 0),
-                randomRotation: new THREE.Vector3(0, 0, 0.2)
-            }
-        })
-
-        this.walls.add({
-            object:
-            {
-                ...this.dikes.brickOptions,
-                rotation: new THREE.Euler(0, 0, Math.PI * 0.5)
-            },
-            shape:
-            {
-                type: 'brick',
-                equilibrateLastLine: true,
-                widthCount: 3,
-                heightCount: 2,
-                position: new THREE.Vector3(this.x + 8, this.y + 6, 0),
-                offsetWidth: new THREE.Vector3(1.05, 0, 0),
-                offsetHeight: new THREE.Vector3(0, 0, 0.45),
-                randomOffset: new THREE.Vector3(0, 0, 0),
-                randomRotation: new THREE.Vector3(0, 0, 0.2)
-            }
-        })
-
-        this.walls.add({
-            object: this.dikes.brickOptions,
-            shape:
-            {
-                type: 'brick',
-                equilibrateLastLine: false,
-                widthCount: 3,
-                heightCount: 2,
-                position: new THREE.Vector3(this.x + 9.9, this.y + 4.7, 0),
-                offsetWidth: new THREE.Vector3(0, - 1.05, 0),
-                offsetHeight: new THREE.Vector3(0, 0, 0.45),
-                randomOffset: new THREE.Vector3(0, 0, 0),
-                randomRotation: new THREE.Vector3(0, 0, 0.2)
-            }
-        })
-
-        this.walls.add({
-            object:
-            {
-                ...this.dikes.brickOptions,
-                rotation: new THREE.Euler(0, 0, Math.PI * 0.5)
-            },
-            shape:
-            {
-                type: 'brick',
-                equilibrateLastLine: true,
-                widthCount: 3,
-                heightCount: 2,
-                position: new THREE.Vector3(this.x - 14, this.y + 2, 0),
-                offsetWidth: new THREE.Vector3(1.05, 0, 0),
-                offsetHeight: new THREE.Vector3(0, 0, 0.45),
-                randomOffset: new THREE.Vector3(0, 0, 0),
-                randomRotation: new THREE.Vector3(0, 0, 0.2)
-            }
-        })
-
-        this.walls.add({
-            object: this.dikes.brickOptions,
-            shape:
-            {
-                type: 'brick',
-                equilibrateLastLine: false,
-                widthCount: 3,
-                heightCount: 2,
-                position: new THREE.Vector3(this.x - 14.8, this.y + 0.7, 0),
-                offsetWidth: new THREE.Vector3(0, - 1.05, 0),
-                offsetHeight: new THREE.Vector3(0, 0, 0.45),
-                randomOffset: new THREE.Vector3(0, 0, 0),
-                randomRotation: new THREE.Vector3(0, 0, 0.2)
-            }
-        })
-
-        this.walls.add({
-            object: this.dikes.brickOptions,
-            shape:
-            {
-                type: 'brick',
-                equilibrateLastLine: true,
-                widthCount: 3,
-                heightCount: 2,
-                position: new THREE.Vector3(this.x - 14.8, this.y - 3.5, 0),
-                offsetWidth: new THREE.Vector3(0, - 1.05, 0),
-                offsetHeight: new THREE.Vector3(0, 0, 0.45),
-                randomOffset: new THREE.Vector3(0, 0, 0),
-                randomRotation: new THREE.Vector3(0, 0, 0.2)
-            }
-        })
-
-        if(!this.config.touch)
-        {
-            this.walls.add({
-                object:
-                {
-                    ...this.dikes.brickOptions,
-                    rotation: new THREE.Euler(0, 0, Math.PI * 0.5)
-                },
-                shape:
-                {
-                    type: 'brick',
-                    equilibrateLastLine: true,
-                    widthCount: 2,
-                    heightCount: 2,
-                    position: new THREE.Vector3(this.x + 18.5, this.y + 3, 0),
-                    offsetWidth: new THREE.Vector3(1.05, 0, 0),
-                    offsetHeight: new THREE.Vector3(0, 0, 0.45),
-                    randomOffset: new THREE.Vector3(0, 0, 0),
-                    randomRotation: new THREE.Vector3(0, 0, 0.2)
-                }
-            })
-
-            this.walls.add({
-                object: this.dikes.brickOptions,
-                shape:
-                {
-                    type: 'brick',
-                    equilibrateLastLine: false,
-                    widthCount: 2,
-                    heightCount: 2,
-                    position: new THREE.Vector3(this.x + 19.9, this.y + 2.2, 0),
-                    offsetWidth: new THREE.Vector3(0, - 1.05, 0),
-                    offsetHeight: new THREE.Vector3(0, 0, 0.45),
-                    randomOffset: new THREE.Vector3(0, 0, 0),
-                    randomRotation: new THREE.Vector3(0, 0, 0.2)
-                }
-            })
-        }
-    }
 }
