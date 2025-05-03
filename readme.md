@@ -14,9 +14,9 @@ Katılımcılar, açık kaynaklı bu temel proje üzerinden ilerleyerek yazılı
 
 ---
 
-## 🧩 Sprint Kullanım Notları
+## 🧩 Sprint Kullanım Notlar
 
-- Bu repo, [orijinal açık kaynak proje](https://github.com/ORNEK-REPO) temel alınarak *fork* edilmiştir.
+- Bu repo, [orijinal açık kaynak proje](https://github.com/brunosimon/folio-2019) temel alınarak *fork* edilmiştir.
 - Geliştiriciler kendi local ortamlarında çalışacak ve ilgili takımlarına ait branch’lerde geliştirme yapacaktır.
 - Kod yapısı, klasör mimarisi ve asset düzeni korunmalı; yapılan geliştirmeler sprint sürecinde uyumlu ilerlemelidir.
 - Tüm modeller, sesler ve görseller `proje içerisinde` organize edilecektir.
