@@ -123,4 +123,4 @@ Portföy, çeşitli optimizasyonlar içerir:
 5. Projelere yaklaştıkça incelenebilir, dış sitelere bağlantılar tıklanabilir
 6. Bir süre araba sürdükten sonra, Three.js Journey kursu için bir tanıtım mesajı görünür
 
-Bu portföy, oyun benzeri mekanikleri geleneksel bir portföyle birleştirerek benzersiz, akılda kalıcı bir deneyim yaratan interaktif 3D web geliştirmenin etkileyici bir gösterisidir.
+Bu portföy, oyun benzeri mekanikleri geleneksel bir portföyle birleştirerek benzersiz, akılda kalıcı bir deneyim yaratan interaktif 3D web geliştirmenin etkileyici bir gösterisidir!
