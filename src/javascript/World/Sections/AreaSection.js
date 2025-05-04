@@ -36,6 +36,7 @@ export default class IntroSection {
     );
     this.floor.frustumCulled = false;
     this.floor.matrixAutoUpdate = false;
+    this.floor.position.set(0, 0, 0.01) 
     this.floor.updateMatrix();
     this.container.add(this.floor);
   }

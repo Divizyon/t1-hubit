@@ -9,6 +9,7 @@ import Car from './Car.js'
 import Areas from './Areas.js'
 import Tiles from './Tiles.js'
 import Walls from './Walls.js'
+import Road from './Road.js'
 import IntroSection from './Sections/IntroSection.js'
 import AreaSection from './Sections/AreaSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
@@ -64,6 +65,7 @@ export default class World {
         this.setReveal()
         this.setMaterials()
         this.setShadows()
+        this.setRoad()
         this.setPhysics()
         this.setZones()
         this.setObjects()
@@ -75,6 +77,7 @@ export default class World {
         this.setEasterEggs()
 
         this.setBrick() // Roketi ve etkileşim alanını getirmek için tekrar etkinleştirdim
+        this.setSesOdasi() // Ses odası modelini ekle
         // setResetButton metodu çağrılmıyor
     }
 
@@ -354,14 +357,24 @@ export default class World {
             physics: this.physics,
             shadows: this.shadows,
             materials: this.materials,
-            controls: this.controls,
+            controlNormal: this.controls.normal,
+            controlTouch: this.controls.touch,
             sounds: this.sounds,
             renderer: this.renderer,
             camera: this.camera,
             debug: this.debugFolder,
             config: this.config
         })
+        
         this.container.add(this.car.container)
+        
+        // Sounds.js'ye araç referansını set ediyoruz (uzamsal ses için önemli)
+        if(this.sounds) {
+            this.sounds.setCar(this.car);
+            console.log('Araç referansı ses sistemine iletildi');
+        } else {
+            console.error('Ses sistemi başlatılmamış!');
+        }
     }
 
     setSections() {
@@ -485,17 +498,34 @@ export default class World {
     }
 
 
-    setSesOdasi(){
-        this.brick = this.objects.add({
-            base: this.resources.items.sesOdasiBase.scene,
-            collision: this.resources.items.brickCollision.scene,
-            offset: new THREE.Vector3(-10, -10, 0),
-            rotation: new THREE.Euler(0, 0, 5),
-            shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
-            mass: 1.5,
-            soundName: 'brick',
-            sleep: false
+    setSesOdasi() {
+        this.sesOdasi = this.objects.add({
+            base: this.resources.items.sesOdasiModel.scene,
+            collision: this.resources.items.brickCollision.scene, // Basit çarpışma modeli kullanıyoruz
+            offset: new THREE.Vector3(-62, 30, 0), // Z=0 yaparak modeli zemin seviyesine yerleştiriyorum
+            rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
+            shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+            mass: 0, // Statik bir bina olduğu için kütle 0
+            sleep: true // Fizik hesaplamaları yapılmasın
         });
+        
+        // Ses odası yanına uzamsal ses ekle
+        console.log('Ses odası için uzamsal ses ekleniyor...');
+        const sesOdasiSes = this.sounds.setSpatialSoundAtLocation({
+            x: -62, // Ses odasının X konumu ile eşleştirdim
+            y: 30,  // Ses odasının Y konumu ile eşleştirdim
+            z: 1.5,  // Biraz yukarıda olsun ki yere çok yakın olmasın
+            sound: 'sesOdasi', 
+            customSoundPath: './sounds/car-horns/duman.mp3', // Kullanılacak ses dosyası
+            maxDistance: 30, // Mesafeyi artırdık
+            refDistance: 8, // Referans mesafeyi artırdık - daha yakın olunca ses daha net
+            rolloffFactor: 1.2, // Ses azalma faktörünü hafifçe düzenledik
+            volume: 1.0, // Ses seviyesini maksimum
+            autoplay: true, // Otomatik başlat
+            loop: true // Sürekli çal
+        });
+        
+        console.log('Ses odası başarıyla eklendi:', this.sesOdasi);
     }
 
     setBrick() {
@@ -509,6 +539,8 @@ export default class World {
             soundName: 'brick',
             sleep: false
         });
+
+        // Uzamsal ses kaldırıldı
 
         // areaLabelMesh'i oluştur ve sahneye ekle
         const areaLabelMesh = new THREE.Mesh(
@@ -772,5 +804,27 @@ export default class World {
             })
         }
 
+    }
+
+    setRoad() 
+    {
+        try {
+            this.road = new Road({
+                debug: this.debugFolder,
+                resources: this.resources,
+                objects: this.objects,
+                physics: this.physics,
+                shadows: this.shadows,
+                materials: this.materials,
+                time: this.time
+            })
+            
+            // Sahneye ekle
+            if (this.road && this.road.container) {
+                this.container.add(this.road.container)
+            }
+        } catch(error) {
+            console.error('HATA: Road oluşturulurken bir hata oluştu:', error)
+        }
     }
 }
