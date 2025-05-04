@@ -55,6 +55,190 @@ export default class World
         this.setFloor()
         this.setAreas()
         this.setStartingScreen()
+        
+        // Özel yuvarlak çerçeve
+        this.setCustomCircle()
+    }
+
+    // Özel yuvarlak çerçeve oluşturma
+    setCustomCircle() {
+        this.customCircle = {}
+        
+        // Zemin renkleri
+        this.customCircle.floorColors = {
+            center: new THREE.Color('#267C6B'), // Bizim çember rengimiz
+            topLeft: new THREE.Color('#D6C685'),
+            topRight: new THREE.Color('#E0D19A'),
+            bottomRight: new THREE.Color('#C8B97A'),
+            bottomLeft: new THREE.Color('#D6C685')
+        }
+        
+        // Geometri - dolu yuvarlak
+        this.customCircle.radius = 25; // 5'in 5 katı = 25
+        this.customCircle.segments = 64;
+        
+        // Özel bir RadialGradientMaterial oluşturalım
+        this.customCircle.createGradientTexture = () => {
+            const size = 256;
+            const data = new Uint8Array(size * size * 4);
+            
+            const centerColor = this.customCircle.floorColors.center;
+            const edgeColor = new THREE.Color().copy(this.customCircle.floorColors.topLeft);
+            
+            // Radial gradient oluştur
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    const x = i / size - 0.5;
+                    const y = j / size - 0.5;
+                    const distance = Math.sqrt(x * x + y * y) * 2; // 0 ila 1 arası normalize
+                    
+                    // Geçiş faktörü (distance kare olarak kullanıldı daha yumuşak geçiş için)
+                    const t = Math.min(1.0, distance * distance);
+                    
+                    // Renk geçişi hesapla
+                    const r = Math.round((centerColor.r * (1 - t) + edgeColor.r * t) * 255);
+                    const g = Math.round((centerColor.g * (1 - t) + edgeColor.g * t) * 255);
+                    const b = Math.round((centerColor.b * (1 - t) + edgeColor.b * t) * 255);
+                    const a = Math.round(Math.max(0, 1 - distance * 1.2) * 255); // Kenarları yumuşat
+                    
+                    const idx = (i + j * size) * 4;
+                    data[idx] = r;
+                    data[idx + 1] = g;
+                    data[idx + 2] = b;
+                    data[idx + 3] = a;
+                }
+            }
+            
+            const texture = new THREE.DataTexture(
+                data, 
+                size, 
+                size, 
+                THREE.RGBAFormat,
+                THREE.UnsignedByteType,
+                THREE.UVMapping
+            );
+            texture.needsUpdate = true;
+            return texture;
+        };
+        
+        // Gradient texture oluştur
+        this.customCircle.gradientTexture = this.customCircle.createGradientTexture();
+        
+        // Geometri
+        this.customCircle.geometry = new THREE.CircleGeometry(
+            this.customCircle.radius, 
+            this.customCircle.segments
+        );
+        
+        // Materyal
+        this.customCircle.material = new THREE.MeshBasicMaterial({
+            map: this.customCircle.gradientTexture,
+            side: THREE.DoubleSide,
+            transparent: true,
+            blending: THREE.NormalBlending
+        });
+        
+        // Mesh
+        this.customCircle.mesh = new THREE.Mesh(
+            this.customCircle.geometry, 
+            this.customCircle.material
+        );
+        
+        // Z pozisyonu biraz üstte olsun ki zeminin üzerinde görünsün
+        this.customCircle.mesh.position.z = 0.005; // Zemine daha yakın olsun
+        // Dikey olması için rotasyon eklenmedi (varsayılan olarak dikey duruyor)
+        
+        // Mesh'i container'a ekle
+        this.container.add(this.customCircle.mesh);
+        
+        // Debug
+        if(this.debug) {
+            const folder = this.debugFolder.addFolder('customCircle');
+            folder.addColor(this.customCircle.floorColors, 'center').name('Merkez Renk').onChange(() => {
+                this.customCircle.gradientTexture = this.customCircle.createGradientTexture();
+                this.customCircle.material.map = this.customCircle.gradientTexture;
+                this.customCircle.material.needsUpdate = true;
+            });
+            folder.add(this.customCircle, 'radius', 1, 10).onChange(this.updateCustomCircle.bind(this));
+        }
+        
+        // Mini haritadaki pozisyonunu güncelle
+        this.time.on('tick', () => {
+            const circleElement = document.getElementById('custom-circle');
+            if(circleElement) {
+                // Mini harita boyutlarını al
+                const miniMap = document.getElementById('mini-map');
+                if(miniMap) {
+                    const mapWidth = miniMap.offsetWidth;
+                    const mapHeight = miniMap.offsetHeight;
+                    
+                    // Dünyadaki çember konumunu harita koordinatlarına dönüştür
+                    // Çemberin dünya koordinatı (0,0) oluyor
+                    const worldMinX = -50;
+                    const worldMaxX = 50;
+                    const worldMinY = -50;
+                    const worldMaxY = 50;
+                    
+                    // Normalize edilmiş koordinatlar (0,0)
+                    const normalizedX = (0 - worldMinX) / (worldMaxX - worldMinX);
+                    const normalizedY = (0 - worldMinY) / (worldMaxY - worldMinY);
+                    
+                    // Harita piksel koordinatları
+                    const mapX = normalizedX * mapWidth;
+                    const mapY = (1 - normalizedY) * mapHeight;
+                    
+                    // Dairenin genişliğini harita ölçeğine göre ayarla
+                    const circleSize = (this.customCircle.radius / (worldMaxX - worldMinX)) * mapWidth * 2;
+                    
+                    // Çemberin stilerini güncelle
+                    circleElement.style.left = `${mapX}px`;
+                    circleElement.style.top = `${mapY}px`;
+                    circleElement.style.width = `${circleSize}px`;
+                    circleElement.style.height = `${circleSize}px`;
+                    
+                    // Radial gradient CSS oluştur
+                    const centerColorHex = '#267C6B';
+                    const edgeColorHex = '#D6C685';
+                    circleElement.style.background = `radial-gradient(circle, ${centerColorHex} 0%, ${centerColorHex}80 50%, ${edgeColorHex}00 100%)`;
+                    circleElement.style.border = 'none';
+                }
+            }
+        });
+    }
+    
+    // Özel çemberi güncelleme metodu
+    updateCustomCircle() {
+        // Eski mesh'i kaldır
+        this.container.remove(this.customCircle.mesh);
+        
+        // Yeni geometri oluştur
+        this.customCircle.geometry = new THREE.CircleGeometry(
+            this.customCircle.radius,
+            this.customCircle.segments
+        );
+        
+        // Gradient texture yenile
+        this.customCircle.gradientTexture = this.customCircle.createGradientTexture();
+        
+        // Yeni mesh oluştur
+        this.customCircle.material = new THREE.MeshBasicMaterial({
+            map: this.customCircle.gradientTexture,
+            side: THREE.DoubleSide,
+            transparent: true,
+            blending: THREE.NormalBlending
+        });
+        
+        this.customCircle.mesh = new THREE.Mesh(
+            this.customCircle.geometry, 
+            this.customCircle.material
+        );
+        
+        // Z pozisyonu ayarla
+        this.customCircle.mesh.position.z = 0.005;
+        // Dikey olması için rotasyon eklenmedi (varsayılan olarak dikey duruyor)
+        
+        // Mesh'i container'a ekle
+        this.container.add(this.customCircle.mesh);
     }
 
     start()
@@ -68,14 +252,12 @@ export default class World
         this.setMaterials()
         this.setShadows()
         this.setPhysics()
-        this.setZones()
         this.setObjects()
         this.setCar()
         this.areas.car = this.car
-        this.setTiles()
-        this.setWalls()
-        this.setSections()
-        this.setEasterEggs()
+        
+        // Boş sections oluştur
+        this.sections = {}
     }
 
     setReveal()
@@ -93,6 +275,8 @@ export default class World
             gsap.fromTo(this.reveal, { floorShadowsProgress: 0 }, { floorShadowsProgress: 1, duration: 3, delay: 0.5 })
             gsap.fromTo(this.shadows, { alpha: 0 }, { alpha: 0.5, duration: 3, delay: 0.5 })
 
+            // Bölümler olmadığı için bu kısım devre dışı bırakıldı
+            /* 
             if(this.sections.intro)
             {
                 gsap.fromTo(this.sections.intro.instructions.arrows.label.material, { opacity: 0 }, { opacity: 1, duration: 0.3, delay: 0.5 })
@@ -101,6 +285,7 @@ export default class World
                     gsap.fromTo(this.sections.intro.otherInstructions.label.material, { opacity: 0 }, { opacity: 1, duration: 0.3, delay: 0.75 })
                 }
             }
+            */
 
             // Car
             this.physics.car.chassis.body.sleep()
@@ -149,10 +334,12 @@ export default class World
             if(this.reveal.floorShadowsProgress !== this.reveal.previousFloorShadowsProgress)
             {
                 // Update each floor shadow
+                /*
                 for(const _mesh of this.objects.floorShadows)
                 {
                     _mesh.material.uniforms.uAlpha.value = this.reveal.floorShadowsProgress
                 }
+                */
 
                 // Save
                 this.reveal.previousFloorShadowsProgress = this.reveal.floorShadowsProgress
@@ -277,8 +464,10 @@ export default class World
     {
         this.materials = new Materials({
             resources: this.resources,
-            debug: this.debugFolder
+            debug: this.debug
         })
+        
+        // Sadece araba ve zemin için gerekli materyaller yüklenecek
     }
 
     setFloor()
@@ -294,11 +483,13 @@ export default class World
     {
         this.shadows = new Shadows({
             time: this.time,
-            debug: this.debugFolder,
+            debug: this.debug,
             renderer: this.renderer,
             camera: this.camera
         })
         this.container.add(this.shadows.container)
+        
+        // Araba için bir gölge ekleyeceğiz, diğer nesnelerin gölgelerini kaldırıyoruz
     }
 
     setPhysics()
@@ -371,11 +562,8 @@ export default class World
             debug: this.debugFolder
         })
         this.container.add(this.objects.container)
-
-        // window.requestAnimationFrame(() =>
-        // {
-        //     this.objects.merge.update()
-        // })
+        
+        // Araba dışındaki nesneler kaldırıldı
     }
 
     setCar()

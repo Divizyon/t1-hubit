@@ -121,6 +121,39 @@ export default class Application
             {
                 this.camera.target.x = this.world.car.chassis.object.position.x
                 this.camera.target.y = this.world.car.chassis.object.position.y
+                
+                // Arabanın koordinatlarını güncelle
+                document.getElementById('coord-x').textContent = this.world.car.chassis.object.position.x.toFixed(2)
+                document.getElementById('coord-y').textContent = this.world.car.chassis.object.position.y.toFixed(2)
+                document.getElementById('coord-z').textContent = this.world.car.chassis.object.position.z.toFixed(2)
+                
+                // Mini haritadaki arabanın konumunu güncelle
+                const mapCar = document.getElementById('map-car')
+                const miniMap = document.getElementById('mini-map')
+                const mapWidth = miniMap.offsetWidth
+                const mapHeight = miniMap.offsetHeight
+                
+                // Dünya koordinatlarını harita koordinatlarına dönüştür
+                // Harita alanını dünya alanına göre ölçekle
+                const worldMinX = -50 // Oyun dünyasının sol sınırı
+                const worldMaxX = 50  // Oyun dünyasının sağ sınırı
+                const worldMinY = -50 // Oyun dünyasının alt sınırı
+                const worldMaxY = 50  // Oyun dünyasının üst sınırı
+                
+                // Dünya koordinatlarını harita koordinatlarına dönüştür
+                const normalizedX = (this.world.car.chassis.object.position.x - worldMinX) / (worldMaxX - worldMinX)
+                const normalizedY = (this.world.car.chassis.object.position.y - worldMinY) / (worldMaxY - worldMinY)
+                
+                // Normalize edilmiş koordinatları piksel koordinatlarına dönüştür
+                const carMapX = normalizedX * mapWidth
+                const carMapY = (1 - normalizedY) * mapHeight // Y ekseni ters
+                
+                mapCar.style.left = `${carMapX}px`
+                mapCar.style.top = `${carMapY}px`
+                
+                // Arabanın rotasyonunu haritada göster
+                const carRotation = this.world.car.chassis.object.rotation.z
+                mapCar.style.transform = `translate(-50%, -50%) rotate(${-carRotation}rad)` // Ters rotasyon
             }
         })
     }

@@ -17,13 +17,17 @@ export default class Floor
 
         // Colors
         this.colors = {}
-        this.colors.topLeft = '#f5883c'
-        this.colors.topRight = '#ff9043'
-        this.colors.bottomRight = '#fccf92'
-        this.colors.bottomLeft = '#f5aa58'
+        this.colors.topLeft = '#D6C685'      // Ana renk
+        this.colors.topRight = '#E0D19A'     // Biraz daha açık
+        this.colors.bottomRight = '#C8B97A'  // Biraz daha koyu
+        this.colors.bottomLeft = '#D6C685'   // Ana renk
 
         // Material
         this.material = new FloorMaterial()
+
+        // Orman koordinatlarını ayarla - haritanın ortasına yakın bir yerde
+        this.forestCenter = new THREE.Vector2(0.5, 0.5) // UV uzayında koordinat (haritanın merkezinde)
+        this.material.uniforms.uForestCenter.value = this.forestCenter
 
         this.updateMaterial = () =>
         {
@@ -70,6 +74,15 @@ export default class Floor
             folder.addColor(this.colors, 'topRight').onChange(this.updateMaterial)
             folder.addColor(this.colors, 'bottomRight').onChange(this.updateMaterial)
             folder.addColor(this.colors, 'bottomLeft').onChange(this.updateMaterial)
+            
+            // Orman debug kontrollerini ekle
+            const forestFolder = folder.addFolder('forest')
+            forestFolder.add(this.forestCenter, 'x').min(0).max(1).step(0.01).name('x pozisyonu').onChange(() => {
+                this.material.uniforms.uForestCenter.value = this.forestCenter
+            })
+            forestFolder.add(this.forestCenter, 'y').min(0).max(1).step(0.01).name('y pozisyonu').onChange(() => {
+                this.material.uniforms.uForestCenter.value = this.forestCenter
+            })
         }
     }
 }

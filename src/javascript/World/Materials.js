@@ -188,16 +188,20 @@ export default class Materials
         this.items.floorShadow.updateMaterials = () =>
         {
             this.items.floorShadow.uniforms.uShadowColor.value = new THREE.Color(this.items.floorShadow.shadowColor)
-
-            for(const _item of this.objects.items)
+            
+            // Objeler henüz yüklenmemiş olabilir, kontrol ediyoruz
+            if(typeof this.objects !== 'undefined' && this.objects && this.objects.items)
             {
-                for(const _child of _item.container.children)
+                for(const _item of this.objects.items)
                 {
-                    if(_child.material instanceof THREE.ShaderMaterial)
+                    for(const _child of _item.container.children)
                     {
-                        if(_child.material.uniforms.uShadowColor)
+                        if(_child.material instanceof THREE.ShaderMaterial)
                         {
-                            _child.material.uniforms.uShadowColor.value = new THREE.Color(this.items.floorShadow.shadowColor)
+                            if(_child.material.uniforms.uShadowColor)
+                            {
+                                _child.material.uniforms.uShadowColor.value = new THREE.Color(this.items.floorShadow.shadowColor)
+                            }
                         }
                     }
                 }
