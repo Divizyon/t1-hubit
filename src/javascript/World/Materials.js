@@ -37,7 +37,6 @@ export default class Materials
         this.pures.items.yellow = new THREE.MeshBasicMaterial({ color: 0xffe889 })
         this.pures.items.yellow.name = 'pureYellow'
     }
-
     setShades()
     {
         // Setup
