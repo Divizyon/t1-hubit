@@ -32,8 +32,11 @@ export default class PlaygroundSection
         this.setStatic()
         this.setBricksWalls()
         this.setBowling()
+        
+        this.container.add(this.resources.items.greenBoxBase.scene.clone())
     }
 
+    
     setStatic()
     {
         this.objects.add({

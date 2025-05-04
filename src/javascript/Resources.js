@@ -145,6 +145,9 @@ export default class Resources extends EventEmitter {
             { name: 'hornBase', source: './models/horn/base.glb' },
             { name: 'hornCollision', source: './models/horn/collision.glb' },
 
+            //Roket
+            { name: 'roketModel', source: './models/roket/RoketModeli.glb' },
+
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
             // { name: 'distinctionAStaticCollision', source: './models/distinctionA/static/collision.glb' },
