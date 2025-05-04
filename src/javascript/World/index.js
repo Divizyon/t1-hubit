@@ -73,9 +73,8 @@ export default class World {
         this.setWalls()
         this.setSections()
         this.setEasterEggs()
-
-        this.setBrick() // Roketi ve etkileşim alanını getirmek için tekrar etkinleştirdim
-        // setResetButton metodu çağrılmıyor
+        this.setBrick()
+        this.setSosyalinovasyon()
     }
 
     setReveal() {
@@ -491,6 +490,18 @@ export default class World {
             collision: this.resources.items.brickCollision.scene,
             offset: new THREE.Vector3(-10, -10, 0),
             rotation: new THREE.Euler(0, 0, 5),
+            shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
+            mass: 1.5,
+            soundName: 'brick',
+            sleep: false
+        });
+    }
+     setSosyalinovasyon(){
+        this.brick = this.objects.add({
+            base: this.resources.items.sosyalinovasyonBase.scene,
+            collision: this.resources.items.brickCollision.scene,
+            offset: new THREE.Vector3(25, 25, 0),
+            rotation: new THREE.Euler(Math.PI/2, Math.PI, 0),
             shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
             mass: 1.5,
             soundName: 'brick',
