@@ -13,7 +13,12 @@ export default class Car
         this.physics = _options.physics
         this.shadows = _options.shadows
         this.materials = _options.materials
-        this.controls = _options.controls
+        
+        // Kontrolleri güncelle
+        this.controls = {}
+        this.controls.normal = _options.controlNormal
+        this.controls.touch = _options.controlTouch
+        
         this.sounds = _options.sounds
         this.renderer = _options.renderer
         this.camera = _options.camera
@@ -106,7 +111,7 @@ export default class Car
 
             // Sound
             this.sounds.engine.speed = this.movement.localSpeed.x
-            this.sounds.engine.acceleration = this.controls.actions.up ? (this.controls.actions.boost ? 1 : 0.5) : 0
+            this.sounds.engine.acceleration = this.physics.controls.actions.up ? (this.physics.controls.actions.boost ? 1 : 0.5) : 0
 
             if(this.movement.localAcceleration.x > 0.03 && this.time.elapsed - this.movement.lastScreech > 5000)
             {

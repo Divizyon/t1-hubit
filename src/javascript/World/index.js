@@ -358,7 +358,11 @@ export default class World {
             debug: this.debugFolder,
             config: this.config
         })
+
         this.container.add(this.car.container)
+        
+        // Araç referansını sounds sınıfına ekle
+        this.sounds.setCar(this.car)
     }
 
     setSections() {
@@ -505,6 +509,24 @@ export default class World {
             soundName: 'brick',
             sleep: false
         });
+
+        // Roket modeli yanına uzamsal ses ekleyelim
+        console.log('Roket modeline duman.mp3 uzamsal ses ekleniyor...');
+        const spatialSound = this.sounds.setSpatialSoundAtLocation({
+            x: 15, 
+            y: 15, 
+            z: 0.5,  
+            sound: 'duman', // Özel ses dosyası adı
+            customSoundPath: './sounds/car-horns/duman.mp3', // Özel ses dosya yolu
+            maxDistance: 30,
+            refDistance: 3,
+            rolloffFactor: 2,
+            volume: 1.0, // Tam ses seviyesi
+            autoplay: true
+        });
+        
+        // Debug için uzamsal ses bilgilerini yazdır
+        console.log('Uzamsal ses oluşturuldu:', spatialSound);
 
         // areaLabelMesh'i oluştur ve sahneye ekle
         const areaLabelMesh = new THREE.Mesh(

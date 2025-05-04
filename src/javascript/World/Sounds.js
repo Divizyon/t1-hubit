@@ -22,6 +22,28 @@ export default class Sounds
         this.setMasterVolume()
         this.setMute()
         this.setEngine()
+        
+        // Sesi açık tutmak için
+        console.log('Ses durumu kontrol ediliyor...');
+        this.muted = false; // Sessiz modu kapat
+        Howler.mute(this.muted); // Howler sessizliğini kapat
+        
+        // Uzamsal ses için gerekli
+        this.spatialSounds = []
+        this.car = null
+        
+        // Araç pozisyonu değiştiğinde uzamsal sesleri güncelle
+        this.time.on('tick', () => {
+            // Eğer araç (car) mevcut ise dinleyici pozisyonunu güncelle
+            if(this.car && this.car.chassis && this.car.chassis.object) {
+                // Araç konumunu dinleyici (listener) olarak ayarla
+                Howler.pos(
+                    this.car.chassis.object.position.x, 
+                    this.car.chassis.object.position.y, 
+                    this.car.chassis.object.position.z
+                )
+            }
+        })
     }
 
     setSettings()
@@ -180,8 +202,8 @@ export default class Sounds
     setMute()
     {
         // Set up
-        this.muted = typeof this.debug !== 'undefined'
-        Howler.mute(this.muted)
+        this.muted = false;  // Varsayılan olarak sesi açık tut
+        Howler.mute(this.muted);
 
         // M Key
         window.addEventListener('keydown', (_event) =>
@@ -190,6 +212,7 @@ export default class Sounds
             {
                 this.muted = !this.muted
                 Howler.mute(this.muted)
+                console.log('Ses durumu değişti:', this.muted ? 'Sessiz' : 'Sesli');
             }
         })
 
@@ -212,6 +235,7 @@ export default class Sounds
             this.debugFolder.add(this, 'muted').listen().onChange(() =>
             {
                 Howler.mute(this.muted)
+                console.log('Debug panelinden ses durumu değişti:', this.muted ? 'Sessiz' : 'Sesli');
             })
         }
     }
@@ -330,5 +354,150 @@ export default class Sounds
             // Save last play time
             item.lastTime = time
         }
+    }
+
+    // Belirli bir konumda uzamsal ses eklemek için yardımcı metot
+    setSpatialSoundAtLocation(options) 
+    {
+        // Varsayılan değerler
+        const position = { 
+            x: options.x || 0, 
+            y: options.y || 0, 
+            z: options.z || 0 
+        };
+        const soundName = options.sound || 'carHorn1';
+        const customSoundPath = options.customSoundPath || null;
+        const maxDistance = options.maxDistance || 40;
+        const refDistance = options.refDistance || 4;
+        const rolloffFactor = options.rolloffFactor || 1;
+        const volume = options.volume || 0.8;
+        const autoplay = options.autoplay !== undefined ? options.autoplay : true;
+        const loop = options.loop !== undefined ? options.loop : true;
+        
+        console.log('Uzamsal ses oluşturuluyor:', position, soundName);
+        console.log('Ses dosyası yolu:', customSoundPath || 'varsayılan');
+        
+        // Ses kaynağını belirle
+        let soundSource = ['./sounds/car-horns/duman.mp3']; // Varsayılan
+        
+        // Eğer özel ses yolu belirtilmişse onu kullan
+        if (customSoundPath) {
+            soundSource = [customSoundPath];
+            console.log('Özel ses yolu kullanılıyor:', customSoundPath);
+        }
+        // Veya soundName bir item ise onu kullan
+        else {
+            const item = this.items.find((item) => item.name === soundName);
+            if(item && item.sounds && item.sounds.length > 0) {
+                // İlk ses dosyasının src özelliğini al
+                if(item.sounds[0]._src) {
+                    soundSource = item.sounds[0]._src;
+                    console.log('Ses kaynağı bulundu:', soundSource);
+                }
+            }
+        }
+        
+        // Ses çalışsın diye sessizlik durumunu kontrol et
+        this.muted = false;
+        Howler.mute(false);
+        console.log('Sessiz mod durumu:', Howler.muted ? 'Sessiz' : 'Sesli');
+        
+        // Yeni bir uzamsal ses oluştur
+        const spatialSound = {
+            id: 'spatial_' + Date.now(),
+            position: position,
+            maxDistance: maxDistance,
+            refDistance: refDistance,
+            active: autoplay,
+            sound: new Howl({
+                src: soundSource,
+                loop: loop,
+                volume: volume,
+                autoplay: autoplay,
+                spatial: true,
+                stereo: 0,
+                pos: [position.x, position.y, position.z],
+                maxDistance: maxDistance,
+                refDistance: refDistance,
+                rolloffFactor: rolloffFactor,
+                panningModel: 'HRTF',
+                onload: function() {
+                    console.log('Ses dosyası yüklendi!');
+                },
+                onplay: function() {
+                    console.log('Ses çalmaya başladı!');
+                },
+                onloaderror: function(id, err) {
+                    console.error('Ses yükleme hatası:', err);
+                },
+                onplayerror: function(id, err) {
+                    console.error('Ses çalma hatası:', err);
+                }
+            })
+        };
+        
+        // Ses dosyası eğer otomatik başlatılacaksa
+        if(autoplay) {
+            console.log('Ses otomatik başlatılıyor...');
+            setTimeout(() => {
+                spatialSound.sound.play();
+                console.log('Ses çalma durumu:', spatialSound.sound.playing() ? 'Çalıyor' : 'Çalmıyor');
+            }, 1000);
+        }
+        
+        // Uzamsal ses listesine ekle
+        this.spatialSounds.push(spatialSound);
+        
+        // Debug panel ekle
+        if(this.debug) {
+            const folder = this.debugFolder.addFolder('spatial sound ' + spatialSound.id);
+            folder.open();
+            
+            folder.add(spatialSound, 'active').onChange((value) => {
+                if(value) {
+                    spatialSound.sound.play();
+                    console.log('Ses çalıyor');
+                } else {
+                    spatialSound.sound.pause();
+                    console.log('Ses duraklatıldı');
+                }
+            });
+            
+            folder.add(spatialSound.position, 'x').min(-50).max(50).step(1).onChange(() => {
+                this.updateSpatialSoundPosition(spatialSound);
+            });
+            
+            folder.add(spatialSound.position, 'y').min(-50).max(50).step(1).onChange(() => {
+                this.updateSpatialSoundPosition(spatialSound);
+            });
+            
+            folder.add(spatialSound.position, 'z').min(-50).max(50).step(1).onChange(() => {
+                this.updateSpatialSoundPosition(spatialSound);
+            });
+            
+            // Ses seviyesi kontrolü ekle
+            folder.add({ volume: volume }, 'volume', 0, 1, 0.1).onChange((value) => {
+                spatialSound.sound.volume(value);
+                console.log('Ses seviyesi değişti:', value);
+            });
+        }
+        
+        return spatialSound;
+    }
+    
+    // Belirli bir uzamsal sesin pozisyonunu güncelle
+    updateSpatialSoundPosition(spatialSound) {
+        spatialSound.sound.pos(
+            spatialSound.position.x, 
+            spatialSound.position.y, 
+            spatialSound.position.z
+        );
+    }
+    
+    // Aracı referans olarak alabilmek için bu metodu ekliyoruz
+    setCar(car) 
+    {
+        console.log('Araç referansı ayarlandı');
+        this.car = car;
     }
 }
