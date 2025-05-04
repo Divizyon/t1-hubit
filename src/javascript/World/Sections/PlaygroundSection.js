@@ -29,12 +29,14 @@ export default class PlaygroundSection
         this.resources.items.areaResetTexture.magFilter = THREE.NearestFilter
         this.resources.items.areaResetTexture.minFilter = THREE.LinearFilter
 
-        // this.setStatic() // Commented out to remove static elements
-        // this.setBricksWalls() // Commented out to remove brick walls
-        // this.setBowling() // Commented out since the method is commented out
-        this.setGreenBox() // Only keep the greenbox
+        this.setStatic()
+        this.setBricksWalls()
+        this.setBowling()
+        
+        this.container.add(this.resources.items.greenBoxBase.scene.clone())
     }
 
+    
     setStatic()
     {
         this.objects.add({

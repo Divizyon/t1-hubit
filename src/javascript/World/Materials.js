@@ -61,7 +61,6 @@ export default class Materials
             name: 'pureUc'
         })
     }
-
     setShades()
     {
         // Setup

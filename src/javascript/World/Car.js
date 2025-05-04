@@ -55,7 +55,15 @@ export default class Car
             this.models.backLightsReverse = this.resources.items.carCyberTruckBackLightsReverse
             this.models.wheel = this.resources.items.carCyberTruckWheel
         }
-
+        // TOGG
+        else if(this.config.togg)
+        {
+            this.models.chassis = this.resources.items.carToggChassis
+            this.models.antena = this.resources.items.carToggAntena
+            this.models.backLightsBrake = this.resources.items.carToggBackLightsBrake
+            this.models.backLightsReverse = this.resources.items.carToggBackLightsReverse
+            this.models.wheel = this.resources.items.carToggWheel
+        }
         // Default
         else
         {
@@ -81,6 +89,11 @@ export default class Car
         // Time tick
         this.time.on('tick', () =>
         {
+            // Eğer gerekli elemanlar henüz hazır değilse güvenli bir şekilde döngüden çık
+            if(!this.chassis || !this.chassis.object || !this.chassis.oldPosition) {
+                return
+            }
+            
             // Movement
             const movementSpeed = new THREE.Vector3()
             movementSpeed.copy(this.chassis.object.position).sub(this.chassis.oldPosition)
@@ -98,7 +111,9 @@ export default class Car
             if(this.movement.localAcceleration.x > 0.03 && this.time.elapsed - this.movement.lastScreech > 5000)
             {
                 this.movement.lastScreech = this.time.elapsed
-                this.sounds.play('screech')
+                if(this.sounds) {
+                    this.sounds.play('screech')
+                }
             }
         })
     }
@@ -108,6 +123,27 @@ export default class Car
         this.chassis = {}
         this.chassis.offset = new THREE.Vector3(0, 0, - 0.28)
         this.chassis.object = this.objects.getConvertedMesh(this.models.chassis.scene.children)
+        
+        // Modele zorla renk uygulamasını kaldırıldı
+        // Objects.js'deki regex ile her mesh adına göre materyal atanacak
+        
+        // console.log('--------------- ARAÇ PARÇALARI VE MATERYALLER ---------------')
+        // // Log modelin tüm parçalarını ve atanan materyalleri
+        // this.chassis.object.traverse((child) => {
+        //     if(child.isMesh) {
+        //         console.log(`Parça ismi: ${child.name}, Materyal: ${child.material ? child.material.name : 'Tanımsız'}`)
+        //         // Güvenli kontrol ekleyelim, undefined hatası olmaması için
+        //         if(child.name.includes('hubitDarkBlue') && 
+        //            child.material && 
+        //            child.material.uniforms && 
+        //            child.material.uniforms.uIndirectColor) {
+        //             console.log('DarkBlue parçası için materyal ayarları:', 
+        //                 child.material.uniforms.uIndirectColor.value,
+        //                 'Strength:', child.material.uniforms.uIndirectDistanceStrength.value)
+        //         }
+        //     }
+        // })
+        
         this.chassis.object.position.copy(this.physics.car.chassis.body.position)
         this.chassis.oldPosition = this.chassis.object.position.clone()
         this.container.add(this.chassis.object)
