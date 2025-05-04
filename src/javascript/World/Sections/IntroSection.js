@@ -31,7 +31,7 @@ export default class IntroSection {
     setFloor() {
         // Define shader materials for the floor
         const floor = createFloor()
-        
+
         this.container.add(floor);
     }
 

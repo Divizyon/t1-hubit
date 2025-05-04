@@ -37,7 +37,6 @@ export default class Materials
         this.pures.items.yellow = new THREE.MeshBasicMaterial({ color: 0xffe889 })
         this.pures.items.yellow.name = 'pureYellow'
     }
-
     setShades()
     {
         // Setup
@@ -103,32 +102,6 @@ export default class Materials
         this.shades.items.black.name = 'shadeBlack'
         this.shades.items.black.uniforms.matcap.value = this.resources.items.matcapBlackTexture
         this.items.black = this.shades.items.black
-
-        // HubitBlack
-        this.shades.items.hubitBlack = new MatcapMaterial()
-        this.shades.items.hubitBlack.name = 'shadeHubitBlack'
-        this.shades.items.hubitBlack.uniforms.matcap.value = this.resources.items.matcapBlackTexture
-        this.items.hubitBlack = this.shades.items.hubitBlack
-
-        // HubitBlue
-        this.shades.items.hubitBlue = new MatcapMaterial()
-        this.shades.items.hubitBlue.name = 'shadeHubitBlue'
-        this.shades.items.hubitBlue.uniforms.matcap.value = this.resources.items.matcapBlueTexture
-        this.items.hubitBlue = this.shades.items.hubitBlue
-
-        // HubitDarkBlue
-        this.shades.items.hubitDarkBlue = new MatcapMaterial()
-        this.shades.items.hubitDarkBlue.name = 'shadeHubitDarkBlue'
-        this.shades.items.hubitDarkBlue.uniforms.matcap.value = this.resources.items.matcapBlueTexture
-        // Koyulaştır
-        this.shades.items.hubitDarkBlue.uniforms.uIndirectDistanceStrength.value = 0.3
-        this.items.hubitDarkBlue = this.shades.items.hubitDarkBlue
-
-        // HubitWhite
-        this.shades.items.hubitWhite = new MatcapMaterial()
-        this.shades.items.hubitWhite.name = 'shadeHubitWhite'
-        this.shades.items.hubitWhite.uniforms.matcap.value = this.resources.items.matcapWhiteTexture
-        this.items.hubitWhite = this.shades.items.hubitWhite
 
         // Green emerald
         this.shades.items.emeraldGreen = new MatcapMaterial()
