@@ -29,11 +29,14 @@ export default class PlaygroundSection
         this.resources.items.areaResetTexture.magFilter = THREE.NearestFilter
         this.resources.items.areaResetTexture.minFilter = THREE.LinearFilter
 
-        this.setStatic()
-        this.setBricksWalls()
-        this.setBowling()
+        // Diğer metodları kapatıp sadece setGreenBox'ı çalıştıralım
+        // this.setStatic()
+        // this.setBricksWalls()
+        // this.setBowling()
+        this.setGreenBox()
         
-        this.container.add(this.resources.items.greenBoxBase.scene.clone())
+        // Böylece sahneye sadece greenbox eklenecek
+        // this.container.add(this.resources.items.greenBoxBase.scene.clone())
     }
 
     
@@ -234,8 +237,8 @@ export default class PlaygroundSection
     {
         // Set up
         this.greenBox = {}
-        this.greenBox.x = this.x  // Centered on X axis
-        this.greenBox.y = this.y  // Centered on Y axis
+        this.greenBox.x = 30  // Yeni X konumu
+        this.greenBox.y = 10  // Yeni Y konumu
 
         // Create a green box container
         const greenBoxContainer = new THREE.Group()
@@ -259,64 +262,8 @@ export default class PlaygroundSection
                 mass: 0,
                 soundName: 'brick'
             })
-
-            // Check if resources and brickBase exist
-            if(this.resources.items.brickBase && 
-               this.resources.items.brickBase.scene)
-            {
-                // Add balya (baseglb) model inside the greenbox 
-                this.balyaObject = this.objects.add({
-                    base: this.resources.items.brickBase.scene, // This is the balya.glb model
-                    collision: this.resources.items.brickCollision ? this.resources.items.brickCollision.scene : null,
-                    offset: new THREE.Vector3(this.greenBox.x, this.greenBox.y, 0.5), // Placed slightly above the greenbox
-                    rotation: new THREE.Euler(0, 0, 0),
-                    duplicated: true,
-                    shadow: { sizeX: 1.8, sizeY: 1.8, offsetZ: - 0.1, alpha: 0.4 },
-                    mass: 0.5, // Give it some mass so it falls and sits on the greenbox
-                    soundName: 'brick'
-                })
-
-                // Reset functionality
-                this.greenBox.reset = () => {
-                    if(this.balyaObject && this.balyaObject.collision) {
-                        this.balyaObject.collision.reset()
-                    }
-                }
-
-                // Reset area
-                this.greenBox.resetArea = this.areas.add({
-                    position: new THREE.Vector2(this.greenBox.x, this.greenBox.y),
-                    halfExtents: new THREE.Vector2(3, 3) // Larger interaction area
-                })
-                this.greenBox.resetArea.on('interact', () => {
-                    this.greenBox.reset()
-                })
-
-                // Check if areaResetTexture exists
-                if(this.resources.items.areaResetTexture) {
-                    // Reset label
-                    this.greenBox.areaLabelMesh = new THREE.Mesh(
-                        new THREE.PlaneGeometry(3, 0.75), // Larger label
-                        new THREE.MeshBasicMaterial({ 
-                            transparent: true, 
-                            depthWrite: false, 
-                            color: 0xffffff, 
-                            alphaMap: this.resources.items.areaResetTexture 
-                        })
-                    )
-                    this.greenBox.areaLabelMesh.position.x = this.greenBox.x
-                    this.greenBox.areaLabelMesh.position.y = this.greenBox.y
-                    this.greenBox.areaLabelMesh.matrixAutoUpdate = false
-                    this.greenBox.areaLabelMesh.updateMatrix()
-                    this.container.add(this.greenBox.areaLabelMesh)
-                }
-
-                // Debug
-                if(this.debugFolder)
-                {
-                    this.debugFolder.add(this.greenBox, 'reset').name('greenBox reset')
-                }
-            }
+            
+            // Balya ve reset butonu eklenmedi
         }
     }
 }
