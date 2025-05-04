@@ -138,8 +138,8 @@ export default class Resources extends EventEmitter {
             { name: 'playgroundStaticFloorShadow', source: './models/playground/static/floorShadow.png', type: 'texture' },
 
             // Greenbox
-            { name: 'greenBoxBase', source: './models/greenbox/base.glb' },
-            { name: 'greenBoxCollision', source: './models/greenbox/base.glb' },
+            { name: 'greenBoxBase', source: './models/greenBox/base.glb' },
+            { name: 'greenBoxCollision', source: './models/greenBox/base.glb' }, 
 
             // Brick
             { name: 'brickBase', source: './models/balya/balya.glb' },
