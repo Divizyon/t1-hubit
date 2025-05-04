@@ -45,6 +45,16 @@ export default class Car
         this.setTransformControls()
         this.setShootingBall()
         this.setKlaxon()
+        
+        // Araç pozisyonunu başlangıçta kaydet (uzamsal ses dinleyicisi için)
+        this.initialPosition = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+        
+        // Araç hareket etmeye başladığında uzamsal ses dinleyicisini aktif et
+        this.soundsActivated = false;
     }
 
     setModels()
@@ -110,8 +120,10 @@ export default class Car
             this.movement.localAcceleration = this.movement.acceleration.clone().applyAxisAngle(new THREE.Vector3(0, 0, 1), - this.chassis.object.rotation.z)
 
             // Sound
-            this.sounds.engine.speed = this.movement.localSpeed.x
-            this.sounds.engine.acceleration = this.physics.controls.actions.up ? (this.physics.controls.actions.boost ? 1 : 0.5) : 0
+            if(this.sounds && this.sounds.engine) {
+                this.sounds.engine.speed = this.movement.localSpeed.x
+                this.sounds.engine.acceleration = this.physics.controls.actions.up ? (this.physics.controls.actions.boost ? 1 : 0.5) : 0
+            }
 
             if(this.movement.localAcceleration.x > 0.03 && this.time.elapsed - this.movement.lastScreech > 5000)
             {
@@ -131,23 +143,6 @@ export default class Car
         
         // Modele zorla renk uygulamasını kaldırıldı
         // Objects.js'deki regex ile her mesh adına göre materyal atanacak
-        
-        // console.log('--------------- ARAÇ PARÇALARI VE MATERYALLER ---------------')
-        // // Log modelin tüm parçalarını ve atanan materyalleri
-        // this.chassis.object.traverse((child) => {
-        //     if(child.isMesh) {
-        //         console.log(`Parça ismi: ${child.name}, Materyal: ${child.material ? child.material.name : 'Tanımsız'}`)
-        //         // Güvenli kontrol ekleyelim, undefined hatası olmaması için
-        //         if(child.name.includes('hubitDarkBlue') && 
-        //            child.material && 
-        //            child.material.uniforms && 
-        //            child.material.uniforms.uIndirectColor) {
-        //             console.log('DarkBlue parçası için materyal ayarları:', 
-        //                 child.material.uniforms.uIndirectColor.value,
-        //                 'Strength:', child.material.uniforms.uIndirectDistanceStrength.value)
-        //         }
-        //     }
-        // })
         
         this.chassis.object.position.copy(this.physics.car.chassis.body.position)
         this.chassis.oldPosition = this.chassis.object.position.clone()
@@ -170,6 +165,35 @@ export default class Car
 
             // Update position
             this.position.copy(this.chassis.object.position)
+            
+            // İlk başlatılmadan sonra araç hareket edip etmediğini kontrol et
+            if(!this.soundsActivated) {
+                // İlk konum ile şimdiki konum arasındaki mesafe
+                const distance = this.initialPosition.x !== 0 ? 
+                    new THREE.Vector3(
+                        this.initialPosition.x, 
+                        this.initialPosition.y, 
+                        this.initialPosition.z
+                    ).distanceTo(this.position) : 0;
+                
+                // Eğer araç hareket ettiyse ve mesafe belirli bir değerden büyükse
+                if(distance > 0.5) {
+                    this.soundsActivated = true;
+                    // Sounds.js'ye araç hareketini bildir
+                    if(this.sounds) {
+                        console.log("Araç hareket etmeye başladı, uzamsal sesler aktif edilecek.");
+                        // Araç hareketini bildir
+                        this.sounds.setCar(this);
+                    }
+                } else if(this.initialPosition.x === 0) {
+                    // İlk konumu kaydet
+                    this.initialPosition = {
+                        x: this.position.x,
+                        y: this.position.y,
+                        z: this.position.z
+                    };
+                }
+            }
         })
     }
 
@@ -390,41 +414,37 @@ export default class Car
     setKlaxon()
     {
         this.klaxon = {}
-        this.klaxon.lastTime = this.time.elapsed
 
-        window.addEventListener('keydown', (_event) =>
+        this.klaxon.update = () =>
         {
-            // Play horn sound
-            if(_event.code === 'KeyH')
+            if(!this.sounds)
+                return
+                
+            // Hangi korna sesi kullanılacak
+            const hornType = Math.random() > 0.5 ? 'carHorn1' : 'carHorn2';
+            
+            // Kornayı çal
+            this.sounds.play(hornType)
+        }
+
+        if(this.controls.normal)
+        {
+            // Klavyede K tuşu veya Boşluk tuşu ile korna
+            window.addEventListener('keydown', (_event) =>
             {
-                if(this.time.elapsed - this.klaxon.lastTime > 400)
+                if(_event.key === 'k' || _event.key === ' ')
                 {
-                    this.physics.car.jump(false, 150)
-                    this.klaxon.lastTime = this.time.elapsed
+                    this.klaxon.update()
                 }
+            })
+        }
 
-                this.sounds.play(Math.random() < 0.002 ? 'carHorn2' : 'carHorn1')
-            }
-
-            // Rain horns
-            if(_event.key === 'k')
+        if(this.controls.touch)
+        {
+            this.controls.touch.on('klaxon', () =>
             {
-                const x = this.position.x + (Math.random() - 0.5) * 3
-                const y = this.position.y + (Math.random() - 0.5) * 3
-                const z = 6 + 2 * Math.random()
-
-                this.objects.add({
-                    base: this.resources.items.hornBase.scene,
-                    collision: this.resources.items.hornCollision.scene,
-                    offset: new THREE.Vector3(x, y, z),
-                    rotation: new THREE.Euler(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2),
-                    duplicated: true,
-                    shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: - 0.15, alpha: 0.35 },
-                    mass: 5,
-                    soundName: 'horn',
-                    sleep: false
-                })
-            }
-        })
+                this.klaxon.update()
+            })
+        }
     }
 }

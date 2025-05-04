@@ -41,9 +41,14 @@ export default class Sounds
                     this.car.chassis.object.position.x, 
                     this.car.chassis.object.position.y, 
                     this.car.chassis.object.position.z
-                )
+                );
+                
+                // Tüm uzamsal seslerin pozisyonlarını güncelle
+                for(let i = 0; i < this.spatialSounds.length; i++) {
+                    this.updateSpatialSoundPosition(this.spatialSounds[i]);
+                }
             }
-        })
+        });
     }
 
     setSettings()
@@ -375,10 +380,9 @@ export default class Sounds
         const loop = options.loop !== undefined ? options.loop : true;
         
         console.log('Uzamsal ses oluşturuluyor:', position, soundName);
-        console.log('Ses dosyası yolu:', customSoundPath || 'varsayılan');
         
         // Ses kaynağını belirle
-        let soundSource = ['./sounds/car-horns/duman.mp3']; // Varsayılan
+        let soundSource = ['./sounds/car-horns/car-horn-1.mp3']; // Varsayılan
         
         // Eğer özel ses yolu belirtilmişse onu kullan
         if (customSoundPath) {
@@ -391,7 +395,7 @@ export default class Sounds
             if(item && item.sounds && item.sounds.length > 0) {
                 // İlk ses dosyasının src özelliğini al
                 if(item.sounds[0]._src) {
-                    soundSource = item.sounds[0]._src;
+                    soundSource = Array.isArray(item.sounds[0]._src) ? item.sounds[0]._src : [item.sounds[0]._src];
                     console.log('Ses kaynağı bulundu:', soundSource);
                 }
             }
@@ -413,7 +417,7 @@ export default class Sounds
                 src: soundSource,
                 loop: loop,
                 volume: volume,
-                autoplay: autoplay,
+                autoplay: false, // Önce false olarak ayarlıyoruz, sonra manuel başlatacağız
                 spatial: true,
                 stereo: 0,
                 pos: [position.x, position.y, position.z],
@@ -422,7 +426,7 @@ export default class Sounds
                 rolloffFactor: rolloffFactor,
                 panningModel: 'HRTF',
                 onload: function() {
-                    console.log('Ses dosyası yüklendi!');
+                    console.log('Ses dosyası yüklendi:', soundSource);
                 },
                 onplay: function() {
                     console.log('Ses çalmaya başladı!');
@@ -431,7 +435,7 @@ export default class Sounds
                     console.error('Ses yükleme hatası:', err);
                 },
                 onplayerror: function(id, err) {
-                    console.error('Ses çalma hatası:', err);
+                    console.error('Ses çalma hatası:', err, 'Ses kaynağı:', soundSource);
                 }
             })
         };
@@ -450,7 +454,7 @@ export default class Sounds
         
         // Debug panel ekle
         if(this.debug) {
-            const folder = this.debugFolder.addFolder('spatial sound ' + spatialSound.id);
+            const folder = this.debugFolder.addFolder('Uzamsal Ses: ' + spatialSound.id);
             folder.open();
             
             folder.add(spatialSound, 'active').onChange((value) => {
@@ -463,15 +467,15 @@ export default class Sounds
                 }
             });
             
-            folder.add(spatialSound.position, 'x').min(-50).max(50).step(1).onChange(() => {
+            folder.add(spatialSound.position, 'x', -50, 50).step(1).onChange(() => {
                 this.updateSpatialSoundPosition(spatialSound);
             });
             
-            folder.add(spatialSound.position, 'y').min(-50).max(50).step(1).onChange(() => {
+            folder.add(spatialSound.position, 'y', -50, 50).step(1).onChange(() => {
                 this.updateSpatialSoundPosition(spatialSound);
             });
             
-            folder.add(spatialSound.position, 'z').min(-50).max(50).step(1).onChange(() => {
+            folder.add(spatialSound.position, 'z', -10, 10).step(0.1).onChange(() => {
                 this.updateSpatialSoundPosition(spatialSound);
             });
             
@@ -480,6 +484,21 @@ export default class Sounds
                 spatialSound.sound.volume(value);
                 console.log('Ses seviyesi değişti:', value);
             });
+
+            // Ses mesafesi ve rolloff kontrolü
+            folder.add(spatialSound, 'maxDistance', 10, 100).step(1).onChange((value) => {
+                spatialSound.sound.maxDistance(value);
+            });
+            
+            folder.add(spatialSound, 'refDistance', 1, 20).step(1).onChange((value) => {
+                spatialSound.sound.refDistance(value);
+            });
+            
+            // Roll-off faktörü
+            const rolloffObj = { rolloff: rolloffFactor };
+            folder.add(rolloffObj, 'rolloff', 0.1, 5).step(0.1).onChange((value) => {
+                spatialSound.sound.rolloffFactor(value);
+            });
         }
         
         return spatialSound;
@@ -487,11 +506,13 @@ export default class Sounds
     
     // Belirli bir uzamsal sesin pozisyonunu güncelle
     updateSpatialSoundPosition(spatialSound) {
-        spatialSound.sound.pos(
-            spatialSound.position.x, 
-            spatialSound.position.y, 
-            spatialSound.position.z
-        );
+        if(spatialSound && spatialSound.sound && spatialSound.position) {
+            spatialSound.sound.pos(
+                spatialSound.position.x, 
+                spatialSound.position.y, 
+                spatialSound.position.z
+            );
+        }
     }
     
     // Aracı referans olarak alabilmek için bu metodu ekliyoruz
@@ -499,5 +520,14 @@ export default class Sounds
     {
         console.log('Araç referansı ayarlandı');
         this.car = car;
+        
+        // Araç ayarlandıktan hemen sonra tüm sesleri aktif et
+        if(this.spatialSounds.length > 0) {
+            this.spatialSounds.forEach(spatialSound => {
+                if(spatialSound.active && !spatialSound.sound.playing()) {
+                    spatialSound.sound.play();
+                }
+            });
+        }
     }
 }

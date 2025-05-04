@@ -9,6 +9,7 @@ import Car from './Car.js'
 import Areas from './Areas.js'
 import Tiles from './Tiles.js'
 import Walls from './Walls.js'
+import Road from './Road.js'
 import IntroSection from './Sections/IntroSection.js'
 import AreaSection from './Sections/AreaSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
@@ -64,6 +65,7 @@ export default class World {
         this.setReveal()
         this.setMaterials()
         this.setShadows()
+        this.setRoad()
         this.setPhysics()
         this.setZones()
         this.setObjects()
@@ -355,18 +357,24 @@ export default class World {
             physics: this.physics,
             shadows: this.shadows,
             materials: this.materials,
-            controls: this.controls,
+            controlNormal: this.controls.normal,
+            controlTouch: this.controls.touch,
             sounds: this.sounds,
             renderer: this.renderer,
             camera: this.camera,
             debug: this.debugFolder,
             config: this.config
         })
-
+        
         this.container.add(this.car.container)
         
-        // Araç referansını sounds sınıfına ekle
-        this.sounds.setCar(this.car)
+        // Sounds.js'ye araç referansını set ediyoruz (uzamsal ses için önemli)
+        if(this.sounds) {
+            this.sounds.setCar(this.car);
+            console.log('Araç referansı ses sistemine iletildi');
+        } else {
+            console.error('Ses sistemi başlatılmamış!');
+        }
     }
 
     setSections() {
@@ -490,14 +498,11 @@ export default class World {
     }
 
 
-    setSesOdasi(){
-        console.log('Ses odası ekleniyor...');
-        
-        // Ses odası modelini ekle
+    setSesOdasi() {
         this.sesOdasi = this.objects.add({
             base: this.resources.items.sesOdasiModel.scene,
             collision: this.resources.items.brickCollision.scene, // Basit çarpışma modeli kullanıyoruz
-            offset: new THREE.Vector3(25, -5, 0), // Z=0 yaparak modeli zemin seviyesine yerleştiriyorum
+            offset: new THREE.Vector3(-62, 30, 0), // Z=0 yaparak modeli zemin seviyesine yerleştiriyorum
             rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
             shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
             mass: 0, // Statik bir bina olduğu için kütle 0
@@ -506,16 +511,16 @@ export default class World {
         
         // Ses odası yanına uzamsal ses ekle
         console.log('Ses odası için uzamsal ses ekleniyor...');
-        const spatialSound = this.sounds.setSpatialSoundAtLocation({
-            x: 25, 
-            y: -5, 
-            z: 0,  // Sesin tam olarak zemin seviyesinde olmasını sağlıyorum
+        const sesOdasiSes = this.sounds.setSpatialSoundAtLocation({
+            x: -62, // Ses odasının X konumu ile eşleştirdim
+            y: 30,  // Ses odasının Y konumu ile eşleştirdim
+            z: 1.5,  // Biraz yukarıda olsun ki yere çok yakın olmasın
             sound: 'sesOdasi', 
             customSoundPath: './sounds/car-horns/duman.mp3', // Kullanılacak ses dosyası
-            maxDistance: 20, // Daha kısa mesafede duyulsun (daha önce 30)
-            refDistance: 5, // Referans mesafeyi artırıyorum (daha önce 3)
-            rolloffFactor: 1.5, // Ses azalma faktörünü hafifletiyorum (daha önce 2)
-            volume: 1.0, // Ses seviyesini maksimuma çıkarıyorum (daha önce 0.8)
+            maxDistance: 30, // Mesafeyi artırdık
+            refDistance: 8, // Referans mesafeyi artırdık - daha yakın olunca ses daha net
+            rolloffFactor: 1.2, // Ses azalma faktörünü hafifçe düzenledik
+            volume: 1.0, // Ses seviyesini maksimum
             autoplay: true, // Otomatik başlat
             loop: true // Sürekli çal
         });
@@ -535,23 +540,7 @@ export default class World {
             sleep: false
         });
 
-        // Roket modeli yanına uzamsal ses ekleyelim
-        console.log('Roket modeline duman.mp3 uzamsal ses ekleniyor...');
-        const spatialSound = this.sounds.setSpatialSoundAtLocation({
-            x: 15, 
-            y: 15, 
-            z: 0.5,  
-            sound: 'duman', // Özel ses dosyası adı
-            customSoundPath: './sounds/car-horns/duman.mp3', // Özel ses dosya yolu
-            maxDistance: 30,
-            refDistance: 3,
-            rolloffFactor: 2,
-            volume: 1.0, // Tam ses seviyesi
-            autoplay: true
-        });
-        
-        // Debug için uzamsal ses bilgilerini yazdır
-        console.log('Uzamsal ses oluşturuldu:', spatialSound);
+        // Uzamsal ses kaldırıldı
 
         // areaLabelMesh'i oluştur ve sahneye ekle
         const areaLabelMesh = new THREE.Mesh(
@@ -815,5 +804,27 @@ export default class World {
             })
         }
 
+    }
+
+    setRoad() 
+    {
+        try {
+            this.road = new Road({
+                debug: this.debugFolder,
+                resources: this.resources,
+                objects: this.objects,
+                physics: this.physics,
+                shadows: this.shadows,
+                materials: this.materials,
+                time: this.time
+            })
+            
+            // Sahneye ekle
+            if (this.road && this.road.container) {
+                this.container.add(this.road.container)
+            }
+        } catch(error) {
+            console.error('HATA: Road oluşturulurken bir hata oluştu:', error)
+        }
     }
 }
