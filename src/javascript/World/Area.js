@@ -130,7 +130,7 @@ export default class Area extends EventEmitter
         this.key.enter.texture.magFilter = THREE.NearestFilter
         this.key.enter.texture.minFilter = THREE.LinearFilter
 
-        this.key.enter.material = new THREE.MeshBasicMaterial({ color: 0xffffff, alphaMap: this.key.enter.texture, transparent: true, opacity: 0, depthWrite: false })
+        this.key.enter.material = new THREE.MeshBasicMaterial({ color: 0x00ff00, alphaMap: this.key.enter.texture, transparent: true, opacity: 0, depthWrite: false })
 
         this.key.enter.mesh = new THREE.Mesh(this.key.enter.geometry, this.key.enter.material)
         this.key.enter.mesh.rotation.x = Math.PI * 0.5
@@ -148,7 +148,7 @@ export default class Area extends EventEmitter
         this.key.icon.texture.magFilter = THREE.NearestFilter
         this.key.icon.texture.minFilter = THREE.LinearFilter
 
-        this.key.icon.material = new THREE.MeshBasicMaterial({ color: 0xffffff, alphaMap: this.key.icon.texture, transparent: true, opacity: 0, depthWrite: false })
+        this.key.icon.material = new THREE.MeshBasicMaterial({ color: 0x00ff00, alphaMap: this.key.icon.texture, transparent: true, opacity: 0, depthWrite: false })
 
         this.key.icon.mesh = new THREE.Mesh(this.key.icon.geometry, this.key.icon.material)
         this.key.icon.mesh.rotation.x = Math.PI * 0.5

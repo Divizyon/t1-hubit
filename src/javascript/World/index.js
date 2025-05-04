@@ -72,6 +72,7 @@ export default class World {
         this.setWalls()
         this.setSections()
         this.setEasterEggs()
+        this.setPositionIndicator()
         this.setBrick()
     }
 
@@ -457,14 +458,16 @@ export default class World {
         // this.container.add(this.sections.information.container)
 
         // Playground
-        // this.sections.playground = new PlaygroundSection({
-        //     ...options,
-        //     x: - 38,
-        //     y: - 34
-        //     // x: - 15,
-        //     // y: - 4
-        // })
-        // this.container.add(this.sections.playground.container)
+        this.sections.playground = new PlaygroundSection({
+            ...options,
+            x: 0,
+            y: 0,
+            physics: this.physics,
+            scene: this.scene
+            // x: - 15,
+            // y: - 4
+        })
+        this.container.add(this.sections.playground.container)
     }
 
     setEasterEggs() {
@@ -479,6 +482,214 @@ export default class World {
             physics: this.physics
         })
         this.container.add(this.easterEggs.container)
+    }
+
+    setPositionIndicator() {
+        this.positionIndicator = {}
+        
+        // Container
+        this.positionIndicator.container = document.createElement('div')
+        this.positionIndicator.container.style.position = 'absolute'
+        this.positionIndicator.container.style.top = '10px'
+        this.positionIndicator.container.style.left = '10px'
+        this.positionIndicator.container.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
+        this.positionIndicator.container.style.color = 'white'
+        this.positionIndicator.container.style.padding = '8px 12px'
+        this.positionIndicator.container.style.borderRadius = '4px'
+        this.positionIndicator.container.style.fontFamily = 'monospace'
+        this.positionIndicator.container.style.fontSize = '14px'
+        this.positionIndicator.container.style.zIndex = '1000'
+        this.positionIndicator.container.style.lineHeight = '1.5'
+        this.positionIndicator.container.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)'
+        
+        // Create header with title and close button
+        const header = document.createElement('div')
+        header.style.display = 'flex'
+        header.style.justifyContent = 'space-between'
+        header.style.alignItems = 'center'
+        header.style.marginBottom = '5px'
+        header.style.borderBottom = '1px solid rgba(255,255,255,0.3)'
+        header.style.paddingBottom = '3px'
+        
+        // Title
+        const title = document.createElement('div')
+        title.textContent = 'Araç Bilgileri'
+        title.style.fontWeight = 'bold'
+        
+        // Close button
+        const closeButton = document.createElement('button')
+        closeButton.textContent = 'X'
+        closeButton.style.background = 'none'
+        closeButton.style.border = 'none'
+        closeButton.style.color = 'white'
+        closeButton.style.cursor = 'pointer'
+        closeButton.style.fontSize = '14px'
+        closeButton.style.padding = '0 5px'
+        closeButton.title = 'Kapat'
+        
+        // Toggle button (appears when panel is closed)
+        this.positionIndicator.toggleButton = document.createElement('button')
+        this.positionIndicator.toggleButton.textContent = '📍'
+        this.positionIndicator.toggleButton.style.position = 'absolute'
+        this.positionIndicator.toggleButton.style.top = '10px'
+        this.positionIndicator.toggleButton.style.left = '10px'
+        this.positionIndicator.toggleButton.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
+        this.positionIndicator.toggleButton.style.color = 'white'
+        this.positionIndicator.toggleButton.style.border = 'none'
+        this.positionIndicator.toggleButton.style.borderRadius = '4px'
+        this.positionIndicator.toggleButton.style.padding = '5px 10px'
+        this.positionIndicator.toggleButton.style.cursor = 'pointer'
+        this.positionIndicator.toggleButton.style.zIndex = '1000'
+        this.positionIndicator.toggleButton.style.display = 'none'
+        this.positionIndicator.toggleButton.title = 'Konum göstergesini aç'
+        
+        // Add event listeners for close/open
+        closeButton.addEventListener('click', () => {
+            this.positionIndicator.container.style.display = 'none'
+            this.positionIndicator.toggleButton.style.display = 'block'
+        })
+        
+        this.positionIndicator.toggleButton.addEventListener('click', () => {
+            this.positionIndicator.container.style.display = 'block'
+            this.positionIndicator.toggleButton.style.display = 'none'
+        })
+        
+        // Add elements to header
+        header.appendChild(title)
+        header.appendChild(closeButton)
+        
+        // Create elements for displaying information
+        this.positionIndicator.positionText = document.createElement('div')
+        this.positionIndicator.speedText = document.createElement('div')
+        this.positionIndicator.directionText = document.createElement('div')
+        
+        // Create mini-map
+        this.positionIndicator.miniMap = document.createElement('div')
+        this.positionIndicator.miniMap.style.width = '150px'
+        this.positionIndicator.miniMap.style.height = '150px'
+        this.positionIndicator.miniMap.style.backgroundColor = 'rgba(0, 30, 60, 0.5)'
+        this.positionIndicator.miniMap.style.border = '1px solid rgba(255, 255, 255, 0.2)'
+        this.positionIndicator.miniMap.style.borderRadius = '2px'
+        this.positionIndicator.miniMap.style.position = 'relative'
+        this.positionIndicator.miniMap.style.overflow = 'hidden'
+        this.positionIndicator.miniMap.style.marginTop = '10px'
+        
+        // Create car indicator for mini-map
+        this.positionIndicator.carMarker = document.createElement('div')
+        this.positionIndicator.carMarker.style.width = '8px'
+        this.positionIndicator.carMarker.style.height = '12px'
+        this.positionIndicator.carMarker.style.backgroundColor = 'red'
+        this.positionIndicator.carMarker.style.borderRadius = '50% 50% 2px 2px'
+        this.positionIndicator.carMarker.style.position = 'absolute'
+        this.positionIndicator.carMarker.style.transform = 'translate(-50%, -50%)'
+        this.positionIndicator.carMarker.style.transition = 'transform 0.1s ease'
+        this.positionIndicator.miniMap.appendChild(this.positionIndicator.carMarker)
+        
+        // Add sections markers to mini-map
+        // These are approximate locations of sections in the game
+        const sections = [
+            { name: 'Intro', x: 0, y: 0, color: 'rgba(255, 255, 255, 0.4)' },
+            { name: 'Playground', x: 15, y: 9, color: 'rgba(50, 200, 100, 0.4)' },
+            { name: 'Projects', x: 0, y: -15, color: 'rgba(200, 100, 50, 0.4)' },
+            { name: 'Info', x: -15, y: 0, color: 'rgba(50, 100, 200, 0.4)' }
+        ]
+        
+        sections.forEach(section => {
+            const marker = document.createElement('div')
+            marker.style.width = '20px'
+            marker.style.height = '20px'
+            marker.style.backgroundColor = section.color
+            marker.style.borderRadius = '50%'
+            marker.style.position = 'absolute'
+            marker.style.transform = 'translate(-50%, -50%)'
+            marker.style.opacity = '0.7'
+            marker.title = section.name
+            
+            // Position within mini-map, scale down coordinates
+            const mapScale = 3 // Scale factor to fit map
+            const centerX = 75 // Center of mini-map
+            const centerY = 75
+            
+            marker.style.left = `${centerX + section.x / mapScale}px`
+            marker.style.top = `${centerY - section.y / mapScale}px`
+            
+            this.positionIndicator.miniMap.appendChild(marker)
+        })
+        
+        // Add coordinate lines
+        const horizLine = document.createElement('div')
+        horizLine.style.width = '100%'
+        horizLine.style.height = '1px'
+        horizLine.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
+        horizLine.style.position = 'absolute'
+        horizLine.style.top = '50%'
+        horizLine.style.left = '0'
+        
+        const vertLine = document.createElement('div')
+        vertLine.style.width = '1px'
+        vertLine.style.height = '100%'
+        vertLine.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
+        vertLine.style.position = 'absolute'
+        vertLine.style.top = '0'
+        vertLine.style.left = '50%'
+        
+        this.positionIndicator.miniMap.appendChild(horizLine)
+        this.positionIndicator.miniMap.appendChild(vertLine)
+        
+        // Add elements to container
+        this.positionIndicator.container.appendChild(header)
+        this.positionIndicator.container.appendChild(this.positionIndicator.positionText)
+        this.positionIndicator.container.appendChild(this.positionIndicator.speedText)
+        this.positionIndicator.container.appendChild(this.positionIndicator.directionText)
+        this.positionIndicator.container.appendChild(this.positionIndicator.miniMap)
+        
+        // Add to DOM
+        document.body.appendChild(this.positionIndicator.container)
+        document.body.appendChild(this.positionIndicator.toggleButton)
+        
+        // Helper function to get direction name
+        const getDirection = (angle) => {
+            // Convert angle to degrees (0-360)
+            let degrees = (angle * 180 / Math.PI) % 360
+            if (degrees < 0) degrees += 360
+            
+            // Map degrees to direction
+            if (degrees >= 337.5 || degrees < 22.5) return 'Kuzey'
+            if (degrees >= 22.5 && degrees < 67.5) return 'Kuzey Doğu'
+            if (degrees >= 67.5 && degrees < 112.5) return 'Doğu'
+            if (degrees >= 112.5 && degrees < 157.5) return 'Güney Doğu'
+            if (degrees >= 157.5 && degrees < 202.5) return 'Güney'
+            if (degrees >= 202.5 && degrees < 247.5) return 'Güney Batı'
+            if (degrees >= 247.5 && degrees < 292.5) return 'Batı'
+            if (degrees >= 292.5 && degrees < 337.5) return 'Kuzey Batı'
+            return 'Bilinmiyor'
+        }
+        
+        // Update on tick
+        this.time.on('tick', () => {
+            if(this.car && this.car.chassis) {
+                const position = this.car.chassis.object.position
+                const speed = this.car.movement ? this.car.movement.localSpeed.length() : 0
+                const angle = this.car.chassis.object.rotation.z
+                const direction = getDirection(angle)
+                
+                // Update text information
+                this.positionIndicator.positionText.textContent = `Konum: X: ${position.x.toFixed(1)} | Y: ${position.y.toFixed(1)}`
+                this.positionIndicator.speedText.textContent = `Hız: ${speed.toFixed(1)} birim/sn`
+                this.positionIndicator.directionText.textContent = `Yön: ${direction} (${(angle * 180 / Math.PI).toFixed(0)}°)`
+                
+                // Update mini-map car position 
+                const mapScale = 3 // Same scale factor as for section markers
+                const centerX = 75 // Center of mini-map
+                const centerY = 75
+                
+                this.positionIndicator.carMarker.style.left = `${centerX + position.x / mapScale}px`
+                this.positionIndicator.carMarker.style.top = `${centerY - position.y / mapScale}px`
+                
+                // Rotate car indicator to match car direction
+                this.positionIndicator.carMarker.style.transform = `translate(-50%, -50%) rotate(${-angle}rad)`
+            }
+        })
     }
 
     setBrick() {
