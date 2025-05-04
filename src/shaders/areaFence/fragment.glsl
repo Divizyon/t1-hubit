@@ -25,7 +25,7 @@ void main()
 
     float alpha = max(strikeStrength, borderStrength);
 
-    gl_FragColor = vec4(vec3(1.0), alpha);
+    gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), alpha);
 
     // gl_FragColor = vec4(vUv, 1.0, 1.0);
 }
