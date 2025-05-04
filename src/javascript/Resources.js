@@ -27,6 +27,9 @@ export default class Resources extends EventEmitter {
             { name: 'matcapMetal', source: './models/matcaps/metal.png', type: 'texture' },
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
+            // Ses Odası
+            { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
+            
             // Intro
             { name: 'introStaticBase', source: './models/intro/static/base.glb' },
             { name: 'introStaticCollision', source: './models/intro/static/collision.glb' },

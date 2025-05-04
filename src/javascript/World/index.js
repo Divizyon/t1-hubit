@@ -75,6 +75,7 @@ export default class World {
         this.setEasterEggs()
 
         this.setBrick() // Roketi ve etkileşim alanını getirmek için tekrar etkinleştirdim
+        this.setSesOdasi() // Ses odası modelini ekle
         // setResetButton metodu çağrılmıyor
     }
 
@@ -490,16 +491,36 @@ export default class World {
 
 
     setSesOdasi(){
-        this.brick = this.objects.add({
-            base: this.resources.items.sesOdasiBase.scene,
-            collision: this.resources.items.brickCollision.scene,
-            offset: new THREE.Vector3(-10, -10, 0),
-            rotation: new THREE.Euler(0, 0, 5),
-            shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
-            mass: 1.5,
-            soundName: 'brick',
-            sleep: false
+        console.log('Ses odası ekleniyor...');
+        
+        // Ses odası modelini ekle
+        this.sesOdasi = this.objects.add({
+            base: this.resources.items.sesOdasiModel.scene,
+            collision: this.resources.items.brickCollision.scene, // Basit çarpışma modeli kullanıyoruz
+            offset: new THREE.Vector3(25, -5, 0), // Z=0 yaparak modeli zemin seviyesine yerleştiriyorum
+            rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
+            shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+            mass: 0, // Statik bir bina olduğu için kütle 0
+            sleep: true // Fizik hesaplamaları yapılmasın
         });
+        
+        // Ses odası yanına uzamsal ses ekle
+        console.log('Ses odası için uzamsal ses ekleniyor...');
+        const spatialSound = this.sounds.setSpatialSoundAtLocation({
+            x: 25, 
+            y: -5, 
+            z: 0,  // Sesin tam olarak zemin seviyesinde olmasını sağlıyorum
+            sound: 'sesOdasi', 
+            customSoundPath: './sounds/car-horns/duman.mp3', // Kullanılacak ses dosyası
+            maxDistance: 20, // Daha kısa mesafede duyulsun (daha önce 30)
+            refDistance: 5, // Referans mesafeyi artırıyorum (daha önce 3)
+            rolloffFactor: 1.5, // Ses azalma faktörünü hafifletiyorum (daha önce 2)
+            volume: 1.0, // Ses seviyesini maksimuma çıkarıyorum (daha önce 0.8)
+            autoplay: true, // Otomatik başlat
+            loop: true // Sürekli çal
+        });
+        
+        console.log('Ses odası başarıyla eklendi:', this.sesOdasi);
     }
 
     setBrick() {
