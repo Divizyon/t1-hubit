@@ -456,14 +456,14 @@ export default class World {
         // this.container.add(this.sections.information.container)
 
         // Playground
-        // this.sections.playground = new PlaygroundSection({
-        //     ...options,
-        //     x: - 38,
-        //     y: - 34
-        //     // x: - 15,
-        //     // y: - 4
-        // })
-        // this.container.add(this.sections.playground.container)
+        this.sections.playground = new PlaygroundSection({
+            ...options,
+            x: 0,
+            y: 0
+            // x: - 38,
+            // y: - 34
+        })
+        this.container.add(this.sections.playground.container)
     }
 
     setEasterEggs() {
