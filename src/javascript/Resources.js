@@ -216,6 +216,7 @@ export default class Resources extends EventEmitter {
             { name: 'wig2', source: './models/wigs/wig2.glb' },
             { name: 'wig3', source: './models/wigs/wig3.glb' },
             { name: 'wig4', source: './models/wigs/wig4.glb' },
+            { name: 'wig5', source: '.models/kapsul/Kapsul_Bina.glb' },
 
             // // Egg
             // { name: 'eggBase', source: './models/egg/base.glb' },

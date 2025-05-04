@@ -230,6 +230,7 @@ export default class World {
             time: this.time
         })
     }
+    
 
     setAxes() {
         this.axis = new THREE.AxesHelper()
@@ -465,6 +466,7 @@ export default class World {
         // })
         // this.container.add(this.sections.playground.container)
     }
+    
 
     setEasterEggs() {
         this.easterEggs = new EasterEggs({
@@ -478,5 +480,22 @@ export default class World {
             physics: this.physics
         })
         this.container.add(this.easterEggs.container)
+    }
+
+    setKapsul(){
+        if(this.resources.items.Kapsul_Bina && this.resources.items.brickCollision) {
+            this.brick = this.objects.add({
+                base: this.resources.items.Kapsul_Bina.scene,
+                collision: this.resources.items.brickCollision.scene,
+                offset: new THREE.Vector3(10, -10, 0),
+                rotation: new THREE.Euler(0, 0, 0),
+                shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
+                mass: 1.5,
+                soundName: 'brick',
+                sleep: false
+            });
+        } else {
+            console.warn('Kapsul_Bina resources not found, skipping setKapsul');
+        }
     }
 }
