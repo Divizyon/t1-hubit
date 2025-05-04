@@ -55,7 +55,15 @@ export default class Car
             this.models.backLightsReverse = this.resources.items.carCyberTruckBackLightsReverse
             this.models.wheel = this.resources.items.carCyberTruckWheel
         }
-
+        // TOGG
+        else if(this.config.togg)
+        {
+            this.models.chassis = this.resources.items.carToggChassis
+            this.models.antena = this.resources.items.carToggAntena
+            this.models.backLightsBrake = this.resources.items.carToggBackLightsBrake
+            this.models.backLightsReverse = this.resources.items.carToggBackLightsReverse
+            this.models.wheel = this.resources.items.carToggWheel
+        }
         // Default
         else
         {
@@ -108,6 +116,17 @@ export default class Car
         this.chassis = {}
         this.chassis.offset = new THREE.Vector3(0, 0, - 0.28)
         this.chassis.object = this.objects.getConvertedMesh(this.models.chassis.scene.children)
+        
+        // Resme göre hubitBlack rengini uygula
+        if(this.config.hubitBlack) {
+            // Şasinin tüm çocuk elemanlarına hubitBlack materyalini uygula
+            this.chassis.object.traverse((child) => {
+                if(child.isMesh) {
+                    child.material = this.materials.items.hubitBlack.clone()
+                }
+            })
+        }
+        
         this.chassis.object.position.copy(this.physics.car.chassis.body.position)
         this.chassis.oldPosition = this.chassis.object.position.clone()
         this.container.add(this.chassis.object)

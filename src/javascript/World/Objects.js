@@ -65,6 +65,28 @@ export default class Objects
                     return mesh
                 }
             },
+            {
+                regex: /^hubit([a-z]+)_?[0-9]{0,3}?/i,
+                apply: (_mesh, _options) =>
+                {
+                    // Find material
+                    const match = _mesh.name.match(/^hubit([a-z]+)_?[0-9]{0,3}?/i)
+                    const materialName = match[1].toLowerCase()
+                    let material = this.materials.items[materialName]
+
+                    // Default
+                    if(typeof material === 'undefined')
+                    {
+                        material = new THREE.MeshNormalMaterial()
+                    }
+
+                    // Create clone mesh with new material      
+                    const mesh = _options.duplicated ? _mesh.clone() : _mesh
+                    mesh.material = material
+
+                    return mesh
+                }
+            },
 
             // Shade
             {

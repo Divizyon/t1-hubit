@@ -34,6 +34,9 @@ export default class IntroSection {
                 depthWrite: false
             })
         )
+
+        this.floor.position.z = 0.1
+        this.floor.updateMatrix()
         this.floor.frustumCulled = false
         this.floor.matrixAutoUpdate = false
         this.floor.updateMatrix()

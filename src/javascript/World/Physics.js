@@ -133,7 +133,7 @@ export default class Physics
         this.car.options.wheelFrictionSlip = 10
         this.car.options.wheelDampingRelaxation = 1.8
         this.car.options.wheelDampingCompression = 1.5
-        this.car.options.wheelMaxSuspensionForce = 100000
+        this.car.options.wheelMaxSuspensionForce = 1000
         this.car.options.wheelRollInfluence =  0.01
         this.car.options.wheelMaxSuspensionTravel = 0.3
         this.car.options.wheelCustomSlidingRotationalSpeed = - 30
