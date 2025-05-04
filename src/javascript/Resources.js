@@ -84,12 +84,12 @@ export default class Resources extends EventEmitter {
             // { name: 'carDefaultBunnyEarLeft', source: './models/car/default/bunnyEarLeft.glb' },
             // { name: 'carDefaultBunnyEarRight', source: './models/car/default/bunnyEarRight.glb' },
 
-            // Car default
-            { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/chassis.glb' },
+            // Togg
+            { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/Tog_Shade_Version.glb' },
             { name: 'carCyberTruckWheel', source: './models/car/cyberTruck/wheel.glb' },
             { name: 'carCyberTruckBackLightsBrake', source: './models/car/cyberTruck/backLightsBrake.glb' },
             { name: 'carCyberTruckBackLightsReverse', source: './models/car/cyberTruck/backLightsReverse.glb' },
-            { name: 'carCyberTruckAntena', source: './models/car/cyberTruck/antena.glb' },
+            { name: 'carCyberTruckAntena', source: './models/car/default/antena.glb' },
 
             // Project
             { name: 'projectsBoardStructure', source: './models/projects/board/structure.glb' },
@@ -137,6 +137,10 @@ export default class Resources extends EventEmitter {
             { name: 'playgroundStaticCollision', source: './models/playground/static/collision.glb' },
             { name: 'playgroundStaticFloorShadow', source: './models/playground/static/floorShadow.png', type: 'texture' },
 
+            // Greenbox
+            { name: 'greenBoxBase', source: './models/greenbox/base.glb' },
+            { name: 'greenBoxCollision', source: './models/greenbox/base.glb' },
+
             // Brick
             { name: 'brickBase', source: './models/balya/balya.glb' },
             { name: 'brickCollision', source: './models/brick/collision.glb' },
@@ -144,6 +148,9 @@ export default class Resources extends EventEmitter {
             // Horn
             { name: 'hornBase', source: './models/horn/base.glb' },
             { name: 'hornCollision', source: './models/horn/collision.glb' },
+
+            //Roket
+            { name: 'roketModel', source: './models/roket/RoketModeli.glb' },
 
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },

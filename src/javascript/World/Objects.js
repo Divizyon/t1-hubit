@@ -65,6 +65,48 @@ export default class Objects
                     return mesh
                 }
             },
+            {
+                regex: /^hubit([a-z]+)_?[0-9]{0,3}?/i,
+                apply: (_mesh, _options) =>
+                {
+                    // Find material
+                    const match = _mesh.name.match(/^hubit([a-z]+)_?[0-9]{0,3}?/i)
+                    
+                    // Materyal adlarını düzelt
+                    // let materialName = ""
+                    //hubit olduğunda burası kullanılacak
+                    // Model içindeki parça isminden doğrudan kopyala
+                    // if(_mesh.name === "shadeDarkBlue") materialName = "shadeDarkBlue"
+                    // else if(_mesh.name === "shadeBlue") materialName = "shadeBlue"
+                    // else if(_mesh.name === "shadeWhite") materialName = "shadeWhite"
+                    // else if(_mesh.name === "shadeBlack") materialName = "shadeBlack"
+                    // else {
+                    //     // Eğer yukarıdaki isimlerden biri değilse, regex ile parçala
+                    //     const colorPart = match[1]
+                    //     materialName = "hubit" + colorPart
+                    // }
+                    
+                    // Önce this.materials.shades.items içinde ara
+                    // let material = this.materials.shades.items[materialName]
+                    
+                    // // Bulunamazsa this.materials.items içinde ara
+                    // if(typeof material === 'undefined') {
+                    //     material = this.materials.items[materialName]
+                    // }
+
+                    // Default
+                    if(typeof material === 'undefined')
+                    {
+                        material = new THREE.MeshNormalMaterial()
+                    }
+
+                    // Create clone mesh with new material      
+                    const mesh = _options.duplicated ? _mesh.clone() : _mesh
+                    mesh.material = material
+
+                    return mesh
+                }
+            },
 
             // Shade
             {

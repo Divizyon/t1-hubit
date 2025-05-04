@@ -73,7 +73,11 @@ export default class World {
         this.setWalls()
         this.setSections()
         this.setEasterEggs()
+
+        this.setBrick()
+
         this.setResetButton()
+
     }
 
     setReveal() {
@@ -413,12 +417,12 @@ export default class World {
         // this.container.add(this.sections.distinctionD.container)
 
         // Intro
-        // this.sections.intro = new IntroSection({
-        //     ...options,
-        //     x: 0,
-        //     y: 0
-        // })
-        // this.container.add(this.sections.intro.container)
+         this.sections.intro = new IntroSection({
+            ...options,
+             x: 0,
+             y: 0
+         })
+         this.container.add(this.sections.intro.container)
 
         // Area
         this.sections.area = new AreaSection({
@@ -458,14 +462,14 @@ export default class World {
         // this.container.add(this.sections.information.container)
 
         // Playground
-        // this.sections.playground = new PlaygroundSection({
-        //     ...options,
-        //     x: - 38,
-        //     y: - 34
-        //     // x: - 15,
-        //     // y: - 4
-        // })
-        // this.container.add(this.sections.playground.container)
+        this.sections.playground = new PlaygroundSection({
+            ...options,
+            x: 0,
+            y: 0
+            // x: - 38,
+            // y: - 34
+        })
+        this.container.add(this.sections.playground.container)
     }
 
     setEasterEggs() {
@@ -481,6 +485,75 @@ export default class World {
         })
         this.container.add(this.easterEggs.container)
     }
+
+
+    setSesOdasi(){
+        this.brick = this.objects.add({
+            base: this.resources.items.sesOdasiBase.scene,
+            collision: this.resources.items.brickCollision.scene,
+            offset: new THREE.Vector3(-10, -10, 0),
+            rotation: new THREE.Euler(0, 0, 5),
+            shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
+            mass: 1.5,
+            soundName: 'brick',
+            sleep: false
+        });
+    }
+
+    setBrick() {
+        this.brick = this.objects.add({
+            base: this.resources.items.roketModel.scene,
+            collision: this.resources.items.brickCollision.scene,
+            offset: new THREE.Vector3(15, 15, -1),
+            rotation: new THREE.Euler(0, 0, 5),
+            shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
+            mass: 1.5,
+            soundName: 'brick',
+            sleep: false
+        });
+
+        // areaLabelMesh'i oluştur ve sahneye ekle
+        const areaLabelMesh = new THREE.Mesh(
+            new THREE.PlaneGeometry(2, 0.5),
+            new THREE.MeshBasicMaterial({
+                transparent: true,
+                depthWrite: false,
+                color: 0xffffff,
+                alphaMap: this.resources.items.areaResetTexture
+            })
+        );
+        areaLabelMesh.position.set(10, 15, 0); // brick ile aynı konumda, biraz yukarıda
+        areaLabelMesh.matrixAutoUpdate = false;
+        areaLabelMesh.updateMatrix();
+        this.container.add(areaLabelMesh);
+
+        // Enter etkileşimi için area ekle
+        this.brickArea = this.areas.add({
+            position: new THREE.Vector2(10, 15),
+            halfExtents: new THREE.Vector2(3, 3)
+        });
+        this.brickArea.on('interact', () => {
+            const body = this.brick && this.brick.collision && this.brick.collision.body;
+            if (body) {
+                if (body.wakeUp) body.wakeUp();
+                body.velocity.set(0, 0, 0); // Başlangıçta durgun
+                body.angularVelocity.set(0, 0, 10);
+
+                let elapsed = 0;
+                let interval = setInterval(() => {
+                    // Her 50ms'de bir hız artışı uygula
+                    if (elapsed < 2000) { // 2 saniye boyunca hız artışı
+                        // Her seferinde biraz daha fazla kuvvet uygula
+                        const force = 5 + (elapsed / 2000) * 40; // 5'ten 45'e kadar artan kuvvet
+                        body.velocity.z += force * 0.05; // Z ekseni yukarı
+                        elapsed += 50;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 50);
+            }
+        });
+
     
     setResetButton() {
         // Set up
@@ -700,5 +773,6 @@ export default class World {
                 this.resetButton.areaLabelMesh.updateMatrix()
             })
         }
+
     }
 }

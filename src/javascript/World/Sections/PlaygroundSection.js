@@ -32,8 +32,11 @@ export default class PlaygroundSection
         this.setStatic()
         this.setBricksWalls()
         this.setBowling()
+        
+        this.container.add(this.resources.items.greenBoxBase.scene.clone())
     }
 
+    
     setStatic()
     {
         this.objects.add({
@@ -146,84 +149,174 @@ export default class PlaygroundSection
         }
     }
 
-    setBowling()
-    {
-        this.bowling = {}
-        this.bowling.x = this.x + 15
-        this.bowling.y = this.y + 4
+    //    setBowling()
+    // {
+    //     this.bowling = {}
+    //     this.bowling.x = this.x + 15
+    //     this.bowling.y = this.y + 4
 
-        this.bowling.pins = this.walls.add({
-            object:
-            {
-                base: this.resources.items.bowlingPinBase.scene,
-                collision: this.resources.items.bowlingPinCollision.scene,
-                offset: new THREE.Vector3(0, 0, 0.1),
+    //     this.bowling.pins = this.walls.add({
+    //         object:
+    //         {
+    //             base: this.resources.items.bowlingPinBase.scene,
+    //             collision: this.resources.items.bowlingPinCollision.scene,
+    //             offset: new THREE.Vector3(0, 0, 0.1),
+    //             rotation: new THREE.Euler(0, 0, 0),
+    //             duplicated: true,
+    //             shadow: { sizeX: 1.4, sizeY: 1.4, offsetZ: - 0.15, alpha: 0.35 },
+    //             mass: 0.1,
+    //             soundName: 'bowlingPin'
+    //             // sleep: false
+    //         },
+    //         shape:
+    //         {
+    //             type: 'triangle',
+    //             widthCount: 4,
+    //             position: new THREE.Vector3(this.bowling.x - 25, this.bowling.y, 0),
+    //             offsetWidth: new THREE.Vector3(0, 1, 0),
+    //             offsetHeight: new THREE.Vector3(0.65, 0, 0),
+    //             randomOffset: new THREE.Vector3(0, 0, 0),
+    //             randomRotation: new THREE.Vector3(0, 0, 0)
+    //         }
+    //     })
+
+    //     this.bowling.ball = this.objects.add({
+    //         base: this.resources.items.bowlingBallBase.scene,
+    //         collision: this.resources.items.bowlingBallCollision.scene,
+    //         offset: new THREE.Vector3(this.bowling.x - 5, this.bowling.y, 0),
+    //         rotation: new THREE.Euler(Math.PI * 0.5, 0, 0),
+    //         duplicated: true,
+    //         shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: - 0.15, alpha: 0.35 },
+    //         mass: 1,
+    //         soundName: 'bowlingBall'
+    //         // sleep: false
+    //     })
+
+    //     // Reset
+    //     this.bowling.reset = () =>
+    //     {
+    //         // Reset pins
+    //         for(const _pin of this.bowling.pins.items)
+    //         {
+    //             _pin.collision.reset()
+    //         }
+
+    //         // Reset ball
+    //         this.bowling.ball.collision.reset()
+    //     }
+
+        // // Reset area
+        // this.bowling.resetArea = this.areas.add({
+        //     position: new THREE.Vector2(this.bowling.x, this.bowling.y),
+        //     halfExtents: new THREE.Vector2(2, 2)
+        // })
+        // this.bowling.resetArea.on('interact', () =>
+        // {
+        //     this.bowling.reset()
+        // })
+
+        // // Reset label
+        // this.bowling.areaLabelMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaResetTexture }))
+        // this.bowling.areaLabelMesh.position.x = this.bowling.x
+        // this.bowling.areaLabelMesh.position.y = this.bowling.y
+        // this.bowling.areaLabelMesh.matrixAutoUpdate = false
+        // this.bowling.areaLabelMesh.updateMatrix()
+        // this.container.add(this.bowling.areaLabelMesh)
+
+    //     // Debug
+    //     if(this.debugFolder)
+    //     {
+    //         this.debugFolder.add(this.bowling, 'reset').name('bowling reset')
+    //     }
+    // }
+
+    setGreenBox()
+    {
+        // Set up
+        this.greenBox = {}
+        this.greenBox.x = this.x  // Centered on X axis
+        this.greenBox.y = this.y  // Centered on Y axis
+
+        // Create a green box container
+        const greenBoxContainer = new THREE.Group()
+        greenBoxContainer.position.set(this.greenBox.x, this.greenBox.y, 0)
+        this.container.add(greenBoxContainer)
+
+        // Check if resources and greenBoxBase exist
+        if(this.resources && 
+           this.resources.items && 
+           this.resources.items.greenBoxBase && 
+           this.resources.items.greenBoxBase.scene)
+        {
+            // Add the greenBox
+            this.greenBoxObject = this.objects.add({
+                base: this.resources.items.greenBoxBase.scene,
+                collision: this.resources.items.greenBoxCollision ? this.resources.items.greenBoxCollision.scene : null,
+                offset: new THREE.Vector3(this.greenBox.x, this.greenBox.y, 0),
                 rotation: new THREE.Euler(0, 0, 0),
                 duplicated: true,
-                shadow: { sizeX: 1.4, sizeY: 1.4, offsetZ: - 0.15, alpha: 0.35 },
-                mass: 0.1,
-                soundName: 'bowlingPin'
-                // sleep: false
-            },
-            shape:
+                shadow: { sizeX: 2.5, sizeY: 2.5, offsetZ: - 0.15, alpha: 0.5 },
+                mass: 0,
+                soundName: 'brick'
+            })
+
+            // Check if resources and brickBase exist
+            if(this.resources.items.brickBase && 
+               this.resources.items.brickBase.scene)
             {
-                type: 'triangle',
-                widthCount: 4,
-                position: new THREE.Vector3(this.bowling.x - 25, this.bowling.y, 0),
-                offsetWidth: new THREE.Vector3(0, 1, 0),
-                offsetHeight: new THREE.Vector3(0.65, 0, 0),
-                randomOffset: new THREE.Vector3(0, 0, 0),
-                randomRotation: new THREE.Vector3(0, 0, 0)
+                // Add balya (baseglb) model inside the greenbox 
+                this.balyaObject = this.objects.add({
+                    base: this.resources.items.brickBase.scene, // This is the balya.glb model
+                    collision: this.resources.items.brickCollision ? this.resources.items.brickCollision.scene : null,
+                    offset: new THREE.Vector3(this.greenBox.x, this.greenBox.y, 0.5), // Placed slightly above the greenbox
+                    rotation: new THREE.Euler(0, 0, 0),
+                    duplicated: true,
+                    shadow: { sizeX: 1.8, sizeY: 1.8, offsetZ: - 0.1, alpha: 0.4 },
+                    mass: 0.5, // Give it some mass so it falls and sits on the greenbox
+                    soundName: 'brick'
+                })
+
+                // Reset functionality
+                this.greenBox.reset = () => {
+                    if(this.balyaObject && this.balyaObject.collision) {
+                        this.balyaObject.collision.reset()
+                    }
+                }
+
+                // Reset area
+                this.greenBox.resetArea = this.areas.add({
+                    position: new THREE.Vector2(this.greenBox.x, this.greenBox.y),
+                    halfExtents: new THREE.Vector2(3, 3) // Larger interaction area
+                })
+                this.greenBox.resetArea.on('interact', () => {
+                    this.greenBox.reset()
+                })
+
+                // Check if areaResetTexture exists
+                if(this.resources.items.areaResetTexture) {
+                    // Reset label
+                    this.greenBox.areaLabelMesh = new THREE.Mesh(
+                        new THREE.PlaneGeometry(3, 0.75), // Larger label
+                        new THREE.MeshBasicMaterial({ 
+                            transparent: true, 
+                            depthWrite: false, 
+                            color: 0xffffff, 
+                            alphaMap: this.resources.items.areaResetTexture 
+                        })
+                    )
+                    this.greenBox.areaLabelMesh.position.x = this.greenBox.x
+                    this.greenBox.areaLabelMesh.position.y = this.greenBox.y
+                    this.greenBox.areaLabelMesh.matrixAutoUpdate = false
+                    this.greenBox.areaLabelMesh.updateMatrix()
+                    this.container.add(this.greenBox.areaLabelMesh)
+                }
+
+                // Debug
+                if(this.debugFolder)
+                {
+                    this.debugFolder.add(this.greenBox, 'reset').name('greenBox reset')
+                }
             }
-        })
-
-        this.bowling.ball = this.objects.add({
-            base: this.resources.items.bowlingBallBase.scene,
-            collision: this.resources.items.bowlingBallCollision.scene,
-            offset: new THREE.Vector3(this.bowling.x - 5, this.bowling.y, 0),
-            rotation: new THREE.Euler(Math.PI * 0.5, 0, 0),
-            duplicated: true,
-            shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: - 0.15, alpha: 0.35 },
-            mass: 1,
-            soundName: 'bowlingBall'
-            // sleep: false
-        })
-
-        // Reset
-        this.bowling.reset = () =>
-        {
-            // Reset pins
-            for(const _pin of this.bowling.pins.items)
-            {
-                _pin.collision.reset()
-            }
-
-            // Reset ball
-            this.bowling.ball.collision.reset()
-        }
-
-        // Reset area
-        this.bowling.resetArea = this.areas.add({
-            position: new THREE.Vector2(this.bowling.x, this.bowling.y),
-            halfExtents: new THREE.Vector2(2, 2)
-        })
-        this.bowling.resetArea.on('interact', () =>
-        {
-            this.bowling.reset()
-        })
-
-        // Reset label
-        this.bowling.areaLabelMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaResetTexture }))
-        this.bowling.areaLabelMesh.position.x = this.bowling.x
-        this.bowling.areaLabelMesh.position.y = this.bowling.y
-        this.bowling.areaLabelMesh.matrixAutoUpdate = false
-        this.bowling.areaLabelMesh.updateMatrix()
-        this.container.add(this.bowling.areaLabelMesh)
-
-        // Debug
-        if(this.debugFolder)
-        {
-            this.debugFolder.add(this.bowling, 'reset').name('bowling reset')
         }
     }
 }
