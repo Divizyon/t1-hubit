@@ -909,24 +909,6 @@ export default class World {
       console.warn("Toy robot model not found in resources");
     }
 
-    // Add the white tiger model
-    if (this.resources.items.whiteTigerAnimated) {
-      this.whiteTiger = new AnimatedModel({
-        time: this.time,
-        resources: this.resources,
-        materials: this.materials,
-        shadows: this.shadows,
-        debug: this.debug,
-        modelName: "whiteTigerAnimated",
-        position: new THREE.Vector3(15, 20, 0), // Position on the other side of the seagull
-        rotation: new THREE.Euler(Math.PI / 2, 0, 0), // Same rotation as other models
-        scale: new THREE.Vector3(0.05, 0.05, 0.05), // Starting with a small scale - can be adjusted via debug
-      });
-
-      // Add the model container to the scene
-      this.container.add(this.whiteTiger.container);
-    } else {
-      console.warn("White tiger model not found in resources");
-    }
+    // White tiger model reference has been removed
   }
 }
