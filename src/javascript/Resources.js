@@ -85,6 +85,16 @@ export default class Resources extends EventEmitter {
         source: "./models/boat_dock_with_seagull_isometric_animated.glb",
         type: "gltfAnimation",
       },
+      {
+        name: "toyRobotAnimated",
+        source: "./models/toy_robot_animated_-_lowpoly.glb",
+        type: "gltfAnimation",
+      },
+      {
+        name: "whiteTigerAnimated",
+        source: "./models/white_tiger_rigged_animated.glb",
+        type: "gltfAnimation",
+      },
 
       // Intro
       { name: "introStaticBase", source: "./models/intro/static/base.glb" },

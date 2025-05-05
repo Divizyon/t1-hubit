@@ -23,6 +23,7 @@ import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
+import AnimatedModel from "./AnimatedModel.js";
 
 export default class World {
   constructor(_options) {
@@ -868,201 +869,64 @@ export default class World {
   }
 
   setAnimatedObjects() {
-    // Prepare animated boat dock
+    // Use the centralized AnimatedModel class for handling animated GLB models
     if (this.resources.items.boatDockWithSeagull) {
-      console.log("Loading animated boat dock model");
-
-      // Clone the model
-      const gltf = this.resources.items.boatDockWithSeagull;
-      const modelScene = gltf.scene.clone();
-
-      // Log model structure to understand what we're working with
-      console.log("Model structure:");
-      modelScene.traverse((child) => {
-        if (child.isMesh) {
-          console.log(
-            `Mesh: ${child.name}, Material: ${
-              child.material ? child.material.type : "none"
-            }`
-          );
-        } else if (child.isObject3D) {
-          console.log(
-            `Object3D: ${child.name}, Children: ${child.children.length}`
-          );
-        }
+      this.animatedBoatDock = new AnimatedModel({
+        time: this.time,
+        resources: this.resources,
+        materials: this.materials,
+        shadows: this.shadows,
+        debug: this.debug,
+        modelName: "boatDockWithSeagull",
+        position: new THREE.Vector3(20, 20, 0),
+        rotation: new THREE.Euler(Math.PI / 2, 0, 0), // Rotate 90 degrees around X axis
+        scale: new THREE.Vector3(8, 8, 8),
       });
 
-      // Position and scale the model
-      modelScene.position.set(20, 20, 0);
-      modelScene.scale.set(8, 8, 8);
-      modelScene.rotation.set(Math.PI / 2, 0, 0); // Rotate 90 degrees around X axis to correct orientation
-
-      // Manually apply materials to each mesh in the model
-      const materials = this.materials.shades.items;
-      const matcapMaterials = {
-        beige:
-          materials.beige || new THREE.MeshMatcapMaterial({ color: 0xe3caa5 }),
-        white:
-          materials.white || new THREE.MeshMatcapMaterial({ color: 0xffffff }),
-        blue:
-          materials.blue || new THREE.MeshMatcapMaterial({ color: 0x3498db }),
-        green:
-          materials.green || new THREE.MeshMatcapMaterial({ color: 0x2ecc71 }),
-        brown:
-          materials.brown || new THREE.MeshMatcapMaterial({ color: 0x8b4513 }),
-        red: materials.red || new THREE.MeshMatcapMaterial({ color: 0xe74c3c }),
-        black:
-          materials.black || new THREE.MeshMatcapMaterial({ color: 0x000000 }),
-        gray:
-          materials.gray || new THREE.MeshMatcapMaterial({ color: 0x95a5a6 }),
-      };
-
-      // Apply materials to meshes based on reasonable assumptions about the model
-      modelScene.traverse((child) => {
-        if (child.isMesh) {
-          // Assign materials based on object name or other criteria
-          if (
-            child.name.toLowerCase().includes("water") ||
-            child.name.toLowerCase().includes("sea")
-          ) {
-            child.material = matcapMaterials.blue;
-          } else if (
-            child.name.toLowerCase().includes("wood") ||
-            child.name.toLowerCase().includes("dock")
-          ) {
-            child.material = matcapMaterials.brown;
-          } else if (
-            child.name.toLowerCase().includes("bird") ||
-            child.name.toLowerCase().includes("seagull")
-          ) {
-            child.material = matcapMaterials.white;
-          } else if (child.name.toLowerCase().includes("beak")) {
-            child.material = matcapMaterials.beige;
-          } else if (child.name.toLowerCase().includes("eye")) {
-            child.material = matcapMaterials.black;
-          } else {
-            // Default material for unrecognized parts
-            // Try different colors to see what works best for visibility
-            const meshIndex = child.id % 6;
-            const colorMaterials = [
-              matcapMaterials.white,
-              matcapMaterials.beige,
-              matcapMaterials.blue,
-              matcapMaterials.brown,
-              matcapMaterials.green,
-              matcapMaterials.red,
-            ];
-            child.material = colorMaterials[meshIndex];
-          }
-
-          // Ensure material settings are correct
-          child.material.needsUpdate = true;
-          child.castShadow = true;
-          child.receiveShadow = true;
-        }
-      });
-
-      // Add model to scene
-      this.container.add(modelScene);
-
-      // Setup animation mixer
-      this.boatDockAnimations = {};
-      this.boatDockAnimations.mixer = new THREE.AnimationMixer(modelScene);
-      this.boatDockAnimations.clips = gltf.animations;
-      this.boatDockAnimations.actions = {};
-
-      console.log(
-        `Found ${this.boatDockAnimations.clips.length} animations for boat dock`
-      );
-
-      // Create animation actions
-      if (this.boatDockAnimations.clips.length > 0) {
-        // Create actions for each animation clip
-        for (const clip of this.boatDockAnimations.clips) {
-          console.log(`Creating action for animation: ${clip.name}`);
-          this.boatDockAnimations.actions[clip.name] =
-            this.boatDockAnimations.mixer.clipAction(clip);
-        }
-
-        // Play the first animation by default
-        const firstAnimationName = this.boatDockAnimations.clips[0].name;
-        this.boatDockAnimations.actions.current =
-          this.boatDockAnimations.actions[firstAnimationName];
-        this.boatDockAnimations.actions.current.play();
-        console.log(`Started playing animation: ${firstAnimationName}`);
-      }
-
-      // Add update event for animations
-      this.time.on("tick", () => {
-        if (this.boatDockAnimations.mixer) {
-          this.boatDockAnimations.mixer.update(this.time.delta * 0.001);
-        }
-      });
-
-      // Add shadow to the model
-      this.shadows.add(modelScene, {
-        sizeX: 5,
-        sizeY: 5,
-        offsetZ: -0.6,
-        alpha: 0.4,
-      });
-
-      // Add debug controls if available
-      if (this.debug) {
-        const debugFolder = this.debug.addFolder("Animated Boat Model");
-
-        // Position controls
-        debugFolder
-          .add(modelScene.position, "x", -50, 50)
-          .name("Position X")
-          .onChange(() => modelScene.updateMatrix());
-        debugFolder
-          .add(modelScene.position, "y", -50, 50)
-          .name("Position Y")
-          .onChange(() => modelScene.updateMatrix());
-        debugFolder
-          .add(modelScene.position, "z", -10, 10)
-          .name("Position Z")
-          .onChange(() => modelScene.updateMatrix());
-
-        // Scale controls
-        const scaleControl = debugFolder
-          .add(modelScene.scale, "x", 0.1, 50)
-          .name("Scale");
-        scaleControl.onChange(() => {
-          modelScene.scale.y = modelScene.scale.x;
-          modelScene.scale.z = modelScene.scale.x;
-          modelScene.updateMatrix();
-        });
-
-        // Animation controls
-        if (
-          this.boatDockAnimations.clips &&
-          this.boatDockAnimations.clips.length > 0
-        ) {
-          const animationParameters = {};
-
-          // Add play button for each animation
-          for (const clip of this.boatDockAnimations.clips) {
-            animationParameters[`play_${clip.name}`] = () => {
-              const newAction = this.boatDockAnimations.actions[clip.name];
-              const oldAction = this.boatDockAnimations.actions.current;
-
-              if (newAction && oldAction !== newAction) {
-                newAction.reset();
-                newAction.play();
-                newAction.crossFadeFrom(oldAction, 0.5);
-
-                this.boatDockAnimations.actions.current = newAction;
-              }
-            };
-
-            debugFolder.add(animationParameters, `play_${clip.name}`);
-          }
-        }
-      }
+      // Add the model container to the scene
+      this.container.add(this.animatedBoatDock.container);
     } else {
       console.warn("Boat dock model not found in resources");
+    }
+
+    // Add the toy robot model next to the seagull
+    if (this.resources.items.toyRobotAnimated) {
+      this.toyRobot = new AnimatedModel({
+        time: this.time,
+        resources: this.resources,
+        materials: this.materials,
+        shadows: this.shadows,
+        debug: this.debug,
+        modelName: "toyRobotAnimated",
+        position: new THREE.Vector3(25, 20, 0), // Position near the seagull
+        rotation: new THREE.Euler(Math.PI / 2, 0, 0), // Rotate 90 degrees around X axis (same as seagull)
+        scale: new THREE.Vector3(1.5, 1.5, 1.5), // Reduced scale to make it smaller
+      });
+
+      // Add the model container to the scene
+      this.container.add(this.toyRobot.container);
+    } else {
+      console.warn("Toy robot model not found in resources");
+    }
+
+    // Add the white tiger model
+    if (this.resources.items.whiteTigerAnimated) {
+      this.whiteTiger = new AnimatedModel({
+        time: this.time,
+        resources: this.resources,
+        materials: this.materials,
+        shadows: this.shadows,
+        debug: this.debug,
+        modelName: "whiteTigerAnimated",
+        position: new THREE.Vector3(15, 20, 0), // Position on the other side of the seagull
+        rotation: new THREE.Euler(Math.PI / 2, 0, 0), // Same rotation as other models
+        scale: new THREE.Vector3(0.05, 0.05, 0.05), // Starting with a small scale - can be adjusted via debug
+      });
+
+      // Add the model container to the scene
+      this.container.add(this.whiteTiger.container);
+    } else {
+      console.warn("White tiger model not found in resources");
     }
   }
 }
