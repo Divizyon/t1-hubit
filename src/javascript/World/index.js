@@ -79,6 +79,7 @@ export default class World {
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
+    this.setKelebeklerVadisi(); // Kelebekler vadisi modelini ekler
     // setResetButton metodu çağrılmıyor
   }
 
@@ -950,6 +951,33 @@ export default class World {
       }
     } catch (error) {
       console.error("HATA: Road oluşturulurken bir hata oluştu:", error);
+    }
+  }
+
+  setKelebeklerVadisi() {
+    try {
+      // Kelebekler vadisi modelini kontrol et
+      if (this.resources && 
+          this.resources.items && 
+          this.resources.items.kelebeklerVadisiModel && 
+          this.resources.items.kelebeklerVadisiModel.scene) {
+          
+        this.kelebeklerVadisi = this.objects.add({
+          base: this.resources.items.kelebeklerVadisiModel.scene,
+          collision: this.resources.items.brickCollision.scene, // Çarpışma modeli için brick modelini kullan
+          offset: new THREE.Vector3(20, -20, 0), // X=20, Y=-20 konumunda yerleştiriyorum
+          rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
+          shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+          mass: 0, // Statik bir model olduğu için kütle 0
+          sleep: true, // Fizik hesaplamaları yapılmasın
+        });
+
+        console.log("Kelebekler Vadisi başarıyla eklendi:", this.kelebeklerVadisi);
+      } else {
+        console.warn("Kelebekler Vadisi modeli bulunamadı veya yüklenemedi!");
+      }
+    } catch (error) {
+      console.error("Kelebekler Vadisi eklenirken hata oluştu:", error);
     }
   }
 }
