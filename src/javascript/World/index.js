@@ -967,8 +967,8 @@ export default class World {
           
         this.kelebeklerVadisi = this.objects.add({
           base: this.resources.items.kelebeklerVadisiModel.scene,
-          collision: this.resources.items.brickCollision.scene, // Çarpışma modeli için brick modelini kullan
-          offset: new THREE.Vector3(30, -40, 0), // X=30, Y=-30 konumuna taşındı (önceki: 20, -20)
+          // collision: this.resources.items.brickCollision.scene, // Çarpışma modelini kaldırdım
+          offset: new THREE.Vector3(30, -40, -0.5), // X=30, Y=-30 konumuna taşındı (önceki: 20, -20)
           rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
           shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
           mass: 0, // Statik bir model olduğu için kütle 0
@@ -994,7 +994,7 @@ export default class World {
           
         this.kapsul = this.objects.add({
           base: this.resources.items.kapsulModel.scene,
-          collision: this.resources.items.brickCollision.scene, // Çarpışma modeli için brick modelini kullan
+          // collision parametresini kaldırdım - artık çarpışma olmayacak
           offset: new THREE.Vector3(30, -25, 2), // Z değerini 0'dan 2'ye yükselttim
           rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
           shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
@@ -1026,65 +1026,6 @@ export default class World {
           });
           
           console.log("Kapsul görünürlük ayarları yapıldı");
-        }
-
-        // Çarpışma alanları ekle (merkez etrafında 2x2 grid)
-        const centerPosition = new THREE.Vector3(30, -25, 0);
-        const offsets = [
-          // Mevcut çarpışma nesneleri - merkeze daha yakın
-          new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y, centerPosition.z),   // Sağ
-          new THREE.Vector3(centerPosition.x - 2.0, centerPosition.y, centerPosition.z),   // Sol
-          new THREE.Vector3(centerPosition.x, centerPosition.y + 1.0, centerPosition.z),   // Yukarı
-          new THREE.Vector3(centerPosition.x, centerPosition.y - 1.0, centerPosition.z),   // Aşağı
-          new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y + 1.0, centerPosition.z), // Sağ üst
-          new THREE.Vector3(centerPosition.x - 2.0, centerPosition.y + 2.0, centerPosition.z), // Sol üst
-          new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y - 1.0, centerPosition.z), // Sağ alt
-          new THREE.Vector3(centerPosition.x - 2.0, centerPosition.y - 2.0, centerPosition.z),  // Sol alt
-          
-          // Daha uzak bölgeler
-          new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y, centerPosition.z),     // Daha sağ
-          new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y + 1.0, centerPosition.z), // Daha sağ üst
-          new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y, centerPosition.z),     // En sağ
-          new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y + 1.0, centerPosition.z), // En sağ üst
-          
-          // +Y yönünde daha fazla alan
-          new THREE.Vector3(centerPosition.x, centerPosition.y + 2.5, centerPosition.z),     // Daha yukarı
-          new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y + 2.5, centerPosition.z), // Sağ daha yukarı
-          new THREE.Vector3(centerPosition.x, centerPosition.y + 4.0, centerPosition.z),     // En yukarı
-          new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y + 4.0, centerPosition.z), // Sağ en yukarı
-          
-          // Köşe alanları
-          new THREE.Vector3(centerPosition.x + 3.5, centerPosition.y + 3.5, centerPosition.z), // En kuzey doğu köşesi
-          new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y + 2.5, centerPosition.z), // Köşe
-          new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y + 2.5, centerPosition.z), // Daha sağ köşe
-          new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y + 4.0, centerPosition.z), // Daha yukarı köşe
-          
-          // Diğer alanlar
-          new THREE.Vector3(centerPosition.x, centerPosition.y, centerPosition.z + 1.0),     // Merkezin üstünde
-          new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y - 1.0, centerPosition.z), // Daha sağ alt
-          new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y - 1.0, centerPosition.z), // En sağ alt
-          new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y - 2.5, centerPosition.z), // Daha sağ daha alt
-        ];
-        
-        // İlave çarpışma nesnelerini ekleyelim
-        this.kapsulCollisions = [];
-        for (let i = 0; i < offsets.length; i++) {
-          // Görünmez çarpışma nesnesi ekle (sadece fizik, görsel yok)
-          const collisionObject = this.objects.add({
-            base: this.resources.items.brickCollision.scene, // Görünmez, sadece çarpışma
-            collision: this.resources.items.brickCollision.scene,
-            offset: offsets[i],
-            rotation: new THREE.Euler(0, 0, 0),
-            mass: 0,
-            sleep: true,
-          });
-          
-          // Çarpışma nesnesini gizle (sadece fizik için kullanıyoruz)
-          if (collisionObject && collisionObject.container) {
-            collisionObject.container.visible = false;
-          }
-          
-          this.kapsulCollisions.push(collisionObject);
         }
 
         console.log("Kapsul modeli başarıyla eklendi:", this.kapsul);
