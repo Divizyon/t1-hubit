@@ -157,9 +157,12 @@ export default class Resources extends EventEmitter {
 
             // Yol modeli
             { name: 'roadModel', source: './models/road/road.glb' },
-            
+
             // Kelebekler Vadisi
             { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerVadisiblockout.glb' },
+            
+            // Kapsul
+            { name: 'kapsulModel', source: './models/kapsul/Kapsul_BlockOut.glb' },
 
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
