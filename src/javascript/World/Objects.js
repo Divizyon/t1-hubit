@@ -89,7 +89,7 @@ export default class Objects
                     // Önce this.materials.shades.items içinde ara
                     // let material = this.materials.shades.items[materialName]
                     
-                    // // Bulunamazsa this.materials.items içinde ara
+                    // Bulunamazsa this.materials.items içinde ara
                     // if(typeof material === 'undefined') {
                     //     material = this.materials.items[materialName]
                     // }
@@ -328,6 +328,12 @@ export default class Objects
         // Sleep
         const sleep = typeof _options.sleep === 'undefined' ? true : _options.sleep
 
+        // Base children kontrolü
+        if (!_options.base || !_options.base.children || _options.base.children.length === 0) {
+            console.warn('Objects.add: Base modelin children özelliği yok veya boş');
+            return null;
+        }
+
         // Container
         object.container = this.getConvertedMesh(_options.base.children, _options)
         object.container.position.copy(offset)
@@ -348,21 +354,36 @@ export default class Objects
         }
 
         // Create physics object
-        object.collision = this.physics.addObjectFromThree({
-            meshes: [..._options.collision.children],
-            offset,
-            rotation,
-            mass: _options.mass,
-            sleep
-        })
-
-        for(const _child of object.container.children)
-        {
-            _child.position.sub(object.collision.center)
+        if (_options.collision && _options.collision.children && _options.collision.children.length > 0) {
+            object.collision = this.physics.addObjectFromThree({
+                meshes: [..._options.collision.children],
+                offset,
+                rotation,
+                mass: _options.mass,
+                sleep
+            })
+            
+            for(const _child of object.container.children)
+            {
+                if (object.collision && object.collision.center) {
+                    _child.position.sub(object.collision.center)
+                }
+            }
+        } else {
+            // Daha nazik bir bilgi mesajı, sadece objenin adı verildiyse göster
+            if (_options.name) {
+                console.info(`${_options.name} modeli için fizik nesnesi oluşturulmadı, içinden geçilebilir olacak`);
+            }
+            
+            // Fizik nesnesi olmadan bir merkez tanımla
+            object.collision = {
+                center: new THREE.Vector3(0, 0, 0),
+                body: null
+            }
         }
 
         // Sound
-        if(_options.soundName)
+        if(_options.soundName && object.collision && object.collision.body)
         {
             object.collision.body.addEventListener('collide', (_event) =>
             {
@@ -379,7 +400,7 @@ export default class Objects
         }
 
         // Time tick event
-        if(_options.mass > 0)
+        if(_options.mass > 0 && object.collision && object.collision.body)
         {
             this.time.on('tick', () =>
             {
