@@ -11,7 +11,7 @@ export default class Resources extends EventEmitter {
         this.items = {}
 
         this.loader.load([
-            { name: 'sosyalinovasyonBase', source: './models/sosyalino.glb', type: 'texture' },
+            { name: 'sosyalinovasyonBase', source: './models/sosyalino.glb', type: 'gltfModel' },
 
             // Matcaps
             { name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
@@ -29,6 +29,9 @@ export default class Resources extends EventEmitter {
             { name: 'matcapMetal', source: './models/matcaps/metal.png', type: 'texture' },
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
+            // Ses Odası
+            { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
+            
             // Intro
             { name: 'introStaticBase', source: './models/intro/static/base.glb' },
             { name: 'introStaticCollision', source: './models/intro/static/collision.glb' },
@@ -141,7 +144,7 @@ export default class Resources extends EventEmitter {
 
             // Greenbox
             { name: 'greenBoxBase', source: './models/greenBox/base.glb' },
-            { name: 'greenBoxCollision', source: './models/greenBox/base.glb' },
+            { name: 'greenBoxCollision', source: './models/greenBox/base.glb' }, 
 
             // Brick
             { name: 'brickBase', source: './models/balya/balya.glb' },
@@ -153,6 +156,9 @@ export default class Resources extends EventEmitter {
 
             //Roket
             { name: 'roketModel', source: './models/roket/RoketModeli.glb' },
+
+            // Yol modeli
+            { name: 'roadModel', source: './models/road/road.glb' },
 
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
