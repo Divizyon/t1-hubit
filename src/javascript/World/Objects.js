@@ -355,18 +355,18 @@ export default class Objects
 
         // Create physics object
         if (_options.collision && _options.collision.children && _options.collision.children.length > 0) {
-            object.collision = this.physics.addObjectFromThree({
-                meshes: [..._options.collision.children],
-                offset,
-                rotation,
-                mass: _options.mass,
-                sleep
-            })
-            
-            for(const _child of object.container.children)
-            {
+        object.collision = this.physics.addObjectFromThree({
+            meshes: [..._options.collision.children],
+            offset,
+            rotation,
+            mass: _options.mass,
+            sleep
+        })
+
+        for(const _child of object.container.children)
+        {
                 if (object.collision && object.collision.center) {
-                    _child.position.sub(object.collision.center)
+            _child.position.sub(object.collision.center)
                 }
             }
         } else {
