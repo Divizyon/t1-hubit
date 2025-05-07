@@ -24,6 +24,7 @@ import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
+import Sosyalino from "./SosyalinoModule.js";
 
 export default class World {
   constructor(_options) {
@@ -935,17 +936,18 @@ export default class World {
   }
 
   setSosyalinovasyon() {
-    this.brick = this.objects.add({
-      base: this.resources.items.sosyalinovasyonBase.scene,
-      collision: this.resources.items.brickCollision.scene,
-      collisionScale: new THREE.Vector3(5, 5, 5), 
-      offset: new THREE.Vector3(82, 50, 0),
-      rotation: new THREE.Euler(Math.PI/2, Math.PI, 0),
-      shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
-      mass: 0,
-      fixed: true, 
-      soundName: 'brick',
-      sleep: false
+    this.sosyalinoInstance = new Sosyalino({
+      resources: this.resources,
+      objects: this.objects,
+      shadows: this.shadows,
+      sounds: this.sounds
     });
+    
+    // Container'ı ekleyin eğer gerekiyorsa
+    if(this.sosyalinoInstance.container) {
+      this.container.add(this.sosyalinoInstance.container);
+    }
   }
 }
+
+

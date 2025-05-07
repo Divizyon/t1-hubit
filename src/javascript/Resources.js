@@ -11,7 +11,7 @@ export default class Resources extends EventEmitter {
         this.items = {}
 
         this.loader.load([
-            { name: 'sosyalinovasyonBase', source: './models/sosyalino.glb', type: 'gltfModel' },
+            { name: 'Sosyalino', source: './models/sosyalino.glb', type: 'model' },
 
             // Matcaps
             { name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
@@ -262,7 +262,7 @@ export default class Resources extends EventEmitter {
         try {
             // Eğer Resources.js'de modeli farklı bir isimle tanımladıysanız, o ismi kullanın
             // Örneğin 'sosyalinoModel' olarak tanımladıysanız:
-            const model = this.items.sosyalinoModel.scene;
+            const model = this.items.SosyalinoModel.scene;
             model.position.set(0, 0, 0);
             model.scale.set(5, 5, 5);
             this.container.add(model);
