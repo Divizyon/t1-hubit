@@ -11,6 +11,7 @@ import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
 import Kapsul from "./Kapsul.js";
+import Sosyalino from "./SosyalinoModule.js";
 import IntroSection from "./Sections/IntroSection.js";
 import AreaSection from "./Sections/AreaSection.js";
 import ProjectsSection from "./Sections/ProjectsSection.js";
@@ -82,6 +83,7 @@ export default class World {
     this.setGreenBox(); // Yeşil kutu modelini ekler
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
+    this.setSosyalino(); // Sosyalino modelini ekler
     // setResetButton metodu çağrılmıyor
   }
 
@@ -1143,6 +1145,26 @@ export default class World {
       console.log("Kapsül etkileşim alanı başarıyla eklendi");
     } catch (error) {
       console.error("Kapsül etkileşim alanı eklenirken hata oluştu:", error);
+    }
+  }
+
+  setSosyalino() {
+    try {
+      this.sosyalino = new Sosyalino({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds
+      });
+      
+      if (this.sosyalino && this.sosyalino.container) {
+        this.container.add(this.sosyalino.container);
+        console.log("Sosyalino modeli başarıyla eklendi");
+      } else {
+        console.warn("Sosyalino container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("Sosyalino eklenirken hata oluştu:", error);
     }
   }
 }
