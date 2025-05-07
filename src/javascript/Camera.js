@@ -119,7 +119,14 @@ export default class Camera
         this.zoom.targetValue = this.zoom.value
         this.zoom.distance = this.zoom.minDistance + this.zoom.amplitude * this.zoom.value
 
-        // Listen to mousewheel event
+        // Listen to wheel event (modern replacement for mousewheel)
+        document.addEventListener('wheel', (_event) =>
+        {
+            this.zoom.targetValue += _event.deltaY * 0.001
+            this.zoom.targetValue = Math.min(Math.max(this.zoom.targetValue, 0), 1)
+        }, { passive: true })
+
+        // Also keep the old mousewheel event for older browsers
         document.addEventListener('mousewheel', (_event) =>
         {
             this.zoom.targetValue += _event.deltaY * 0.001
