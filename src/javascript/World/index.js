@@ -938,10 +938,12 @@ export default class World {
     this.brick = this.objects.add({
       base: this.resources.items.sosyalinovasyonBase.scene,
       collision: this.resources.items.brickCollision.scene,
+      collisionScale: new THREE.Vector3(5, 5, 5), 
       offset: new THREE.Vector3(82, 50, 0),
       rotation: new THREE.Euler(Math.PI/2, Math.PI, 0),
       shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
-      mass: 1.5,
+      mass: 0,
+      fixed: true, 
       soundName: 'brick',
       sleep: false
     });
