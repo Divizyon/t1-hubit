@@ -11,6 +11,8 @@ export default class Resources extends EventEmitter {
         this.items = {}
 
         this.loader.load([
+            { name: 'Sosyalino', source: './models/sosyalino.glb', type: 'model' },
+
             // Matcaps
             { name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
             { name: 'matcapBlack', source: './models/matcaps/black.png', type: 'texture' },
@@ -257,5 +259,18 @@ export default class Resources extends EventEmitter {
             // Trigger ready
             this.trigger('ready')
         })
+    }
+
+    setSosyalino() {
+        try {
+            // Eğer Resources.js'de modeli farklı bir isimle tanımladıysanız, o ismi kullanın
+            // Örneğin 'sosyalinoModel' olarak tanımladıysanız:
+            const model = this.items.SosyalinoModel.scene;
+            model.position.set(0, 0, 0);
+            model.scale.set(5, 5, 5);
+            this.container.add(model);
+        } catch (e) {
+            console.error("Model yüklenirken hata:", e);
+        }
     }
 }
