@@ -76,7 +76,8 @@ export default class World {
         this.setSections()
         this.setEasterEggs()
         this.setBrick()
-        this.setSosyalinovasyon()  // Kullanıcının eklediği metodu çağırıyoruz
+        this.setSesOdasi()  // Add this line to call the setSesOdasi method
+        this.setSosyalinovasyon()
         this.setGreenBox()
         this.setResetButton()
         this.setRoad()
@@ -584,16 +585,34 @@ export default class World {
 
 
     setSesOdasi(){
-        this.brick = this.objects.add({
-            base: this.resources.items.sesOdasiBase.scene,
+        this.sesOdasi = this.objects.add({
+            base: this.resources.items.sesOdasiModel.scene,
             collision: this.resources.items.brickCollision.scene,
-            offset: new THREE.Vector3(-10, -10, 0),
-            rotation: new THREE.Euler(0, 0, 5),
-            shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
-            mass: 1.5,
+            offset: new THREE.Vector3(-62, 30, 0),
+            rotation: new THREE.Euler(0, 0, 0),
+            shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+            mass: 0,
             soundName: 'brick',
-            sleep: false
+            sleep: true
         });
+        
+        // Ses odası yanına uzamsal ses ekle
+        console.log("Ses odası için uzamsal ses ekleniyor...");
+        const sesOdasiSes = this.sounds.setSpatialSoundAtLocation({
+            x: -62, // Ses odasının X konumu ile eşleştirdim
+            y: 30, // Ses odasının Y konumu ile eşleştirdim
+            z: 1.5, // Biraz yukarıda olsun ki yere çok yakın olmasın
+            sound: "sesOdasi",
+            customSoundPath: "./sounds/car-horns/duman.mp3", // Kullanılacak ses dosyası
+            maxDistance: 30, // Mesafeyi artırdık
+            refDistance: 8, // Referans mesafeyi artırdık - daha yakın olunca ses daha net
+            rolloffFactor: 1.2, // Ses azalma faktörünü hafifçe düzenledik
+            volume: 1.0, // Ses seviyesini maksimum
+            autoplay: true, // Otomatik başlat
+            loop: true, // Sürekli çal
+        });
+        
+        console.log("Ses odası başarıyla eklendi:", this.sesOdasi);
     }
 
     setBrick() {
