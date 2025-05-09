@@ -10,6 +10,7 @@ import Areas from "./Areas.js";
 import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
+import AlaadinTepesi from "./alaadintepesi.js";
 import Kapsul from "./Kapsul.js";
 import Sosyalino from "./SosyalinoModule.js";
 import IntroSection from "./Sections/IntroSection.js";
@@ -78,6 +79,7 @@ export default class World {
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
+    this.setAlaadinTepesi(); // Aladdin Tepesi modelini ekler
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
@@ -954,6 +956,15 @@ export default class World {
     } catch (error) {
       console.error("HATA: Road oluşturulurken bir hata oluştu:", error);
     }
+  }
+
+  setAlaadinTepesi() {
+    this.alaadinTepesi = new AlaadinTepesi({
+      debug: this.debug,
+      resources: this.resources,
+      scene: this.scene,
+      world: this
+    });
   }
 
   setKapsul() {
