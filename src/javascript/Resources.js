@@ -27,6 +27,9 @@ export default class Resources extends EventEmitter {
             { name: 'matcapMetal', source: './models/matcaps/metal.png', type: 'texture' },
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
+            // Aladin Tepesi
+            { name: 'alaadinTepesiModel', source: './models/alladintepesi/AlaaddinTepesi.glb' },
+
             // Ses Odası
             { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
             
@@ -168,6 +171,9 @@ export default class Resources extends EventEmitter {
             { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
 
             
+
+            // Kelebekler Vadisi
+            { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
 
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },

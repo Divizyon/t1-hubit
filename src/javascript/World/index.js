@@ -10,6 +10,7 @@ import Areas from "./Areas.js";
 import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
+import AlaadinTepesi from "./alaadintepesi.js";
 import Kapsul from "./Kapsul.js";
 import Sosyalino from "./SosyalinoModule.js";
 import IntroSection from "./Sections/IntroSection.js";
@@ -18,10 +19,7 @@ import ProjectsSection from "./Sections/ProjectsSection.js";
 import CrossroadsSection from "./Sections/CrossroadsSection.js";
 import InformationSection from "./Sections/InformationSection.js";
 import PlaygroundSection from "./Sections/PlaygroundSection.js";
-// import DistinctionASection from './Sections/DistinctionASection.js'
-// import DistinctionBSection from './Sections/DistinctionBSection.js'
-// import DistinctionCSection from './Sections/DistinctionCSection.js'
-// import DistinctionDSection from './Sections/DistinctionDSection.js'
+import KelebeklerSection from "./Sections/KelebeklerSection.js";
 import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import gsap from "gsap";
@@ -82,9 +80,11 @@ export default class World {
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
+    this.setAlaadinTepesi(); // Aladdin Tepesi modelini ekler
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
+    this.setKelebekler(); // Kelebekler Vadisi modelini ekler
     // setResetButton metodu çağrılmıyor
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
   }
@@ -960,6 +960,15 @@ export default class World {
     }
   }
 
+  setAlaadinTepesi() {
+    this.alaadinTepesi = new AlaadinTepesi({
+      debug: this.debug,
+      resources: this.resources,
+      scene: this.scene,
+      world: this
+    });
+  }
+
   setKapsul() {
     try {
       // Kapsul modelini kontrol et
@@ -1190,4 +1199,20 @@ export default class World {
       console.error("bilimmerkezi eklenirken hata oluştu:", error);
     }
 }
+
+  setKelebekler() {
+    // Kelebekler Vadisi
+    this.kelebekler = new KelebeklerSection({
+      time: this.time,
+      resources: this.resources,
+      objects: this.objects,
+      physics: this.physics,
+      debug: this.debugFolder,
+      shadows: this.shadows,
+      materials: this.materials,
+      areas: this.areas,
+      sounds: this.sounds
+    })
+    this.container.add(this.kelebekler.container)
+  }
 }
