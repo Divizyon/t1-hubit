@@ -13,6 +13,7 @@ import Road from "./Road.js";
 import AlaadinTepesi from "./alaadintepesi.js";
 import Kapsul from "./Kapsul.js";
 import Sosyalino from "./SosyalinoModule.js";
+import DiviziyonBinaModule from "./DivizyonBina.js";
 import IntroSection from "./Sections/IntroSection.js";
 import AreaSection from "./Sections/AreaSection.js";
 import ProjectsSection from "./Sections/ProjectsSection.js";
@@ -84,6 +85,7 @@ export default class World {
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
+    this.setDiviziyonBinasi(); // Divizyon binasını ekler
     this.setKelebekler(); // Kelebekler Vadisi modelini ekler
     // setResetButton metodu çağrılmıyor
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
@@ -1179,6 +1181,162 @@ export default class World {
     }
   }
 
+  setDiviziyonBinasi() {
+    try {
+      this.divizyonBinasi = new DiviziyonBinaModule({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds
+      });
+      
+      if (this.divizyonBinasi && this.divizyonBinasi.container) {
+        this.container.add(this.divizyonBinasi.container);
+        console.log("Divizyon binası başarıyla eklendi");
+        
+        // Divizyon binası için etkileşim alanı ekle
+        this.setDiviziyonArea();
+      } else {
+        console.warn("Divizyon binası container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("Divizyon binası eklenirken hata oluştu:", error);
+    }
+  }
+  
+  setDiviziyonArea() {
+    try {
+      // Etkileşim alanı oluştur
+      this.divizyonArea = this.areas.add({
+        position: new THREE.Vector2(-50, 40), // Divizyon merkez konumu
+        halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
+      });
+      
+      // Etkileşim etiketi oluştur - Etiket oluşturmayı etkileşim alanından sonra yapalım
+      const areaLabelMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(2, 0.5),
+        new THREE.MeshBasicMaterial({
+          transparent: true,
+          depthWrite: false,
+          color: 0xffffff,
+          alphaMap: this.resources.items.areaEnterTexture,
+        })
+      );
+      
+      // Etkileşim alanının merkezinde konumlandıralım
+      areaLabelMesh.position.x = this.divizyonArea.position.x;
+      areaLabelMesh.position.y = this.divizyonArea.position.y;
+      areaLabelMesh.position.z = 0.1; // Zemine yakın
+      
+      areaLabelMesh.matrixAutoUpdate = false;
+      areaLabelMesh.updateMatrix();
+      this.container.add(areaLabelMesh);
+
+      // Etkileşim fonksiyonunu tanımla
+      this.divizyonArea.on("interact", () => {
+        // Popup oluştur
+        const popupContainer = document.createElement("div");
+        popupContainer.style.position = "fixed";
+        popupContainer.style.top = "0";
+        popupContainer.style.left = "0";
+        popupContainer.style.width = "100%";
+        popupContainer.style.height = "100%";
+        popupContainer.style.display = "flex";
+        popupContainer.style.justifyContent = "center";
+        popupContainer.style.alignItems = "center";
+        popupContainer.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+        popupContainer.style.zIndex = "9999";
+
+        // Popup içeriği
+        const popupBox = document.createElement("div");
+        popupBox.style.backgroundColor = "white";
+        popupBox.style.color = "black";
+        popupBox.style.padding = "30px 40px";
+        popupBox.style.borderRadius = "8px";
+        popupBox.style.minWidth = "350px";
+        popupBox.style.maxWidth = "90%";
+        popupBox.style.textAlign = "center";
+        popupBox.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
+
+        // Başlık
+        const titleEl = document.createElement("h2");
+        titleEl.style.margin = "0 0 25px 0";
+        titleEl.style.fontSize = "24px";
+        titleEl.style.fontWeight = "bold";
+        titleEl.textContent = "Divizyon - Etki Yaratan Rekaberlik";
+
+        // Link oluştur
+        const linkEl = document.createElement("a");
+        linkEl.href = "https://www.divizyon.org/";
+        linkEl.textContent = "www.divizyon.org";
+        linkEl.target = "_blank";
+        linkEl.style.display = "inline-block";
+        linkEl.style.padding = "12px 25px";
+        linkEl.style.backgroundColor = "#4a90e2";
+        linkEl.style.color = "white";
+        linkEl.style.textDecoration = "none";
+        linkEl.style.borderRadius = "5px";
+        linkEl.style.fontWeight = "bold";
+        linkEl.style.margin = "15px 0";
+        linkEl.style.transition = "background-color 0.3s";
+
+        // Link hover efekti
+        linkEl.addEventListener("mouseover", () => {
+          linkEl.style.backgroundColor = "#3a7dc9";
+        });
+        linkEl.addEventListener("mouseout", () => {
+          linkEl.style.backgroundColor = "#4a90e2";
+        });
+
+        // Açıklama metni
+        const descriptionEl = document.createElement("p");
+        descriptionEl.textContent = "Divizyon hakkında daha fazla bilgi almak için tıklayın.";
+        descriptionEl.style.margin = "0 0 20px 0";
+
+        // Kapatma butonu
+        const closeButton = document.createElement("button");
+        closeButton.textContent = "Kapat";
+        closeButton.style.padding = "10px 20px";
+        closeButton.style.border = "none";
+        closeButton.style.backgroundColor = "#e0e0e0";
+        closeButton.style.color = "#333";
+        closeButton.style.cursor = "pointer";
+        closeButton.style.borderRadius = "5px";
+        closeButton.style.fontSize = "14px";
+        closeButton.style.marginTop = "20px";
+
+        // Kapatma fonksiyonu
+        closeButton.addEventListener("click", () => {
+          document.body.removeChild(popupContainer);
+        });
+
+        // Popup dışına tıklamayla kapatma
+        popupContainer.addEventListener("click", (event) => {
+          if (event.target === popupContainer) {
+            document.body.removeChild(popupContainer);
+          }
+        });
+
+        // Elementleri popupa ekle
+        popupBox.appendChild(titleEl);
+        popupBox.appendChild(descriptionEl);
+        popupBox.appendChild(linkEl);
+        popupBox.appendChild(closeButton);
+        popupContainer.appendChild(popupBox);
+        document.body.appendChild(popupContainer);
+
+        // Ses efekti çal
+        if (this.sounds) {
+          this.sounds.play("click");
+        }
+      });
+      
+      console.log("Divizyon etkileşim alanı başarıyla eklendi");
+    } catch (error) {
+      console.error("Divizyon etkileşim alanı eklenirken hata oluştu:", error);
+    }
+  }
+
   setbilimmerkezi() {
     try {
       this.bilimmerkezi  = new bilimmerkezi({
@@ -1198,7 +1356,7 @@ export default class World {
     } catch (error) {
       console.error("bilimmerkezi eklenirken hata oluştu:", error);
     }
-}
+  }
 
   setKelebekler() {
     // Kelebekler Vadisi
