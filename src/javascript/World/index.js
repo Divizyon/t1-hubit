@@ -25,6 +25,8 @@ import Sounds from "./Sounds.js";
 import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
+import roketplatformu from "./roketplatformu.js";
+
 
 export default class World {
   constructor(_options) {
@@ -87,6 +89,8 @@ export default class World {
     this.setKelebekler(); // Kelebekler Vadisi modelini ekler
     // setResetButton metodu çağrılmıyor
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
+    this.setroketplatformu(); // Roket Platformu modelini ekler
+
   }
 
   setReveal() {
@@ -1199,6 +1203,28 @@ export default class World {
       console.error("bilimmerkezi eklenirken hata oluştu:", error);
     }
 }
+setroketplatformu() {
+  try {
+    this.roketplatformu = new roketplatformu({
+      resources: this.resources,
+      objects: this.objects,
+      shadows: this.shadows,
+      sounds: this.sounds,
+      areas: this.areas // Eğer etkileşim alanı ekleyeceksen
+    });
+    
+    if (this.roketplatformu && this.roketplatformu.container) {
+      this.container.add(this.roketplatformu.container);
+      console.log("Roket platformu modeli başarıyla eklendi");
+    } else {
+      console.warn("Roket platformu container nesnesi bulunamadı!");
+    }
+  } catch (error) {
+    console.error("Roket platformu eklenirken hata oluştu:", error);
+  }
+}
+
+
 
   setKelebekler() {
     // Kelebekler Vadisi
