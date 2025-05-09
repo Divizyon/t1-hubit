@@ -112,6 +112,9 @@ export default class Application {
                 this.camera.target.y = this.world.car.chassis.object.position.y
                 this.camera.carX = this.world.car.chassis.object.position.x
                 this.camera.carY = this.world.car.chassis.object.position.y
+
+                // Update camera angle based on car position
+                this.camera.updateCameraAngle(this.world.car.chassis.object.position)
             }
         })
     }
