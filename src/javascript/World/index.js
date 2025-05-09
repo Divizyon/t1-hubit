@@ -18,10 +18,7 @@ import ProjectsSection from "./Sections/ProjectsSection.js";
 import CrossroadsSection from "./Sections/CrossroadsSection.js";
 import InformationSection from "./Sections/InformationSection.js";
 import PlaygroundSection from "./Sections/PlaygroundSection.js";
-// import DistinctionASection from './Sections/DistinctionASection.js'
-// import DistinctionBSection from './Sections/DistinctionBSection.js'
-// import DistinctionCSection from './Sections/DistinctionCSection.js'
-// import DistinctionDSection from './Sections/DistinctionDSection.js'
+import KelebeklerSection from "./Sections/KelebeklerSection.js";
 import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import gsap from "gsap";
@@ -84,6 +81,7 @@ export default class World {
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
+    this.setKelebekler(); // Kelebekler Vadisi modelini ekler
     // setResetButton metodu çağrılmıyor
   }
 
@@ -1166,5 +1164,21 @@ export default class World {
     } catch (error) {
       console.error("Sosyalino eklenirken hata oluştu:", error);
     }
+  }
+
+  setKelebekler() {
+    // Kelebekler Vadisi
+    this.kelebekler = new KelebeklerSection({
+      time: this.time,
+      resources: this.resources,
+      objects: this.objects,
+      physics: this.physics,
+      debug: this.debugFolder,
+      shadows: this.shadows,
+      materials: this.materials,
+      areas: this.areas,
+      sounds: this.sounds
+    })
+    this.container.add(this.kelebekler.container)
   }
 }
