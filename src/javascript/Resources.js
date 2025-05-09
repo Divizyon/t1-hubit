@@ -167,6 +167,9 @@ export default class Resources extends EventEmitter {
             // Kapsul
             { name: 'kapsulModel', source: './models/kapsul/Kapsul_BlockOut.glb' },
 
+            // Kelebekler Vadisi
+            { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
+
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
             // { name: 'distinctionAStaticCollision', source: './models/distinctionA/static/collision.glb' },
