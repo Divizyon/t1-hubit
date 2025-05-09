@@ -157,6 +157,7 @@ export default class Resources extends EventEmitter {
 
             //Roket
             { name: 'roketModel', source: './models/roket/RoketModeli.glb' },
+            { name: 'roketplatform', source: './models/roketplatform/roketplatform.glb' },
 
             // Yol modeli
             { name: 'roadModel', source: './models/road/road.glb' },
