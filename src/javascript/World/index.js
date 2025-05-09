@@ -24,6 +24,7 @@ import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
+import bilimmerkezi from "./bilimmerkezi.js";
 
 export default class World {
   constructor(_options) {
@@ -85,6 +86,7 @@ export default class World {
     this.setSosyalino(); // Sosyalino modelini ekler
     this.setKelebekler(); // Kelebekler Vadisi modelini ekler
     // setResetButton metodu çağrılmıyor
+    this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
   }
 
   setReveal() {
@@ -1176,6 +1178,27 @@ export default class World {
       console.error("Sosyalino eklenirken hata oluştu:", error);
     }
   }
+
+  setbilimmerkezi() {
+    try {
+      this.bilimmerkezi  = new bilimmerkezi({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds,
+        areas: this.areas // <-- Bunu ekle!
+      });
+      
+      if (this.bilimmerkezi && this.bilimmerkezi.container) {
+        this.container.add(this.bilimmerkezi.container);
+        console.log("bilimmerkezi modeli başarıyla eklendi");
+      } else {
+        console.warn("bilimmerkezi container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("bilimmerkezi eklenirken hata oluştu:", error);
+    }
+}
 
   setKelebekler() {
     // Kelebekler Vadisi
