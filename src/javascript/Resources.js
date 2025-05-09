@@ -27,6 +27,9 @@ export default class Resources extends EventEmitter {
             { name: 'matcapMetal', source: './models/matcaps/metal.png', type: 'texture' },
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
+            // Aladin Tepesi
+            { name: 'alaadinTepesiModel', source: './models/alladintepesi/AlaaddinTepesi.glb' },
+
             // Ses Odası
             { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
             
