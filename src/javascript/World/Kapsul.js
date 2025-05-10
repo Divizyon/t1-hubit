@@ -5,18 +5,19 @@ export default class Kapsul
     constructor(_options)
     {
         // Options
+        this.debug = _options.debug
         this.resources = _options.resources
         this.objects = _options.objects
-        this.debug = _options.debug
-        this.time = _options.time
-        this.physics = _options.physics
         this.shadows = _options.shadows
         this.materials = _options.materials
-
+        this.sounds = _options.sounds
+        this.time = _options.time
+        this.areas = _options.areas
+        
         // Set up
         this.container = new THREE.Object3D()
         this.container.matrixAutoUpdate = true
-
+        
         // Debug
         if(this.debug)
         {
@@ -24,197 +25,154 @@ export default class Kapsul
             this.debugFolder.open()
         }
         
-        // Kapsul modelinin varlığını kontrol et
-        if(this.resources.items.kapsulModel) {
-            this.setModel()
-        } else {
-            console.error('HATA: Kapsul modeli (kapsulModel) resources içinde bulunamadı!')
-        }
+        this.setModel()
+        this.setLights()
     }
-
+    
     setModel()
     {
-        this.model = {}
-        
-        // Resource
-        this.model.resource = this.resources.items.kapsulModel
-        
-        // Model container
-        this.model.container = new THREE.Object3D()
-        this.model.container.matrixAutoUpdate = true
-        this.container.add(this.model.container)
-
-        // Ana modeli ekle
-        try {
-            if(this.model.resource && this.model.resource.scene) {
-                // Model referansını küresel olarak kaydet
+        // Kapsul modelinin varlığını kontrol et
+        if(this.resources.items.kapsulModel) {
+            this.model = {}
+            this.model.container = new THREE.Object3D()
+            this.model.container.matrixAutoUpdate = true
+            
+            // Model tanımlama
+            this.model.resource = this.resources.items.kapsulModel
+            
+            try {
+                // Model örneğini oluştur
                 const kapsulModel = this.model.resource.scene.clone()
                 this.model.kapsulModel = kapsulModel;
                 
                 // Kapsul için konumu ayarla
                 kapsulModel.position.set(30, -25, 2);
+                kapsulModel.scale.set(1, 1, 1); // Ölçeği ayarla
                 
-                // Tüm mesh'lerin materyallerini düzenle
+                // Tüm mesh'leri dolaşıp daha iyi görünüm için ayarlar yap
                 kapsulModel.traverse((child) => {
-                    if (child.isMesh) {
-                        // Orijinal materyali koruyoruz, yeni materyal ataması yapmıyoruz
-                        // Sadece gölge ayarlarını yapıyoruz
-                        child.castShadow = true;
-                        child.receiveShadow = true;
+                    if(child.isMesh) {
+                        // Gölge ayarları
+                        child.castShadow = true
+                        child.receiveShadow = true
+                        
+                        // Eğer materyal varsa, texture'ların daha iyi görünmesi için ayarlar
+                        if (child.material) {
+                            // Materyal ayarlarını optimize et
+                            child.material.needsUpdate = true
+                            
+                            // Texture'ları aktifleştir
+                            if (child.material.map) {
+                                child.material.map.needsUpdate = true
+                            }
+                            
+                            // Eğer PBR materyal ise
+                            if (child.material.metalness !== undefined) {
+                                // Daha iyi görünüm için materyal değerlerini ayarla
+                                child.material.metalness = 0.3
+                                child.material.roughness = 0.7
+                            }
+                            
+                            // Çift taraflı görünüm
+                            child.material.side = THREE.DoubleSide
+                        }
                         
                         // Eğer modelinizde materyal yoksa, varsayılan bir materyal atayabiliriz
                         if (!child.material) {
                             console.warn("Mesh üzerinde materyal bulunamadı, varsayılan materyal atanıyor");
                             child.material = new THREE.MeshStandardMaterial({
-                                color: 0x3498db,      // Mavi renk
-                                roughness: 0.3,       
-                                metalness: 0.5,       
+                                color: 0x3498db,
+                                roughness: 0.3,
+                                metalness: 0.5,
                                 side: THREE.DoubleSide,
                                 emissive: 0x111111,
                                 wireframe: false
                             });
                         }
                     }
-                })
+                });
                 
-                // Modeli ekle
+                // Modeli container'a ekle
                 this.model.container.add(kapsulModel)
+                this.container.add(this.model.container)
                 
-                // Fizik özelliklerini ekle
-                const centerPosition = new THREE.Vector3(30, -25, 0);
+                console.log("Kapsul modeli başarıyla eklendi");
                 
-                // Ana kapsul nesnesini ekle
-                this.kapsulObject = this.objects.add({
-                    base: this.model.resource.scene,
-                    collision: this.resources.items.brickCollision.scene,
-                    offset: centerPosition,
-                    rotation: new THREE.Euler(0, 0, 0),
-                    shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
-                    mass: 0,
-                    sleep: true
-                });
-                
-                // Ek çarpışma nesnelerini ekle (merkez etrafında 2x2 grid)
-                // Brick alanının yaklaşık 2x2 birim olduğunu varsayarak
-                const offsets = [
-                    // Mevcut çarpışma nesneleri - merkeze daha yakın
-                    new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y, centerPosition.z),   // Sağ
-                    new THREE.Vector3(centerPosition.x - 2.0, centerPosition.y, centerPosition.z),   // Sol (1 birim uzaklaştırıldı)
-                    new THREE.Vector3(centerPosition.x, centerPosition.y + 1.0, centerPosition.z),   // Yukarı
-                    new THREE.Vector3(centerPosition.x, centerPosition.y - 1.0, centerPosition.z),   // Aşağı
-                    new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y + 1.0, centerPosition.z), // Sağ üst
-                    new THREE.Vector3(centerPosition.x - 2.0, centerPosition.y + 2.0, centerPosition.z), // Sol üst (1 birim uzaklaştırıldı)
-                    new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y - 1.0, centerPosition.z), // Sağ alt
-                    new THREE.Vector3(centerPosition.x - 2.0, centerPosition.y - 2.0, centerPosition.z),  // Sol alt (1 birim uzaklaştırıldı)
+                // Debug paneli
+                if(this.debug)
+                {
+                    const folder = this.debugFolder.addFolder('position')
+                    folder.add(this.model.container.position, 'x').step(0.1).name('positionX')
+                    folder.add(this.model.container.position, 'y').step(0.1).name('positionY')
+                    folder.add(this.model.container.position, 'z').step(0.1).name('positionZ')
                     
-                    // Daha uzak bölgeler - merkeze daha yakın
-                    // +X yönünde daha fazla alan
-                    new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y, centerPosition.z),     // Daha sağ
-                    new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y + 1.0, centerPosition.z), // Daha sağ üst
-                    new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y, centerPosition.z),     // En sağ
-                    new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y + 1.0, centerPosition.z), // En sağ üst
+                    const scaleFolder = this.debugFolder.addFolder('scale')
+                    scaleFolder.add(this.model.container.scale, 'x').min(0.1).max(5).step(0.1).name('scaleX')
+                    scaleFolder.add(this.model.container.scale, 'y').min(0.1).max(5).step(0.1).name('scaleY')
+                    scaleFolder.add(this.model.container.scale, 'z').min(0.1).max(5).step(0.1).name('scaleZ')
                     
-                    // +Y yönünde daha fazla alan
-                    new THREE.Vector3(centerPosition.x, centerPosition.y + 2.5, centerPosition.z),     // Daha yukarı
-                    new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y + 2.5, centerPosition.z), // Sağ daha yukarı
-                    new THREE.Vector3(centerPosition.x, centerPosition.y + 4.0, centerPosition.z),     // En yukarı
-                    new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y + 4.0, centerPosition.z), // Sağ en yukarı
-                    
-                    // Yeni eklenen batı-kuzey brick'leri (-x, +y)
-                    new THREE.Vector3(centerPosition.x - 1.5, centerPosition.y + 4.0, centerPosition.z), // En batı kuzey (ilk brick)
-                    new THREE.Vector3(centerPosition.x - 2.5, centerPosition.y + 4.0, centerPosition.z), // İlkinin doğusu (ikinci brick)
-                    
-                    // Yeni eklenen batı-güney brick'leri (-x, -y)
-                    new THREE.Vector3(centerPosition.x - 1.5, centerPosition.y - 2.5, centerPosition.z), // En batı güney (ilk brick)
-                    new THREE.Vector3(centerPosition.x - 0.5, centerPosition.y - 2.5, centerPosition.z), // İlkinin doğusu (ikinci brick)
-                    
-                    // Kuzey doğu köşesi (+x, +y)
-                    new THREE.Vector3(centerPosition.x + 3.5, centerPosition.y + 3.5, centerPosition.z), // En kuzey doğu köşesi
-                    
-                    // +X ve +Y yönlerini birlikte kapsayan köşe alanları
-                    new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y + 2.5, centerPosition.z), // Köşe
-                    new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y + 2.5, centerPosition.z), // Daha sağ köşe
-                    new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y + 4.0, centerPosition.z), // Daha yukarı köşe
-
-                    // Merkez üstü için ekstra dolgu
-                    new THREE.Vector3(centerPosition.x, centerPosition.y, centerPosition.z + 1.0),     // Merkezin üstünde
-                    
-                    // Güney doğu (sağ alt) köşesi
-                    new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y - 1.0, centerPosition.z), // Daha sağ alt
-                    new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y - 1.0, centerPosition.z), // En sağ alt
-                    new THREE.Vector3(centerPosition.x + 2.5, centerPosition.y - 2.5, centerPosition.z), // Daha sağ daha alt
-                    new THREE.Vector3(centerPosition.x + 4.0, centerPosition.y - 2.5, centerPosition.z), // En sağ daha alt
-                    new THREE.Vector3(centerPosition.x + 1.0, centerPosition.y - 2.5, centerPosition.z), // Sağ daha alt
-                    new THREE.Vector3(centerPosition.x, centerPosition.y - 2.5, centerPosition.z), // Merkez daha alt
-                ];
-                
-                // İlave çarpışma nesnelerini ekleyelim
-                this.additionalCollisions = [];
-                for (let i = 0; i < offsets.length; i++) {
-                    // Görünmez çarpışma nesnesi ekle (sadece fizik, görsel yok)
-                    const collisionObject = this.objects.add({
-                        base: this.resources.items.brickCollision.scene, // Görünmez, sadece çarpışma
-                        collision: this.resources.items.brickCollision.scene,
-                        offset: offsets[i],
-                        rotation: new THREE.Euler(0, 0, 0),
-                        mass: 0,
-                        sleep: true,
-                        // Gölge yok, görünür değil
-                    });
-                    
-                    // Çarpışma nesnesini gizle (sadece fizik için kullanıyoruz)
-                    if (collisionObject && collisionObject.container) {
-                        collisionObject.container.visible = false;
-                    }
-                    
-                    this.additionalCollisions.push(collisionObject);
+                    const rotationFolder = this.debugFolder.addFolder('rotation')
+                    rotationFolder.add(this.model.container.rotation, 'x').step(0.1).name('rotationX')
+                    rotationFolder.add(this.model.container.rotation, 'y').step(0.1).name('rotationY')
+                    rotationFolder.add(this.model.container.rotation, 'z').step(0.1).name('rotationZ')
                 }
-                
-                console.log("Kapsul ve ek çarpışma nesneleri başarıyla eklendi");
+            } catch (error) {
+                console.error('HATA: Kapsul modeli eklenirken bir hata oluştu:', error)
             }
-        } catch (error) {
-            console.error('HATA: Kapsul modeli eklenirken bir hata oluştu:', error)
+        } else {
+            console.error('HATA: Kapsul modeli (kapsulModel) resources içinde bulunamadı!')
         }
+    }
+    
+    setLights() {
+        // Kapsul için ışıklar ekle
+        this.lights = {}
         
-        // Debug paneli
-        if(this.debug)
-        {
-            const folder = this.debugFolder.addFolder('position')
-            folder.add(this.model.container.position, 'x').step(0.1).name('positionX')
-            folder.add(this.model.container.position, 'y').step(0.1).name('positionY')
-            folder.add(this.model.container.position, 'z').step(0.1).name('positionZ')
+        // Noktasal ışık
+        this.lights.point = new THREE.PointLight(0xffffff, 2, 30)
+        this.lights.point.position.set(30, -25, 10) // Model pozisyonunun üzerinde
+        this.lights.point.castShadow = true
+        this.container.add(this.lights.point)
+        
+        // Spot ışık - modelin önüne odaklı
+        this.lights.spot = new THREE.SpotLight(0xffffff, 1.5, 40, Math.PI * 0.25, 0.5, 0.5)
+        this.lights.spot.position.set(30, -20, 10) // Modelin önünden, yukarıdan
+        this.lights.spot.target.position.set(30, -25, 2) // Modelin merkezine bakıyor
+        this.lights.spot.castShadow = true
+        this.container.add(this.lights.spot)
+        this.container.add(this.lights.spot.target)
+        
+        // Ortam ışığı
+        this.lights.ambient = new THREE.AmbientLight(0xffffff, 0.5)
+        this.container.add(this.lights.ambient)
+        
+        // Debug ışık kontrolleri
+        if(this.debug) {
+            const lightsFolder = this.debugFolder.addFolder('lights')
             
-            const scaleFolder = this.debugFolder.addFolder('scale')
-            scaleFolder.add(this.model.container.scale, 'x').min(0.1).max(5).step(0.1).name('scaleX')
-            scaleFolder.add(this.model.container.scale, 'y').min(0.1).max(5).step(0.1).name('scaleY')
-            scaleFolder.add(this.model.container.scale, 'z').min(0.1).max(5).step(0.1).name('scaleZ')
+            const pointFolder = lightsFolder.addFolder('point')
+            pointFolder.add(this.lights.point, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            pointFolder.add(this.lights.point.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            pointFolder.add(this.lights.point.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            pointFolder.add(this.lights.point.position, 'z').min(0).max(20).step(0.1).name('positionZ')
             
-            // Materyal kontrolleri
-            const materialFolder = this.debugFolder.addFolder('material')
-            const materialData = {
-                color: '#666666',
-                wireframe: false,
-                metalness: 0.7,
-                roughness: 0.5
-            };
+            const spotFolder = lightsFolder.addFolder('spot')
+            spotFolder.add(this.lights.spot, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            spotFolder.add(this.lights.spot.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            spotFolder.add(this.lights.spot.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            spotFolder.add(this.lights.spot.position, 'z').min(0).max(20).step(0.1).name('positionZ')
             
-            // Materyal değişim fonksiyonu
-            const updateMaterial = () => {
-                this.model.kapsulModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.color.set(materialData.color);
-                        child.material.wireframe = materialData.wireframe;
-                        child.material.metalness = materialData.metalness;
-                        child.material.roughness = materialData.roughness;
-                        child.material.needsUpdate = true;
-                    }
-                });
-            };
-            
-            materialFolder.addColor(materialData, 'color').onChange(updateMaterial);
-            materialFolder.add(materialData, 'wireframe').onChange(updateMaterial);
-            materialFolder.add(materialData, 'metalness', 0, 1).step(0.05).onChange(updateMaterial);
-            materialFolder.add(materialData, 'roughness', 0, 1).step(0.05).onChange(updateMaterial);
+            const ambientFolder = lightsFolder.addFolder('ambient')
+            ambientFolder.add(this.lights.ambient, 'intensity').min(0).max(2).step(0.1).name('intensity')
+        }
+    }
+    
+    update()
+    {
+        // Eğer animasyon ya da periyodik işlemler gerekirse buraya eklenebilir
+        if(this.time && this.model && this.model.container) {
+            // Örnek: this.model.container.rotation.y += 0.001 * this.time.delta
+            // Şu an boş bırakıldı
         }
     }
 } 
