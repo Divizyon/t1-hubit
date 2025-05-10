@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import CANNON from 'cannon'
 
 export default class DivizyonBina
 {
@@ -55,102 +56,87 @@ export default class DivizyonBina
                 const divizyonBinaModel = this.model.resource.scene.clone()
                 this.model.divizyonBinaModel = divizyonBinaModel;
                 
-                // DivizyonBina için konumu ayarla - Ses odasından biraz daha uzağa yerleştir
-                divizyonBinaModel.position.set(-45, 25, 0); // Y ekseninde yukarı taşındı (20'den 25'e)
+                // DivizyonBina konumu - ORİJİNAL KONUM KULLAN
+                const centerPosition = new THREE.Vector3(-45, 25, 0);
                 
-                // Rotasyonu düzelt - Dik durması için rotasyonu sıfırla
-                divizyonBinaModel.rotation.set(0, 0, 0);
+                // Model boyutlarını tanımla
+                const size = {
+                    x: 4.5,  // Binanın genişliği
+                    y: 4.5,  // Binanın yüksekliği
+                    z: 4.5   // Binanın derinliği
+                };
                 
-                // Görünürlük ayarını açık olarak belirt
-                divizyonBinaModel.visible = true;
+                // Ölçek faktörü - biraz daha geniş bir çarpışma kutusu için
+                const scaleFactor = 1.3;
                 
-                // Modelin ölçeğini ayarla
-                divizyonBinaModel.scale.set(0.8, 0.8, 0.8); // Modelimizi biraz küçültelim
+                // Pozisyon bilgileri
+                const posizyonX = centerPosition.x;
+                const posizyonY = centerPosition.y;
+                const posizyonZ = centerPosition.z;
                 
-                // Tüm mesh'lerin materyallerini düzenle
-                divizyonBinaModel.traverse((child) => {
-                    if (child.isMesh) {
-                        // Görünürlüğü açık olarak ayarla
-                        child.visible = true;
-                        
-                        // Gölge ayarlarını yapıyoruz
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        
-                        // Eğer modelinizde materyal yoksa, varsayılan bir materyal atayabiliriz
-                        if (!child.material) {
-                            console.warn("Mesh üzerinde materyal bulunamadı, varsayılan materyal atanıyor");
-                            child.material = new THREE.MeshStandardMaterial({
-                                color: 0xcccccc,      // Gri renk
-                                roughness: 0.5,       
-                                metalness: 0.2,       
-                                side: THREE.DoubleSide,
-                                emissive: 0x111111,
-                                wireframe: false
-                            });
-                        } else {
-                            // Varolan materyalin çift taraflı olmasını sağlıyoruz
-                            child.material.side = THREE.DoubleSide;
-                            // Opaklığı tam ayarla
-                            child.material.transparent = false;
-                            child.material.opacity = 1.0;
-                            // Materyalin güncellenmesini sağla
-                            child.material.needsUpdate = true;
-                        }
-                    }
-                })
+                // Fizik gövdesi oluştur
+                const body = new CANNON.Body({
+                    mass: 0,  // Statik nesne
+                    position: new CANNON.Vec3(posizyonX, posizyonY, posizyonZ),
+                    material: this.physics.materials.items.floor
+                });
                 
-                // Modeli ekle
-                this.model.container.add(divizyonBinaModel)
+                // Tek bir box collision (modelin tamamı için)
+                const mainShape = new CANNON.Box(new CANNON.Vec3(
+                    Math.abs(size.x) * scaleFactor / 2,
+                    Math.abs(size.y) * scaleFactor / 2,
+                    Math.abs(size.z) * scaleFactor / 2
+                ));
+                body.addShape(mainShape);
                 
-                // Fizik özelliklerini ekle
-                const centerPosition = new THREE.Vector3(-45, 25, 0); // Yeni konumla eşleştirildi
+                // Collision Eklemek İçin
+                this.physics.world.addBody(body);
                 
-                // Ana DivizyonBina nesnesini ekle
+                // DivizyonBina'yı objects üzerinden ekle
                 this.divizyonBinaObject = this.objects.add({
                     base: this.model.resource.scene,
-                    collision: this.resources.items.brickCollision.scene,
                     offset: centerPosition,
-                    rotation: new THREE.Euler(0, 0, 0), // Rotasyonu düzelttik
+                    rotation: new THREE.Euler(0, 0, 0),
                     shadow: { sizeX: 5, sizeY: 5, offsetZ: -0.6, alpha: 0.4 },
-                    mass: 0, // Statik bir model olduğu için kütle 0
-                    sleep: true, // Fizik hesaplamaları yapılmasın
-                    name: "DivizyonBina" // İsim ekledim
+                    mass: 0, // Statik bir model olduğu için kütle 0 
+                    sleep: false, // Fizik hesaplamaları yapılsın
+                    name: "DivizyonBina" // İsim
                 });
                 
                 // Modelin görünürlüğünü kontrol et
                 if (this.divizyonBinaObject && this.divizyonBinaObject.container) {
+                    this.divizyonBinaObject.container.position.copy(centerPosition);
+                    this.divizyonBinaObject.container.scale.set(0.8, 0.8, 0.8);
                     this.divizyonBinaObject.container.visible = true;
-                    console.log("DivizyonBina görünürlük ayarları yapıldı");
+                    
+                    // Fizik gövdesini modele bağla
+                    this.divizyonBinaObject.collision = { body };
+                    
+                    // Debug için görsel bir çarpışma kutusu oluştur (sadece debug modunda)
+                    if (this.debug) {
+                        const debugBox = new THREE.BoxHelper(
+                            new THREE.Mesh(
+                                new THREE.BoxGeometry(
+                                    size.x * scaleFactor,
+                                    size.y * scaleFactor,
+                                    size.z * scaleFactor
+                                ),
+                                new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+                            ),
+                            0xff0000
+                        );
+                        debugBox.position.copy(centerPosition);
+                        this.container.add(debugBox);
+                        
+                        // Debug kontrollerini ekle
+                        const collisionFolder = this.debugFolder.addFolder('collision');
+                        collisionFolder.add(debugBox, 'visible').name('showCollisionBox');
+                    }
+                    
+                    console.log("DivizyonBina başarıyla eklendi - basit çarpışma kutusu ile");
                 }
-                
-                console.log("DivizyonBina başarıyla eklendi");
             } else {
-                // Scene özelliği yoksa, direkt modeli kullanma
-                console.warn("DivizyonBina modeli için scene özelliği bulunamadı, doğrudan modeli kullanmayı deniyoruz");
-                
-                // Direkt modeli kullan
-                const divizyonBinaModel = this.model.resource;
-                this.model.divizyonBinaModel = divizyonBinaModel;
-                
-                // DivizyonBina'yı objects üzerinden ekle
-                this.divizyonBinaObject = this.objects.add({
-                    base: this.model.resource,
-                    collision: this.resources.items.brickCollision.scene,
-                    offset: new THREE.Vector3(-45, 25, 0), // Yeni konum
-                    rotation: new THREE.Euler(0, 0, 0), // Rotasyonu düzelttik
-                    shadow: { sizeX: 5, sizeY: 5, offsetZ: -0.6, alpha: 0.4 },
-                    mass: 0,
-                    sleep: true,
-                    name: "DivizyonBina"
-                });
-                
-                // Görünürlüğü açık olarak ayarla
-                if (this.divizyonBinaObject && this.divizyonBinaObject.container) {
-                    this.divizyonBinaObject.container.visible = true;
-                }
-                
-                console.log("DivizyonBina doğrudan model olarak başarıyla eklendi");
+                console.error("DivizyonBina modeli yüklenemedi");
             }
         } catch (error) {
             console.error('HATA: DivizyonBina modeli eklenirken bir hata oluştu:', error)
@@ -168,43 +154,6 @@ export default class DivizyonBina
             rotationFolder.add(this.model.container.rotation, 'x').step(0.01).name('rotationX')
             rotationFolder.add(this.model.container.rotation, 'y').step(0.01).name('rotationY')
             rotationFolder.add(this.model.container.rotation, 'z').step(0.01).name('rotationZ')
-            
-            const scaleFolder = this.debugFolder.addFolder('scale')
-            scaleFolder.add(this.model.container.scale, 'x').min(0.1).max(5).step(0.1).name('scaleX')
-            scaleFolder.add(this.model.container.scale, 'y').min(0.1).max(5).step(0.1).name('scaleY')
-            scaleFolder.add(this.model.container.scale, 'z').min(0.1).max(5).step(0.1).name('scaleZ')
-            
-            // Materyal kontrolleri
-            if (this.model.divizyonBinaModel) {
-                const materialFolder = this.debugFolder.addFolder('material')
-                const materialData = {
-                    color: '#cccccc',
-                    wireframe: false,
-                    metalness: 0.2,
-                    roughness: 0.5
-                };
-                
-                // Materyal değişim fonksiyonu
-                const updateMaterial = () => {
-                    this.model.divizyonBinaModel.traverse((child) => {
-                        if (child.isMesh && child.material) {
-                            child.material.color.set(materialData.color);
-                            child.material.wireframe = materialData.wireframe;
-                            child.material.metalness = materialData.metalness;
-                            child.material.roughness = materialData.roughness;
-                            child.material.needsUpdate = true;
-                        }
-                    });
-                };
-                
-                materialFolder.addColor(materialData, 'color').onChange(updateMaterial);
-                materialFolder.add(materialData, 'wireframe').onChange(updateMaterial);
-                materialFolder.add(materialData, 'metalness', 0, 1).step(0.05).onChange(updateMaterial);
-                materialFolder.add(materialData, 'roughness', 0, 1).step(0.05).onChange(updateMaterial);
-                
-                // Görünürlük kontrolü ekle
-                materialFolder.add(this.model.container, 'visible').name('visible');
-            }
         }
     }
 
