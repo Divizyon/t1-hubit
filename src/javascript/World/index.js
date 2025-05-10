@@ -10,7 +10,9 @@ import Areas from "./Areas.js";
 import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
+import AlaadinTepesi from "./alaadintepesi.js";
 import Kapsul from "./Kapsul.js";
+import DivizyonBina from "./DivizyonBina.js";
 import Sosyalino from "./SosyalinoModule.js";
 import IntroSection from "./Sections/IntroSection.js";
 import AreaSection from "./Sections/AreaSection.js";
@@ -18,10 +20,14 @@ import ProjectsSection from "./Sections/ProjectsSection.js";
 import CrossroadsSection from "./Sections/CrossroadsSection.js";
 import InformationSection from "./Sections/InformationSection.js";
 import PlaygroundSection from "./Sections/PlaygroundSection.js";
+import KelebeklerSection from "./Sections/KelebeklerSection.js";
 import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
+import bilimmerkezi from "./bilimmerkezi.js";
+import roketplatformu from "./roketplatformu.js";
+
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 
 
@@ -79,11 +85,16 @@ export default class World {
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
+    this.setAlaadinTepesi(); // Aladdin Tepesi modelini ekler
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
     this.setCalisanGenclikMerkezi(); // CalisanGenclikMerkezi modelini ekler
-    // setResetButton metodu çağrılmıyor
+    this.setKelebekler(); // Kelebekler Vadisi modelini ekler
+    this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
+    this.setroketplatformu(); // Roket Platformu modelini ekler
+    this.setDivizyonBina(); // Divizyon Bina modelini ekler
+
   }
 
   setReveal() {
@@ -628,7 +639,24 @@ export default class World {
       sleep: false,
     });
 
-    // Uzamsal ses kaldırıldı
+    // Basış sayısını tutacak değişken
+    this.rocketLaunchClickCount = 0;
+    // LAUNCH/LAND yazısı için dinamik texture oluşturucu
+    const createButtonTexture = (text) => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = 256;
+      canvas.height = 64;
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = 'white';
+      context.font = 'bold 60px Arial';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText(text, canvas.width / 2, canvas.height / 2);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      return texture;
+    };
 
     // areaLabelMesh'i oluştur ve sahneye ekle
     const areaLabelMesh = new THREE.Mesh(
@@ -637,40 +665,144 @@ export default class World {
         transparent: true,
         depthWrite: false,
         color: 0xffffff,
-        alphaMap: this.resources.items.areaResetTexture,
+        alphaMap: createButtonTexture('LAUNCH'),
       })
     );
-    areaLabelMesh.position.set(10, 15, 0); // rocket ile aynı konumda, biraz yukarıda
+    areaLabelMesh.position.set(10, 15, 0);
     areaLabelMesh.matrixAutoUpdate = false;
     areaLabelMesh.updateMatrix();
     this.container.add(areaLabelMesh);
+    this.rocketAreaLabelMesh = areaLabelMesh; // referans kaydet
 
     // Enter etkileşimi için area ekle
     this.rocketArea = this.areas.add({
       position: new THREE.Vector2(10, 15),
       halfExtents: new THREE.Vector2(3, 3),
     });
+    // Roket uçuş ve iniş kontrolü için flag ve interval
+    this.rocketIsFlying = false;
+    this.rocketLandingInterval = null;
+    this.rocketDescentInterval = null;
+    this.rocketLastMaxVelocity = 0; // Fırlatmada ulaşılan maksimum hız
+
+    // Roketi havada sabitleyen fonksiyon
+    const freezeRocketInAir = (body) => {
+      if (this.rocketLandingInterval) clearInterval(this.rocketLandingInterval);
+      this.rocketLandingInterval = setInterval(() => {
+        if (this.rocketIsFlying) {
+          body.velocity.set(0, 0, 0);
+          body.position.z = Math.max(body.position.z, 10); // 10 birim yukarıda sabitleniyor
+        }
+      }, 50);
+    };
+
+    // Roket iniş animasyonu fonksiyonu
+    const landRocket = (body) => {
+      if (this.rocketLandingInterval) {
+        clearInterval(this.rocketLandingInterval);
+        this.rocketLandingInterval = null;
+      }
+      if (this.rocketDescentInterval) {
+        clearInterval(this.rocketDescentInterval);
+        this.rocketDescentInterval = null;
+      }
+      body.angularVelocity.set(0, 0, 0);
+      // Düz iniş animasyonu
+      const targetZ = 0.5;
+      const descentSpeed = -Math.abs(this.rocketLastMaxVelocity) * 0.6 || -2; // Maksimum çıkış hızının %60'ı, yoksa -2
+      this.rocketDescentInterval = setInterval(() => {
+        const currentZ = body.position.z;
+        if (currentZ <= targetZ + 0.05) {
+          body.position.z = targetZ;
+          body.velocity.set(0, 0, 0);
+          clearInterval(this.rocketDescentInterval);
+          this.rocketDescentInterval = null;
+        } else {
+          body.velocity.set(0, 0, descentSpeed);
+        }
+      }, 50);
+    };
+
+    // Duman efekti için sprite oluştur (sadece setRocket fonksiyonu içinde)
+    let rocketSmokeSprite = null;
+    if (this.resources.items.smokeTexture) {
+      const smokeMaterial = new THREE.SpriteMaterial({
+        map: this.resources.items.smokeTexture,
+        transparent: true,
+        opacity: 0.7,
+        depthWrite: false
+      });
+      rocketSmokeSprite = new THREE.Sprite(smokeMaterial);
+      rocketSmokeSprite.scale.set(1.5, 1.5, 1.5);
+      rocketSmokeSprite.position.set(0, 0, -1.2); // Roketin altına hizala
+      this.rocket.container.add(rocketSmokeSprite);
+      rocketSmokeSprite.visible = false;
+    }
+
     this.rocketArea.on("interact", () => {
+      this.rocketLaunchClickCount++;
       const body =
         this.rocket && this.rocket.collision && this.rocket.collision.body;
-      if (body) {
-        if (body.wakeUp) body.wakeUp();
-        body.velocity.set(0, 0, 0); // Başlangıçta durgun
-        body.angularVelocity.set(0, 0, 10);
 
-        let elapsed = 0;
-        let interval = setInterval(() => {
-          // Her 50ms'de bir hız artışı uygula
-          if (elapsed < 2000) {
-            // 2 saniye boyunca hız artışı
-            // Her seferinde biraz daha fazla kuvvet uygula
-            const force = 5 + (elapsed / 2000) * 40; // 5'ten 45'e kadar artan kuvvet
-            body.velocity.z += force * 0.05; // Z ekseni yukarı
-            elapsed += 50;
-          } else {
-            clearInterval(interval);
+      if (this.rocketLaunchClickCount % 2 === 1) {
+        // LAUNCH: Fırlat, LAND yazısını göster
+        this.rocketAreaLabelMesh.material.alphaMap = createButtonTexture('LAND');
+        this.rocketAreaLabelMesh.material.needsUpdate = true;
+        // Duman efektini başlat
+        if (rocketSmokeSprite) {
+          rocketSmokeSprite.visible = true;
+          rocketSmokeSprite.material.opacity = 0.7;
+          rocketSmokeSprite.scale.set(1.5, 1.5, 1.5);
+          let smokeElapsed = 0;
+          let smokeInterval = setInterval(() => {
+            smokeElapsed += 50;
+            rocketSmokeSprite.scale.multiplyScalar(1.03);
+            rocketSmokeSprite.material.opacity *= 0.97;
+            if (rocketSmokeSprite.material.opacity < 0.05 || smokeElapsed > 2000) {
+              rocketSmokeSprite.visible = false;
+              clearInterval(smokeInterval);
+            }
+          }, 50);
+        }
+        if (body) {
+          if (body.wakeUp) body.wakeUp();
+          if (this.rocketLandingInterval) {
+            clearInterval(this.rocketLandingInterval);
+            this.rocketLandingInterval = null;
           }
-        }, 50);
+          if (this.rocketDescentInterval) {
+            clearInterval(this.rocketDescentInterval);
+            this.rocketDescentInterval = null;
+          }
+          body.velocity.set(0, 0, 0);
+          body.angularVelocity.set(0, 0, 10);
+          this.rocketIsFlying = true;
+          let elapsed = 0;
+          let maxVelocity = 0;
+          let interval = setInterval(() => {
+            if (elapsed < 2000) {
+              const force = 5 + (elapsed / 2000) * 40;
+              body.velocity.z += force * 0.05;
+              if (body.velocity.z > maxVelocity) maxVelocity = body.velocity.z;
+              elapsed += 50;
+            } else {
+              clearInterval(interval);
+              body.velocity.set(0, 0, 0);
+              body.angularVelocity.set(0, 0, 0);
+              this.rocketLastMaxVelocity = maxVelocity; // Maksimum çıkış hızını kaydet
+              freezeRocketInAir(body);
+            }
+          }, 50);
+        }
+      } else {
+        // LAND: LAUNCH yazısını göster, inişi başlat
+        this.rocketAreaLabelMesh.material.alphaMap = createButtonTexture('LAUNCH');
+        this.rocketAreaLabelMesh.material.needsUpdate = true;
+        if (body) {
+          if (body.wakeUp) body.wakeUp();
+          this.rocketIsFlying = false;
+          landRocket(body);
+        }
       }
     });
   }
@@ -957,6 +1089,15 @@ export default class World {
     }
   }
 
+  setAlaadinTepesi() {
+    this.alaadinTepesi = new AlaadinTepesi({
+      debug: this.debug,
+      resources: this.resources,
+      scene: this.scene,
+      world: this
+    });
+  }
+
   setKapsul() {
     try {
       // Kapsul modelini kontrol et
@@ -1153,7 +1294,8 @@ export default class World {
         resources: this.resources,
         objects: this.objects,
         shadows: this.shadows,
-        sounds: this.sounds
+        sounds: this.sounds,
+        areas: this.areas  // Etkileşim için areas parametresini ekledim
       });
 
       if (this.sosyalino && this.sosyalino.container) {
@@ -1188,4 +1330,86 @@ export default class World {
     }
   }
 
+
+  setbilimmerkezi() {
+    try {
+      this.bilimmerkezi = new bilimmerkezi({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds,
+        areas: this.areas // <-- Bunu ekle!
+      });
+
+      if (this.bilimmerkezi && this.bilimmerkezi.container) {
+        this.container.add(this.bilimmerkezi.container);
+        console.log("bilimmerkezi modeli başarıyla eklendi");
+      } else {
+        console.warn("bilimmerkezi container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("bilimmerkezi eklenirken hata oluştu:", error);
+    }
+  }
+  setroketplatformu() {
+    try {
+      this.roketplatformu = new roketplatformu({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds,
+        areas: this.areas // Eğer etkileşim alanı ekleyeceksen
+      });
+
+      if (this.roketplatformu && this.roketplatformu.container) {
+        this.container.add(this.roketplatformu.container);
+        console.log("Roket platformu modeli başarıyla eklendi");
+      } else {
+        console.warn("Roket platformu container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("Roket platformu eklenirken hata oluştu:", error);
+    }
+  }
+
+  setDivizyonBina() {
+    try {
+      this.divizyonBina = new DivizyonBina({
+        resources: this.resources,
+        objects: this.objects,
+        debug: this.debug,
+        time: this.time,
+        physics: this.physics,
+        shadows: this.shadows,
+        materials: this.materials,
+        areas: this.areas,    // Etkileşim alanları için
+        sounds: this.sounds   // Ses efektleri için
+      });
+
+      if (this.divizyonBina && this.divizyonBina.container) {
+        this.container.add(this.divizyonBina.container);
+        console.log("DivizyonBina modeli başarıyla eklendi");
+      } else {
+        console.warn("DivizyonBina container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("DivizyonBina eklenirken hata oluştu:", error);
+    }
+  }
+
+  setKelebekler() {
+    // Kelebekler Vadisi
+    this.kelebekler = new KelebeklerSection({
+      time: this.time,
+      resources: this.resources,
+      objects: this.objects,
+      physics: this.physics,
+      debug: this.debugFolder,
+      shadows: this.shadows,
+      materials: this.materials,
+      areas: this.areas,
+      sounds: this.sounds
+    })
+    this.container.add(this.kelebekler.container)
+  }
 }
