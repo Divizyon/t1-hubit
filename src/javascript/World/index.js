@@ -974,38 +974,15 @@ export default class World {
     });
   }
 
-  setKapsul() {
-    try {
-      // Kapsul modelini kontrol et
-      if (this.resources && 
-          this.resources.items && 
-          this.resources.items.kapsulModel && 
-          this.resources.items.kapsulModel.scene) {
-          
-        // Yeni modele göre ayarlar
-        this.kapsul = new Kapsul({
-          debug: this.debug,
-          resources: this.resources,
-          objects: this.objects,
-          shadows: this.shadows,
-          materials: this.materials,
-          sounds: this.sounds,
-          time: this.time,
-          areas: this.areas
-        });
-
-        // Kapsul container'ı sahneye ekle
-        if(this.kapsul && this.kapsul.container) {
-          this.container.add(this.kapsul.container);
-          console.log("Kapsul modeli başarıyla eklendi:", this.kapsul);
-        }
-      } else {
-        console.warn("Kapsul modeli bulunamadı veya yüklenemedi!");
-      }
-    } catch (error) {
-      console.error("Kapsul eklenirken hata oluştu:", error);
-    }
-  }
+  setKapsul() { //küpü değiştir
+    this.kapsul = new Kapsul({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+        time: this.time,
+        resources: this.resources,
+        objects: this.objects,
+        physics: this.physics,
+        debug: this.debugFolder
+    }) 
+    this.container.add(this.kapsul.container)}
 
   setKapsulArea() {
     try {
@@ -1156,26 +1133,18 @@ export default class World {
     }
   }
 
-  setbilimmerkezi() {
-    try {
-      this.bilimmerkezi  = new bilimmerkezi({
+  setbilimmerkezi() { //küpü değiştir
+    this.bilimmerkezi = new bilimmerkezi({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+        time: this.time,
         resources: this.resources,
         objects: this.objects,
-        shadows: this.shadows,
-        sounds: this.sounds,
-        areas: this.areas // <-- Bunu ekle!
-      });
-      
-      if (this.bilimmerkezi && this.bilimmerkezi.container) {
-        this.container.add(this.bilimmerkezi.container);
-        console.log("bilimmerkezi modeli başarıyla eklendi");
-      } else {
-        console.warn("bilimmerkezi container nesnesi bulunamadı!");
-      }
-    } catch (error) {
-      console.error("bilimmerkezi eklenirken hata oluştu:", error);
-    }
+        physics: this.physics,
+        debug: this.debugFolder,
+        areas: this.areas
+    })
+    this.container.add(this.bilimmerkezi.container) // Küçük harfle yazılmalı
 }
+
 setroketplatformu() {
   try {
     this.roketplatformu = new roketplatformu({
@@ -1222,19 +1191,17 @@ setroketplatformu() {
     }
   }
 
+  
+
   setKelebekler() {
-    // Kelebekler Vadisi
     this.kelebekler = new KelebeklerSection({
-      time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder,
-      shadows: this.shadows,
-      materials: this.materials,
-      areas: this.areas,
-      sounds: this.sounds
+        time: this.time,
+        resources: this.resources,
+        objects: this.objects,
+        physics: this.physics,
+        debug: this.debugFolder
     })
-    this.container.add(this.kelebekler.container)
-  }
+    this.container.add(this.kelebekler.container) // Doğru nesne!
+}
+
 }
