@@ -1098,67 +1098,13 @@ export default class World {
 }
   
 
-  setKapsul() {
-    try {
-      // Kapsul modelini kontrol et
-      if (this.resources &&
-        this.resources.items &&
-        this.resources.items.kapsulModel &&
-        this.resources.items.kapsulModel.scene) {
-
-        // Model yapısını kontrol et
-        const modelScene = this.resources.items.kapsulModel.scene;
-
-        if (!modelScene.children || modelScene.children.length === 0) {
-          console.warn("Kapsul modelinin children özelliği yok veya boş, model eklenemedi.");
-          return;
-        }
-
-        this.kapsul = this.objects.add({
-          base: modelScene,
-          // Collision parametresini tamamen kaldırdım
-          offset: new THREE.Vector3(30, -25, 2), // Z değerini 0'dan 2'ye yükselttim
-          rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
-          shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
-          mass: 0, // Statik bir model olduğu için kütle 0
-          sleep: true, // Fizik hesaplamaları yapılmasın
-          name: "Kapsül" // İsim parametresi eklendi
-        });
-
-        // Modelin görünürlüğünü kontrol et
-        if (this.kapsul && this.kapsul.container) {
-          this.kapsul.container.visible = true;
-
-          // Modeldeki tüm mesh'lerin görünürlüğünü kontrol et
-          this.kapsul.container.traverse((child) => {
-            if (child.isMesh) {
-              child.visible = true;
-
-              // Materyal kontrolleri
-              if (child.material) {
-                child.material.needsUpdate = true;
-                child.material.transparent = false;
-                child.material.opacity = 1.0;
-
-                // Eğer materyal çok karanlıksa, emissive değerini ayarla
-                if (child.material.emissive) {
-                  child.material.emissive.set(0x222222);
-                }
-              }
-            }
-          });
-
-          console.log("Kapsul görünürlük ayarları yapıldı");
-        }
-
-        console.log("Kapsul modeli başarıyla eklendi:", this.kapsul);
-      } else {
-        console.warn("Kapsul modeli bulunamadı veya yüklenemedi!");
-      }
-    } catch (error) {
-      console.error("Kapsul eklenirken hata oluştu:", error);
-    }
-  }
+setKapsul() {
+  this.kapsul = new Kapsul({
+      scene: this.scene,
+      time: this.time,
+      physics: this.physics
+  });
+}
 
   setKapsulArea() {
     try {
