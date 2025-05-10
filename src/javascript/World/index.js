@@ -27,7 +27,7 @@ import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
 import roketplatformu from "./roketplatformu.js";
-
+import GencKulturKart from "./GencKulturKart.js";
 
 export default class World {
   constructor(_options) {
@@ -91,7 +91,7 @@ export default class World {
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
     this.setDivizyonBina(); // Divizyon Bina modelini ekler
-
+    this.setGencKulturKart(); // Genç Kültür Kart modelini ekler
   }
 
   setReveal() {
@@ -1236,5 +1236,26 @@ setroketplatformu() {
       sounds: this.sounds
     })
     this.container.add(this.kelebekler.container)
+  }
+
+  setGencKulturKart() {
+    try {
+      this.gencKulturKart = new GencKulturKart({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds,
+        areas: this.areas
+      });
+      
+      if (this.gencKulturKart && this.gencKulturKart.container) {
+        this.container.add(this.gencKulturKart.container);
+        console.log("Genç Kültür Kart modeli başarıyla eklendi");
+      } else {
+        console.warn("Genç Kültür Kart container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("Genç Kültür Kart eklenirken hata oluştu:", error);
+    }
   }
 }
