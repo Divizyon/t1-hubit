@@ -12,6 +12,7 @@ import Walls from "./Walls.js";
 import Road from "./Road.js";
 import AlaadinTepesi from "./alaadintepesi.js";
 import Kapsul from "./Kapsul.js";
+import DivizyonBina from "./DivizyonBina.js";
 import Sosyalino from "./SosyalinoModule.js";
 import IntroSection from "./Sections/IntroSection.js";
 import AreaSection from "./Sections/AreaSection.js";
@@ -87,9 +88,9 @@ export default class World {
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
     this.setKelebekler(); // Kelebekler Vadisi modelini ekler
-    // setResetButton metodu çağrılmıyor
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
+    this.setDivizyonBina(); // Divizyon Bina modelini ekler
 
   }
 
@@ -1169,7 +1170,8 @@ export default class World {
         resources: this.resources,
         objects: this.objects,
         shadows: this.shadows,
-        sounds: this.sounds
+        sounds: this.sounds,
+        areas: this.areas  // Etkileşim için areas parametresini ekledim
       });
       
       if (this.sosyalino && this.sosyalino.container) {
@@ -1224,7 +1226,30 @@ setroketplatformu() {
   }
 }
 
-
+  setDivizyonBina() {
+    try {
+      this.divizyonBina = new DivizyonBina({
+        resources: this.resources,
+        objects: this.objects,
+        debug: this.debug,
+        time: this.time,
+        physics: this.physics,
+        shadows: this.shadows,
+        materials: this.materials,
+        areas: this.areas,    // Etkileşim alanları için
+        sounds: this.sounds   // Ses efektleri için
+      });
+      
+      if (this.divizyonBina && this.divizyonBina.container) {
+        this.container.add(this.divizyonBina.container);
+        console.log("DivizyonBina modeli başarıyla eklendi");
+      } else {
+        console.warn("DivizyonBina container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("DivizyonBina eklenirken hata oluştu:", error);
+    }
+  }
 
   setKelebekler() {
     // Kelebekler Vadisi
