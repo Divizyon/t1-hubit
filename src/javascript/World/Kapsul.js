@@ -128,39 +128,100 @@ export default class Kapsul
         // Kapsul için ışıklar ekle
         this.lights = {}
         
-        // Noktasal ışık
-        this.lights.point = new THREE.PointLight(0xffffff, 2, 30)
-        this.lights.point.position.set(30, -25, 10) // Model pozisyonunun üzerinde
-        this.lights.point.castShadow = true
-        this.container.add(this.lights.point)
+        // Ana noktasal ışık - üstten
+        this.lights.pointTop = new THREE.PointLight(0xffffff, 2, 30)
+        this.lights.pointTop.position.set(30, -15, 15)
+        this.lights.pointTop.castShadow = true
+        this.container.add(this.lights.pointTop)
+
+        // Ön noktasal ışık
+        this.lights.pointFront = new THREE.PointLight(0xffffff, 1.5, 25)
+        this.lights.pointFront.position.set(45, -25, 2)
+        this.lights.pointFront.castShadow = true
+        this.container.add(this.lights.pointFront)
+
+        // Arka noktasal ışık
+        this.lights.pointBack = new THREE.PointLight(0xffffff, 1.5, 25)
+        this.lights.pointBack.position.set(15, -25, 2)
+        this.lights.pointBack.castShadow = true
+        this.container.add(this.lights.pointBack)
+
+        // Sağ noktasal ışık
+        this.lights.pointRight = new THREE.PointLight(0xffffff, 1.5, 25)
+        this.lights.pointRight.position.set(30, -15, 15)
+        this.lights.pointRight.castShadow = true
+        this.container.add(this.lights.pointRight)
+
+        // Sol noktasal ışık
+        this.lights.pointLeft = new THREE.PointLight(0xffffff, 1.5, 25)
+        this.lights.pointLeft.position.set(30, -35, 15)
+        this.lights.pointLeft.castShadow = true
+        this.container.add(this.lights.pointLeft)
         
-        // Spot ışık - modelin önüne odaklı
-        this.lights.spot = new THREE.SpotLight(0xffffff, 1.5, 40, Math.PI * 0.25, 0.5, 0.5)
-        this.lights.spot.position.set(30, -20, 10) // Modelin önünden, yukarıdan
-        this.lights.spot.target.position.set(30, -25, 2) // Modelin merkezine bakıyor
-        this.lights.spot.castShadow = true
-        this.container.add(this.lights.spot)
-        this.container.add(this.lights.spot.target)
+        // Spot ışıklar - farklı açılardan
+        this.lights.spot1 = new THREE.SpotLight(0xffffff, 1, 40, Math.PI * 0.25, 0.5, 0.5)
+        this.lights.spot1.position.set(30, -20, 15)
+        this.lights.spot1.target.position.set(30, -25, 2)
+        this.lights.spot1.castShadow = true
+        this.container.add(this.lights.spot1)
+        this.container.add(this.lights.spot1.target)
+
+        this.lights.spot2 = new THREE.SpotLight(0xffffff, 1, 40, Math.PI * 0.25, 0.5, 0.5)
+        this.lights.spot2.position.set(40, -25, 5)
+        this.lights.spot2.target.position.set(30, -25, 2)
+        this.lights.spot2.castShadow = true
+        this.container.add(this.lights.spot2)
+        this.container.add(this.lights.spot2.target)
         
-        // Ortam ışığı
-        this.lights.ambient = new THREE.AmbientLight(0xffffff, 0.5)
+        // Ortam ışığı - daha güçlü
+        this.lights.ambient = new THREE.AmbientLight(0xffffff, 0.8)
         this.container.add(this.lights.ambient)
         
         // Debug ışık kontrolleri
         if(this.debug) {
             const lightsFolder = this.debugFolder.addFolder('lights')
             
-            const pointFolder = lightsFolder.addFolder('point')
-            pointFolder.add(this.lights.point, 'intensity').min(0).max(10).step(0.1).name('intensity')
-            pointFolder.add(this.lights.point.position, 'x').min(20).max(40).step(0.1).name('positionX')
-            pointFolder.add(this.lights.point.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
-            pointFolder.add(this.lights.point.position, 'z').min(0).max(20).step(0.1).name('positionZ')
+            const pointTopFolder = lightsFolder.addFolder('pointTop')
+            pointTopFolder.add(this.lights.pointTop, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            pointTopFolder.add(this.lights.pointTop.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            pointTopFolder.add(this.lights.pointTop.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            pointTopFolder.add(this.lights.pointTop.position, 'z').min(0).max(20).step(0.1).name('positionZ')
+
+            const pointFrontFolder = lightsFolder.addFolder('pointFront')
+            pointFrontFolder.add(this.lights.pointFront, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            pointFrontFolder.add(this.lights.pointFront.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            pointFrontFolder.add(this.lights.pointFront.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            pointFrontFolder.add(this.lights.pointFront.position, 'z').min(0).max(20).step(0.1).name('positionZ')
+
+            const pointBackFolder = lightsFolder.addFolder('pointBack')
+            pointBackFolder.add(this.lights.pointBack, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            pointBackFolder.add(this.lights.pointBack.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            pointBackFolder.add(this.lights.pointBack.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            pointBackFolder.add(this.lights.pointBack.position, 'z').min(0).max(20).step(0.1).name('positionZ')
+
+            const pointRightFolder = lightsFolder.addFolder('pointRight')
+            pointRightFolder.add(this.lights.pointRight, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            pointRightFolder.add(this.lights.pointRight.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            pointRightFolder.add(this.lights.pointRight.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            pointRightFolder.add(this.lights.pointRight.position, 'z').min(0).max(20).step(0.1).name('positionZ')
+
+            const pointLeftFolder = lightsFolder.addFolder('pointLeft')
+            pointLeftFolder.add(this.lights.pointLeft, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            pointLeftFolder.add(this.lights.pointLeft.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            pointLeftFolder.add(this.lights.pointLeft.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            pointLeftFolder.add(this.lights.pointLeft.position, 'z').min(0).max(20).step(0.1).name('positionZ')
             
-            const spotFolder = lightsFolder.addFolder('spot')
-            spotFolder.add(this.lights.spot, 'intensity').min(0).max(10).step(0.1).name('intensity')
-            spotFolder.add(this.lights.spot.position, 'x').min(20).max(40).step(0.1).name('positionX')
-            spotFolder.add(this.lights.spot.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
-            spotFolder.add(this.lights.spot.position, 'z').min(0).max(20).step(0.1).name('positionZ')
+            const spot1Folder = lightsFolder.addFolder('spot1')
+            spot1Folder.add(this.lights.spot1, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            spot1Folder.add(this.lights.spot1.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            spot1Folder.add(this.lights.spot1.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            spot1Folder.add(this.lights.spot1.position, 'z').min(0).max(20).step(0.1).name('positionZ')
+            
+            const spot2Folder = lightsFolder.addFolder('spot2')
+            spot2Folder.add(this.lights.spot2, 'intensity').min(0).max(10).step(0.1).name('intensity')
+            spot2Folder.add(this.lights.spot2.position, 'x').min(20).max(40).step(0.1).name('positionX')
+            spot2Folder.add(this.lights.spot2.position, 'y').min(-35).max(-15).step(0.1).name('positionY')
+            spot2Folder.add(this.lights.spot2.position, 'z').min(0).max(20).step(0.1).name('positionZ')
             
             const ambientFolder = lightsFolder.addFolder('ambient')
             ambientFolder.add(this.lights.ambient, 'intensity').min(0).max(2).step(0.1).name('intensity')
