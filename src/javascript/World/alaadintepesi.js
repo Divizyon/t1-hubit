@@ -1,92 +1,125 @@
 import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import CANNON from 'cannon'
 
-export default class AlaadinTepesi
-{
-    constructor(_options)
-    {
-        // Options
-        this.resources = _options.resources
-        this.debug = _options.debug
-        this.scene = _options.scene
-        this.world = _options.world
-
-        // Set up
-        this.container = new THREE.Object3D()
-        this.container.matrixAutoUpdate = false
-        this.container.updateMatrix()
-
-        this.scene.add(this.container)
-
-        this.setModel()
-
-        // Debug
-        if(this.debug)
-        {
-            this.debugFolder = this.debug.addFolder('alaadinTepesi')
-            this.debugFolder.add(this.container.position, 'x').name('positionX').min(-50).max(50).step(0.1)
-            this.debugFolder.add(this.container.position, 'y').name('positionY').min(-50).max(50).step(0.1)
-            this.debugFolder.add(this.container.position, 'z').name('positionZ').min(-50).max(50).step(0.1)
+export default class AlaaddinTepesi {
+    constructor(_options) {
+        this.time = _options.time;
+        this.scene = _options.scene;
+        this.physics = _options.physics;
+        this.mixer = null;
+        this.model = null;
+        this.collisionBody = null;
+        this.setModel();
+        
+        if (this.time) {
+            this.time.on('tick', () => {
+                this.tick(this.time.delta * 0.001);
+            });
+        } else {
+            console.warn('AlaaddinTepesi: time parametresi verilmedi, animasyonlar çalışmayacak.');
         }
     }
 
-    setModel()
-    {
-        // Load the model from resources
-        this.model = this.resources.items.alaadinTepesiModel.scene
+    setModel() {
+        if (!this.scene) {
+            console.warn('AlaaddinTepesi: scene parametresi verilmedi, model sahneye eklenmeyecek.');
+            return;
+        }
 
-        // Set the position as requested
-        this.container.position.set(-20, -20, 0)
-        
-        // Add lights to the scene
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        this.container.add(ambientLight);
+        const loader = new GLTFLoader();
+        loader.load('./models/alladintepesi/AlaaddinTepesi.glb', (gltf) => {
+            console.log('Balık modeli yüklendi:', gltf);
+            console.log('Animasyonlar:', gltf.animations);
+            
+            this.model = gltf.scene;
+            this.model.position.set(-20, -20, .7);
+            this.model.scale.set(.5, .5, .5);
+            
+            // Modeli döndür
+            this.model.rotation.x = Math.PI / 2;
+            
+            this.scene.add(this.model);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(5, 5, 5);
-        this.container.add(directionalLight);
+          
+            if (this.physics) {
+                this.collisionBody = new CANNON.Body({
+                    mass: 0,
+                    position: new CANNON.Vec3(1, -39, .7),
+                    material: this.physics.materials.items.floor
+                });
 
-        const pointLight1 = new THREE.PointLight(0xff0000, 1, 100);
-        pointLight1.position.set(-5, 5, 5);
-        this.container.add(pointLight1);
+              
+                const radius = 5;
+                const sphereShape = new CANNON.Sphere(radius);
+                this.collisionBody.addShape(sphereShape);
 
-        const pointLight2 = new THREE.PointLight(0x00ff00, 1, 100);
-        pointLight2.position.set(5, -5, 5);
-        this.container.add(pointLight2);
-
-        const pointLight3 = new THREE.PointLight(0x0000ff, 1, 100);
-        pointLight3.position.set(0, 0, -5);
-        this.container.add(pointLight3);
-        
-        // Enhance the model's materials to make colors more vibrant
-        this.model.traverse((child) => {
-            if (child.isMesh && child.material) {
-                // Convert to MeshStandardMaterial for better lighting
-                const standardMaterial = new THREE.MeshStandardMaterial();
                 
-                // Copy properties from original material
-                if (child.material.color) {
-                    standardMaterial.color = child.material.color;
-                    // Increase color saturation
-                    const color = standardMaterial.color;
-                    const hsl = {};
-                    color.getHSL(hsl);
-                    hsl.s = Math.min(hsl.s * 1.3, 1); // Increase saturation by 30%
-                    hsl.l = Math.min(hsl.l * 1.1, 1); // Increase lightness by 10%
-                    color.setHSL(hsl.h, hsl.s, hsl.l);
+                this.physics.world.addBody(this.collisionBody);
+            }
+
+            // Işık ekle (sadece bir kez)
+            if (!this.scene.__balikLightAdded) {
+                this.scene.add(new THREE.AmbientLight(0xffffff, 2));
+                const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+                dirLight.position.set(5, 10, 7.5);
+                this.scene.add(dirLight);
+                this.scene.__balikLightAdded = true;
+            }
+
+            // Materyal ve mesh kontrolü
+            this.model.traverse((child) => {
+                if (child.isMesh) {
+                    console.log('Mesh bulundu:', child.name);
+                    if (child.isSkinnedMesh) {
+                        console.log('SkinnedMesh bulundu:', child.name);
+                    }
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    if (!child.material) {
+                        child.material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+                    }
+                    if (child.material && child.material.type === 'MeshBasicMaterial') {
+                        child.material = new THREE.MeshStandardMaterial({ color: child.material.color || 0xffffff });
+                    }
+                    child.material.transparent = false;
+                    child.material.opacity = 1;
                 }
-                
-                // Set material properties for better appearance
-                standardMaterial.metalness = 0.2;
-                standardMaterial.roughness = 0.5;
-                standardMaterial.envMapIntensity = 1.0;
-                
-                // Apply the new material
-                child.material = standardMaterial;
+            });
+
+            // Animasyonları başlat
+            if (gltf.animations && gltf.animations.length > 0) {
+                console.log('Animasyonlar yükleniyor...');
+                this.mixer = new THREE.AnimationMixer(this.model);
+                gltf.animations.forEach((clip, index) => {
+                    console.log(`Animasyon ${index} yükleniyor:`, clip.name);
+                    const action = this.mixer.clipAction(clip);
+                    action.reset().play();
+                });
+                console.log('Mixer oluşturuldu:', this.mixer);
+            } else {
+                console.warn('Hiç animasyon bulunamadı!');
             }
         });
-        
-        // Add the model to the container
-        this.container.add(this.model)
-        this.container.updateMatrix()
     }
-} 
+
+    tick(delta) {
+        if (this.mixer) {
+            this.mixer.update(delta);
+        }
+    }
+}
+
+/* 
+Resource.js   { name: 'aladdinTepesi', source: './models/hubit/aladdinTepesi/base.glb' },
+İndex Js
+    setAladdinTepesi() {
+        this.aladdinTepesi = new AladdinTepesi({
+            scene: this.scene,
+            time: this.time,
+            physics: this.physics
+        });
+    }
+this.setAladdinTepesi()
+import AladdinTepesi from './Hubit/AlaaddinTepesi.js'
+*/

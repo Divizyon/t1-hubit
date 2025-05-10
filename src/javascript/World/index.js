@@ -10,7 +10,7 @@ import Areas from "./Areas.js";
 import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
-import AlaadinTepesi from "./alaadintepesi.js";
+import AlaaddinTepesi from "./alaadintepesi.js";
 import Kapsul from "./Kapsul.js";
 import DivizyonBina from "./DivizyonBina.js";
 import Sosyalino from "./SosyalinoModule.js";
@@ -83,7 +83,7 @@ export default class World {
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
-    this.setAlaadinTepesi(); // Aladdin Tepesi modelini ekler
+    this.setAlaaddinTepesi(); // Aladdin Tepesi modelini ekler
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
@@ -875,7 +875,7 @@ export default class World {
       popupContainer.appendChild(popupBox);
       document.body.appendChild(popupContainer);
     };
-
+    
     // Button action function
     this.resetButton.reset = () => {
       // Play sound effect
@@ -965,14 +965,14 @@ export default class World {
     }
   }
 
-  setAlaadinTepesi() {
-    this.alaadinTepesi = new AlaadinTepesi({
-      debug: this.debug,
-      resources: this.resources,
-      scene: this.scene,
-      world: this
+  setAlaaddinTepesi() {
+    this.aladdinTepesi = new AlaaddinTepesi({
+        scene: this.scene,
+        time: this.time,
+        physics: this.physics
     });
-  }
+}
+  
 
   setKapsul() {
     try {
