@@ -35,39 +35,53 @@ export default class AlaadinTepesi
         this.model = this.resources.items.alaadinTepesiModel.scene
 
         // Set the position as requested
-        this.container.position.set(-20, 30, 0)
+        this.container.position.set(-20, -20, 0)
+        
+        // Add lights to the scene
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.container.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5);
+        this.container.add(directionalLight);
+
+        const pointLight1 = new THREE.PointLight(0xff0000, 1, 100);
+        pointLight1.position.set(-5, 5, 5);
+        this.container.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0x00ff00, 1, 100);
+        pointLight2.position.set(5, -5, 5);
+        this.container.add(pointLight2);
+
+        const pointLight3 = new THREE.PointLight(0x0000ff, 1, 100);
+        pointLight3.position.set(0, 0, -5);
+        this.container.add(pointLight3);
         
         // Enhance the model's materials to make colors more vibrant
         this.model.traverse((child) => {
             if (child.isMesh && child.material) {
-                // Check if it's a material with color property
+                // Convert to MeshStandardMaterial for better lighting
+                const standardMaterial = new THREE.MeshStandardMaterial();
+                
+                // Copy properties from original material
                 if (child.material.color) {
-                    // Increase color saturation slightly
-                    const color = child.material.color;
+                    standardMaterial.color = child.material.color;
+                    // Increase color saturation
+                    const color = standardMaterial.color;
                     const hsl = {};
                     color.getHSL(hsl);
-                    
-                    // Increase saturation by 15% but cap at 1
-                    hsl.s = Math.min(hsl.s * 1.15, 1);
-                    
-                    // Slightly increase the lightness to make colors pop, but not too much
-                    hsl.l = Math.min(hsl.l * 1.05, 1);
-                    
+                    hsl.s = Math.min(hsl.s * 1.3, 1); // Increase saturation by 30%
+                    hsl.l = Math.min(hsl.l * 1.1, 1); // Increase lightness by 10%
                     color.setHSL(hsl.h, hsl.s, hsl.l);
-                    
-                    // Add a small amount of emissive to make it glow slightly
-                    if (!child.material.emissive) {
-                        child.material.emissive = new THREE.Color(0x000000);
-                    }
-                    
-                    // Set emissive to a very subtle version of the base color
-                    child.material.emissive.copy(color).multiplyScalar(0.05);
-                    
-                    // Slightly increase the material's reflectivity if it exists
-                    if (child.material.shininess !== undefined) {
-                        child.material.shininess *= 1.2;
-                    }
                 }
+                
+                // Set material properties for better appearance
+                standardMaterial.metalness = 0.2;
+                standardMaterial.roughness = 0.5;
+                standardMaterial.envMapIntensity = 1.0;
+                
+                // Apply the new material
+                child.material = standardMaterial;
             }
         });
         

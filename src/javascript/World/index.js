@@ -12,6 +12,7 @@ import Walls from "./Walls.js";
 import Road from "./Road.js";
 import AlaadinTepesi from "./alaadintepesi.js";
 import Kapsul from "./Kapsul.js";
+import DivizyonBina from "./DivizyonBina.js";
 import Sosyalino from "./SosyalinoModule.js";
 import IntroSection from "./Sections/IntroSection.js";
 import AreaSection from "./Sections/AreaSection.js";
@@ -19,14 +20,14 @@ import ProjectsSection from "./Sections/ProjectsSection.js";
 import CrossroadsSection from "./Sections/CrossroadsSection.js";
 import InformationSection from "./Sections/InformationSection.js";
 import PlaygroundSection from "./Sections/PlaygroundSection.js";
-// import DistinctionASection from './Sections/DistinctionASection.js'
-// import DistinctionBSection from './Sections/DistinctionBSection.js'
-// import DistinctionCSection from './Sections/DistinctionCSection.js'
-// import DistinctionDSection from './Sections/DistinctionDSection.js'
+import KelebeklerSection from "./Sections/KelebeklerSection.js";
 import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
+import bilimmerkezi from "./bilimmerkezi.js";
+import roketplatformu from "./roketplatformu.js";
+
 
 export default class World {
   constructor(_options) {
@@ -86,7 +87,11 @@ export default class World {
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
-    // setResetButton metodu çağrılmıyor
+    this.setKelebekler(); // Kelebekler Vadisi modelini ekler
+    this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
+    this.setroketplatformu(); // Roket Platformu modelini ekler
+    this.setDivizyonBina(); // Divizyon Bina modelini ekler
+
   }
 
   setReveal() {
@@ -1286,7 +1291,8 @@ export default class World {
         resources: this.resources,
         objects: this.objects,
         shadows: this.shadows,
-        sounds: this.sounds
+        sounds: this.sounds,
+        areas: this.areas  // Etkileşim için areas parametresini ekledim
       });
 
       if (this.sosyalino && this.sosyalino.container) {
@@ -1298,5 +1304,87 @@ export default class World {
     } catch (error) {
       console.error("Sosyalino eklenirken hata oluştu:", error);
     }
+  }
+
+  setbilimmerkezi() {
+    try {
+      this.bilimmerkezi = new bilimmerkezi({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds,
+        areas: this.areas // <-- Bunu ekle!
+      });
+
+      if (this.bilimmerkezi && this.bilimmerkezi.container) {
+        this.container.add(this.bilimmerkezi.container);
+        console.log("bilimmerkezi modeli başarıyla eklendi");
+      } else {
+        console.warn("bilimmerkezi container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("bilimmerkezi eklenirken hata oluştu:", error);
+    }
+  }
+  setroketplatformu() {
+    try {
+      this.roketplatformu = new roketplatformu({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds,
+        areas: this.areas // Eğer etkileşim alanı ekleyeceksen
+      });
+
+      if (this.roketplatformu && this.roketplatformu.container) {
+        this.container.add(this.roketplatformu.container);
+        console.log("Roket platformu modeli başarıyla eklendi");
+      } else {
+        console.warn("Roket platformu container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("Roket platformu eklenirken hata oluştu:", error);
+    }
+  }
+
+  setDivizyonBina() {
+    try {
+      this.divizyonBina = new DivizyonBina({
+        resources: this.resources,
+        objects: this.objects,
+        debug: this.debug,
+        time: this.time,
+        physics: this.physics,
+        shadows: this.shadows,
+        materials: this.materials,
+        areas: this.areas,    // Etkileşim alanları için
+        sounds: this.sounds   // Ses efektleri için
+      });
+
+      if (this.divizyonBina && this.divizyonBina.container) {
+        this.container.add(this.divizyonBina.container);
+        console.log("DivizyonBina modeli başarıyla eklendi");
+      } else {
+        console.warn("DivizyonBina container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("DivizyonBina eklenirken hata oluştu:", error);
+    }
+  }
+
+  setKelebekler() {
+    // Kelebekler Vadisi
+    this.kelebekler = new KelebeklerSection({
+      time: this.time,
+      resources: this.resources,
+      objects: this.objects,
+      physics: this.physics,
+      debug: this.debugFolder,
+      shadows: this.shadows,
+      materials: this.materials,
+      areas: this.areas,
+      sounds: this.sounds
+    })
+    this.container.add(this.kelebekler.container)
   }
 }

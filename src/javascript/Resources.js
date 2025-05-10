@@ -157,15 +157,27 @@ export default class Resources extends EventEmitter {
 
             //Roket
             { name: 'roketModel', source: './models/roket/RoketModeli.glb' },
+            { name: 'roketplatform', source: './models/roketplatform/roketplatform.glb' },
 
             // Yol modeli
             { name: 'roadModel', source: './models/road/road.glb' },
 
             // Sosyalino modeli 
             { name: 'Sosyalino', source: './models/sosyalino.glb' },
-
+            
             // Kapsul
-            { name: 'kapsulModel', source: './models/kapsul/Kapsul_BlockOut.glb' },
+            { name: 'kapsulModel', source: './models/kapsul/Kapsul_Bina.glb' },
+
+            // DivizyonBina modeli
+            { name: 'divizyonBinaModel', source: './models/divizyonBina/DivizyonBina.glb' },
+
+            // Bilim Merkezi modeli
+            { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
+
+            
+
+            // Kelebekler Vadisi
+            { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
 
             // // Distinction A
             // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
