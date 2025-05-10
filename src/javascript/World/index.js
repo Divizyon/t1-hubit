@@ -636,7 +636,24 @@ export default class World {
       sleep: false,
     });
 
-    // Uzamsal ses kaldırıldı
+    // Basış sayısını tutacak değişken
+    this.rocketLaunchClickCount = 0;
+    // LAUNCH/LAND yazısı için dinamik texture oluşturucu
+    const createButtonTexture = (text) => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = 256;
+      canvas.height = 64;
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = 'white';
+      context.font = 'bold 60px Arial';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText(text, canvas.width / 2, canvas.height / 2);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      return texture;
+    };
 
     // areaLabelMesh'i oluştur ve sahneye ekle
     const areaLabelMesh = new THREE.Mesh(
@@ -645,40 +662,144 @@ export default class World {
         transparent: true,
         depthWrite: false,
         color: 0xffffff,
-        alphaMap: this.resources.items.areaResetTexture,
+        alphaMap: createButtonTexture('LAUNCH'),
       })
     );
-    areaLabelMesh.position.set(10, 15, 0); // rocket ile aynı konumda, biraz yukarıda
+    areaLabelMesh.position.set(10, 15, 0);
     areaLabelMesh.matrixAutoUpdate = false;
     areaLabelMesh.updateMatrix();
     this.container.add(areaLabelMesh);
+    this.rocketAreaLabelMesh = areaLabelMesh; // referans kaydet
 
     // Enter etkileşimi için area ekle
     this.rocketArea = this.areas.add({
       position: new THREE.Vector2(10, 15),
       halfExtents: new THREE.Vector2(3, 3),
     });
+    // Roket uçuş ve iniş kontrolü için flag ve interval
+    this.rocketIsFlying = false;
+    this.rocketLandingInterval = null;
+    this.rocketDescentInterval = null;
+    this.rocketLastMaxVelocity = 0; // Fırlatmada ulaşılan maksimum hız
+
+    // Roketi havada sabitleyen fonksiyon
+    const freezeRocketInAir = (body) => {
+      if (this.rocketLandingInterval) clearInterval(this.rocketLandingInterval);
+      this.rocketLandingInterval = setInterval(() => {
+        if (this.rocketIsFlying) {
+          body.velocity.set(0, 0, 0);
+          body.position.z = Math.max(body.position.z, 10); // 10 birim yukarıda sabitleniyor
+        }
+      }, 50);
+    };
+
+    // Roket iniş animasyonu fonksiyonu
+    const landRocket = (body) => {
+      if (this.rocketLandingInterval) {
+        clearInterval(this.rocketLandingInterval);
+        this.rocketLandingInterval = null;
+      }
+      if (this.rocketDescentInterval) {
+        clearInterval(this.rocketDescentInterval);
+        this.rocketDescentInterval = null;
+      }
+      body.angularVelocity.set(0, 0, 0);
+      // Düz iniş animasyonu
+      const targetZ = 0.5;
+      const descentSpeed = -Math.abs(this.rocketLastMaxVelocity) * 0.6 || -2; // Maksimum çıkış hızının %60'ı, yoksa -2
+      this.rocketDescentInterval = setInterval(() => {
+        const currentZ = body.position.z;
+        if (currentZ <= targetZ + 0.05) {
+          body.position.z = targetZ;
+          body.velocity.set(0, 0, 0);
+          clearInterval(this.rocketDescentInterval);
+          this.rocketDescentInterval = null;
+        } else {
+          body.velocity.set(0, 0, descentSpeed);
+        }
+      }, 50);
+    };
+
+    // Duman efekti için sprite oluştur (sadece setRocket fonksiyonu içinde)
+    let rocketSmokeSprite = null;
+    if (this.resources.items.smokeTexture) {
+      const smokeMaterial = new THREE.SpriteMaterial({
+        map: this.resources.items.smokeTexture,
+        transparent: true,
+        opacity: 0.7,
+        depthWrite: false
+      });
+      rocketSmokeSprite = new THREE.Sprite(smokeMaterial);
+      rocketSmokeSprite.scale.set(1.5, 1.5, 1.5);
+      rocketSmokeSprite.position.set(0, 0, -1.2); // Roketin altına hizala
+      this.rocket.container.add(rocketSmokeSprite);
+      rocketSmokeSprite.visible = false;
+    }
+
     this.rocketArea.on("interact", () => {
+      this.rocketLaunchClickCount++;
       const body =
         this.rocket && this.rocket.collision && this.rocket.collision.body;
-      if (body) {
-        if (body.wakeUp) body.wakeUp();
-        body.velocity.set(0, 0, 0); // Başlangıçta durgun
-        body.angularVelocity.set(0, 0, 10);
 
-        let elapsed = 0;
-        let interval = setInterval(() => {
-          // Her 50ms'de bir hız artışı uygula
-          if (elapsed < 2000) {
-            // 2 saniye boyunca hız artışı
-            // Her seferinde biraz daha fazla kuvvet uygula
-            const force = 5 + (elapsed / 2000) * 40; // 5'ten 45'e kadar artan kuvvet
-            body.velocity.z += force * 0.05; // Z ekseni yukarı
-            elapsed += 50;
-          } else {
-            clearInterval(interval);
+      if (this.rocketLaunchClickCount % 2 === 1) {
+        // LAUNCH: Fırlat, LAND yazısını göster
+        this.rocketAreaLabelMesh.material.alphaMap = createButtonTexture('LAND');
+        this.rocketAreaLabelMesh.material.needsUpdate = true;
+        // Duman efektini başlat
+        if (rocketSmokeSprite) {
+          rocketSmokeSprite.visible = true;
+          rocketSmokeSprite.material.opacity = 0.7;
+          rocketSmokeSprite.scale.set(1.5, 1.5, 1.5);
+          let smokeElapsed = 0;
+          let smokeInterval = setInterval(() => {
+            smokeElapsed += 50;
+            rocketSmokeSprite.scale.multiplyScalar(1.03);
+            rocketSmokeSprite.material.opacity *= 0.97;
+            if (rocketSmokeSprite.material.opacity < 0.05 || smokeElapsed > 2000) {
+              rocketSmokeSprite.visible = false;
+              clearInterval(smokeInterval);
+            }
+          }, 50);
+        }
+        if (body) {
+          if (body.wakeUp) body.wakeUp();
+          if (this.rocketLandingInterval) {
+            clearInterval(this.rocketLandingInterval);
+            this.rocketLandingInterval = null;
           }
-        }, 50);
+          if (this.rocketDescentInterval) {
+            clearInterval(this.rocketDescentInterval);
+            this.rocketDescentInterval = null;
+          }
+          body.velocity.set(0, 0, 0);
+          body.angularVelocity.set(0, 0, 10);
+          this.rocketIsFlying = true;
+          let elapsed = 0;
+          let maxVelocity = 0;
+          let interval = setInterval(() => {
+            if (elapsed < 2000) {
+              const force = 5 + (elapsed / 2000) * 40;
+              body.velocity.z += force * 0.05;
+              if (body.velocity.z > maxVelocity) maxVelocity = body.velocity.z;
+              elapsed += 50;
+            } else {
+              clearInterval(interval);
+              body.velocity.set(0, 0, 0);
+              body.angularVelocity.set(0, 0, 0);
+              this.rocketLastMaxVelocity = maxVelocity; // Maksimum çıkış hızını kaydet
+              freezeRocketInAir(body);
+            }
+          }, 50);
+        }
+      } else {
+        // LAND: LAUNCH yazısını göster, inişi başlat
+        this.rocketAreaLabelMesh.material.alphaMap = createButtonTexture('LAUNCH');
+        this.rocketAreaLabelMesh.material.needsUpdate = true;
+        if (body) {
+          if (body.wakeUp) body.wakeUp();
+          this.rocketIsFlying = false;
+          landRocket(body);
+        }
       }
     });
   }
@@ -760,7 +881,7 @@ export default class World {
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9g_a2vS8t0DgWozGqk2RMSWwnieY8xuv1hQ&s",
         "https://img.piri.net/mnresize/900/-/resim/imagecrop/2022/12/02/02/01/resized_9d157-6812551fkapak.jpeg",
         "data:image/jpeg;base64,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",
-        ];
+      ];
 
       // Create image container grid
       const imageContainer = document.createElement("div");
@@ -977,28 +1098,57 @@ export default class World {
   setKapsul() {
     try {
       // Kapsul modelini kontrol et
-      if (this.resources && 
-          this.resources.items && 
-          this.resources.items.kapsulModel && 
-          this.resources.items.kapsulModel.scene) {
-          
-        // Yeni modele göre ayarlar
-        this.kapsul = new Kapsul({
-          debug: this.debug,
-          resources: this.resources,
-          objects: this.objects,
-          shadows: this.shadows,
-          materials: this.materials,
-          sounds: this.sounds,
-          time: this.time,
-          areas: this.areas
+      if (this.resources &&
+        this.resources.items &&
+        this.resources.items.kapsulModel &&
+        this.resources.items.kapsulModel.scene) {
+
+        // Model yapısını kontrol et
+        const modelScene = this.resources.items.kapsulModel.scene;
+
+        if (!modelScene.children || modelScene.children.length === 0) {
+          console.warn("Kapsul modelinin children özelliği yok veya boş, model eklenemedi.");
+          return;
+        }
+
+        this.kapsul = this.objects.add({
+          base: modelScene,
+          // Collision parametresini tamamen kaldırdım
+          offset: new THREE.Vector3(30, -25, 2), // Z değerini 0'dan 2'ye yükselttim
+          rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
+          shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+          mass: 0, // Statik bir model olduğu için kütle 0
+          sleep: true, // Fizik hesaplamaları yapılmasın
+          name: "Kapsül" // İsim parametresi eklendi
         });
 
-        // Kapsul container'ı sahneye ekle
-        if(this.kapsul && this.kapsul.container) {
-          this.container.add(this.kapsul.container);
-          console.log("Kapsul modeli başarıyla eklendi:", this.kapsul);
+        // Modelin görünürlüğünü kontrol et
+        if (this.kapsul && this.kapsul.container) {
+          this.kapsul.container.visible = true;
+
+          // Modeldeki tüm mesh'lerin görünürlüğünü kontrol et
+          this.kapsul.container.traverse((child) => {
+            if (child.isMesh) {
+              child.visible = true;
+
+              // Materyal kontrolleri
+              if (child.material) {
+                child.material.needsUpdate = true;
+                child.material.transparent = false;
+                child.material.opacity = 1.0;
+
+                // Eğer materyal çok karanlıksa, emissive değerini ayarla
+                if (child.material.emissive) {
+                  child.material.emissive.set(0x222222);
+                }
+              }
+            }
+          });
+
+          console.log("Kapsul görünürlük ayarları yapıldı");
         }
+
+        console.log("Kapsul modeli başarıyla eklendi:", this.kapsul);
       } else {
         console.warn("Kapsul modeli bulunamadı veya yüklenemedi!");
       }
@@ -1128,7 +1278,7 @@ export default class World {
           this.sounds.play("click");
         }
       });
-      
+
       console.log("Kapsül etkileşim alanı başarıyla eklendi");
     } catch (error) {
       console.error("Kapsül etkileşim alanı eklenirken hata oluştu:", error);
@@ -1144,7 +1294,7 @@ export default class World {
         sounds: this.sounds,
         areas: this.areas  // Etkileşim için areas parametresini ekledim
       });
-      
+
       if (this.sosyalino && this.sosyalino.container) {
         this.container.add(this.sosyalino.container);
         console.log("Sosyalino modeli başarıyla eklendi");
@@ -1158,14 +1308,14 @@ export default class World {
 
   setbilimmerkezi() {
     try {
-      this.bilimmerkezi  = new bilimmerkezi({
+      this.bilimmerkezi = new bilimmerkezi({
         resources: this.resources,
         objects: this.objects,
         shadows: this.shadows,
         sounds: this.sounds,
         areas: this.areas // <-- Bunu ekle!
       });
-      
+
       if (this.bilimmerkezi && this.bilimmerkezi.container) {
         this.container.add(this.bilimmerkezi.container);
         console.log("bilimmerkezi modeli başarıyla eklendi");
@@ -1175,27 +1325,27 @@ export default class World {
     } catch (error) {
       console.error("bilimmerkezi eklenirken hata oluştu:", error);
     }
-}
-setroketplatformu() {
-  try {
-    this.roketplatformu = new roketplatformu({
-      resources: this.resources,
-      objects: this.objects,
-      shadows: this.shadows,
-      sounds: this.sounds,
-      areas: this.areas // Eğer etkileşim alanı ekleyeceksen
-    });
-    
-    if (this.roketplatformu && this.roketplatformu.container) {
-      this.container.add(this.roketplatformu.container);
-      console.log("Roket platformu modeli başarıyla eklendi");
-    } else {
-      console.warn("Roket platformu container nesnesi bulunamadı!");
-    }
-  } catch (error) {
-    console.error("Roket platformu eklenirken hata oluştu:", error);
   }
-}
+  setroketplatformu() {
+    try {
+      this.roketplatformu = new roketplatformu({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        sounds: this.sounds,
+        areas: this.areas // Eğer etkileşim alanı ekleyeceksen
+      });
+
+      if (this.roketplatformu && this.roketplatformu.container) {
+        this.container.add(this.roketplatformu.container);
+        console.log("Roket platformu modeli başarıyla eklendi");
+      } else {
+        console.warn("Roket platformu container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("Roket platformu eklenirken hata oluştu:", error);
+    }
+  }
 
   setDivizyonBina() {
     try {
@@ -1210,7 +1360,7 @@ setroketplatformu() {
         areas: this.areas,    // Etkileşim alanları için
         sounds: this.sounds   // Ses efektleri için
       });
-      
+
       if (this.divizyonBina && this.divizyonBina.container) {
         this.container.add(this.divizyonBina.container);
         console.log("DivizyonBina modeli başarıyla eklendi");
