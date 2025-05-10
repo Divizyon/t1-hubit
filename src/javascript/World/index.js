@@ -28,6 +28,8 @@ import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
 import roketplatformu from "./roketplatformu.js";
 
+import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
+
 
 export default class World {
   constructor(_options) {
@@ -87,6 +89,7 @@ export default class World {
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
+    this.setCalisanGenclikMerkezi(); // CalisanGenclikMerkezi modelini ekler
     this.setKelebekler(); // Kelebekler Vadisi modelini ekler
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
@@ -1305,6 +1308,28 @@ export default class World {
       console.error("Sosyalino eklenirken hata oluştu:", error);
     }
   }
+
+  setCalisanGenclikMerkezi() {
+    try {
+      this.calisanGenclikMerkezi = new CalisanGenclikMerkezi(
+        this.resources,
+        this.objects,
+        this.shadows,
+        this.debug,
+        this.scene
+      )
+
+      if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.model) {
+        this.container.add(this.calisanGenclikMerkezi.model)
+        console.log("CalisanGenclikMerkezi modeli başarıyla eklendi")
+      } else {
+        console.warn("CalisanGenclikMerkezi modeli bulunamadı veya yüklenemedi!")
+      }
+    } catch (error) {
+      console.error("CalisanGenclikMerkezi eklenirken hata oluştu:", error)
+    }
+  }
+
 
   setbilimmerkezi() {
     try {
