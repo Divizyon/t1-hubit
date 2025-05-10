@@ -628,10 +628,20 @@ export default class World {
   }
 
   setRocket() {
+    // Platform ve roket için ortak koordinatlar ve yükseklikler
+    const platformX = 19;
+    const platformY = 15;
+    const platformZ = 0;
+    const platformHeight = 1; // Platformun yüksekliği (gerekirse ayarlanabilir)
+
+    // Roket modelini ekle (otomatik bounding box ortalama kaldırıldı, sabit offset kullanılıyor)
+    const rocketOffsetX = platformX - 0.8; // 1 birim sola kaydır
+    const rocketOffsetY = platformY - 0.5; // 1 birim sana doğru yaklaştır
+
     this.rocket = this.objects.add({
       base: this.resources.items.roketModel.scene,
       collision: this.resources.items.brickCollision.scene,
-      offset: new THREE.Vector3(15, 15, -1),
+      offset: new THREE.Vector3(rocketOffsetX, rocketOffsetY, platformZ + platformHeight),
       rotation: new THREE.Euler(0, 0, 5),
       shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
       mass: 1.5,
@@ -999,7 +1009,7 @@ export default class World {
       popupContainer.appendChild(popupBox);
       document.body.appendChild(popupContainer);
     };
-    
+
     // Button action function
     this.resetButton.reset = () => {
       // Play sound effect
@@ -1091,12 +1101,12 @@ export default class World {
 
   setAlaaddinTepesi() {
     this.aladdinTepesi = new AlaaddinTepesi({
-        scene: this.scene,
-        time: this.time,
-        physics: this.physics
+      scene: this.scene,
+      time: this.time,
+      physics: this.physics
     });
-}
-  
+  }
+
 
 setKapsul() {
   this.kapsul = new Kapsul({
