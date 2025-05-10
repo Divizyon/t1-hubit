@@ -32,7 +32,7 @@ export default class Resources extends EventEmitter {
 
             // Ses Odası
             { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
-            
+
             // Intro
             { name: 'introStaticBase', source: './models/intro/static/base.glb' },
             { name: 'introStaticCollision', source: './models/intro/static/collision.glb' },
@@ -145,7 +145,7 @@ export default class Resources extends EventEmitter {
 
             // Greenbox
             { name: 'greenBoxBase', source: './models/greenBox/base.glb' },
-            { name: 'greenBoxCollision', source: './models/greenBox/base.glb' }, 
+            { name: 'greenBoxCollision', source: './models/greenBox/base.glb' },
 
             // Brick
             { name: 'brickBase', source: './models/balya/balya.glb' },
@@ -179,28 +179,8 @@ export default class Resources extends EventEmitter {
             // Kelebekler Vadisi
             { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
 
-            // // Distinction A
-            // { name: 'distinctionAStaticBase', source: './models/distinctionA/static/base.glb' },
-            // { name: 'distinctionAStaticCollision', source: './models/distinctionA/static/collision.glb' },
-            // { name: 'distinctionAStaticFloorShadow', source: './models/distinctionA/static/floorShadow.png', type: 'texture' },
-
-            // // Distinction B
-            // { name: 'distinctionBStaticBase', source: './models/distinctionB/static/base.glb' },
-            // { name: 'distinctionBStaticCollision', source: './models/distinctionB/static/collision.glb' },
-            // { name: 'distinctionBStaticFloorShadow', source: './models/distinctionB/static/floorShadow.png', type: 'texture' },
-
-            // // Distinction C
-            // { name: 'distinctionCStaticBase', source: './models/distinctionC/static/base.glb' },
-            // { name: 'distinctionCStaticCollision', source: './models/distinctionC/static/collision.glb' },
-            // { name: 'distinctionCStaticFloorShadow', source: './models/distinctionC/static/floorShadow.png', type: 'texture' },
-
-            // // Cone
-            // { name: 'coneBase', source: './models/cone/base.glb' },
-            // { name: 'coneCollision', source: './models/cone/collision.glb' },
-
-            // // Awwwards trophy
-            // { name: 'awwwardsTrophyBase', source: './models/awwwardsTrophy/base.glb' },
-            // { name: 'awwwardsTrophyCollision', source: './models/awwwardsTrophy/collision.glb' },
+            //CalisanGenclikMerkezi
+            { name: 'calisanGenclikMerkezi', source: './models/calisanGenclikMerkezi.glb' },
 
             // Webby trophy
             { name: 'webbyTrophyBase', source: './models/webbyTrophy/base.glb' },
