@@ -10,7 +10,7 @@ import Areas from "./Areas.js";
 import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
-import AlaadinTepesi from "./alaadintepesi.js";
+import AlaaddinTepesi from "./alaadintepesi.js";
 import Kapsul from "./Kapsul.js";
 import DivizyonBina from "./DivizyonBina.js";
 import Sosyalino from "./SosyalinoModule.js";
@@ -28,6 +28,8 @@ import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
 import roketplatformu from "./roketplatformu.js";
 import GreenBox from "./GreenBox.js";
+
+import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 
 
 export default class World {
@@ -84,10 +86,11 @@ export default class World {
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
-    this.setAlaadinTepesi(); // Aladdin Tepesi modelini ekler
+    this.setAlaaddinTepesi(); // Aladdin Tepesi modelini ekler
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
+    this.setCalisanGenclikMerkezi(); // CalisanGenclikMerkezi modelini ekler
     this.setKelebekler(); // Kelebekler Vadisi modelini ekler
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
@@ -626,10 +629,20 @@ export default class World {
   }
 
   setRocket() {
+    // Platform ve roket için ortak koordinatlar ve yükseklikler
+    const platformX = 19;
+    const platformY = 15;
+    const platformZ = 0;
+    const platformHeight = 1; // Platformun yüksekliği (gerekirse ayarlanabilir)
+
+    // Roket modelini ekle (otomatik bounding box ortalama kaldırıldı, sabit offset kullanılıyor)
+    const rocketOffsetX = platformX - 0.8; // 1 birim sola kaydır
+    const rocketOffsetY = platformY - 0.5; // 1 birim sana doğru yaklaştır
+
     this.rocket = this.objects.add({
       base: this.resources.items.roketModel.scene,
       collision: this.resources.items.brickCollision.scene,
-      offset: new THREE.Vector3(15, 15, -1),
+      offset: new THREE.Vector3(rocketOffsetX, rocketOffsetY, platformZ + platformHeight),
       rotation: new THREE.Euler(0, 0, 5),
       shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
       mass: 1.5,
@@ -1070,14 +1083,14 @@ export default class World {
     }
   }
 
-  setAlaadinTepesi() {
-    this.alaadinTepesi = new AlaadinTepesi({
-      debug: this.debug,
-      resources: this.resources,
+  setAlaaddinTepesi() {
+    this.aladdinTepesi = new AlaaddinTepesi({
       scene: this.scene,
-      world: this
+      time: this.time,
+      physics: this.physics
     });
   }
+
 
   setKapsul() {
     try {
@@ -1289,6 +1302,28 @@ export default class World {
       console.error("Sosyalino eklenirken hata oluştu:", error);
     }
   }
+
+  setCalisanGenclikMerkezi() {
+    try {
+      this.calisanGenclikMerkezi = new CalisanGenclikMerkezi(
+        this.resources,
+        this.objects,
+        this.shadows,
+        this.debug,
+        this.scene
+      )
+
+      if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.model) {
+        this.container.add(this.calisanGenclikMerkezi.model)
+        console.log("CalisanGenclikMerkezi modeli başarıyla eklendi")
+      } else {
+        console.warn("CalisanGenclikMerkezi modeli bulunamadı veya yüklenemedi!")
+      }
+    } catch (error) {
+      console.error("CalisanGenclikMerkezi eklenirken hata oluştu:", error)
+    }
+  }
+
 
   setbilimmerkezi() {
     try {
