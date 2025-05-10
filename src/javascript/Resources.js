@@ -164,9 +164,9 @@ export default class Resources extends EventEmitter {
 
             // Sosyalino modeli 
             { name: 'Sosyalino', source: './models/sosyalino.glb' },
-
+            
             // Kapsul
-            { name: 'kapsulModel', source: './models/kapsul/Kapsul_BlockOut.glb' },
+            { name: 'kapsulModel', source: './models/kapsul/Kapsul_Bina.glb' },
 
             // Bilim Merkezi modeli
             { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
