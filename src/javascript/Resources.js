@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import Loader from './Utils/Loader.js'
 import EventEmitter from './Utils/EventEmitter.js'
 
+
 export default class Resources extends EventEmitter {
     constructor() {
         super()
@@ -28,12 +29,30 @@ export default class Resources extends EventEmitter {
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
             // Aladin Tepesi
-            { name: 'alaadinTepesiModel', source: './models/alladintepesi/AlaaddinTepesi.glb' },
-
+            { name: 'aladdinTepesi', source: './models/alladintepesi/AlaaddinTepesi.glb' },
             // Ses Odası
             { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
+                // Stadyum
+            { name: 'stadyumModel', source: './models/stadyum/stadyum.glb' },
 
-            // Intro
+            // Konseralani
+            { name: 'konseralaniModel', source: './models/konseralani/konser_alani.glb' },
+            // Intro    
+           
+            // Japonparki
+            { name: 'japonparkiModel', source: './models/japonparki/japonparki.glb' },
+           
+            // Basket
+            { name: 'basketModel', source: './models/basket/basket.glb' },
+            
+            // Cowork
+            { name: 'coworkModel', source: './models/cowork/cowork.glb' },
+        
+
+
+            // Base modeli
+            { name: 'baseModel', source: './models/base/base.glb' },
+
             { name: 'introStaticBase', source: './models/intro/static/base.glb' },
             { name: 'introStaticCollision', source: './models/intro/static/collision.glb' },
             { name: 'introStaticFloorShadow', source: './models/intro/static/floorShadow.png', type: 'texture' },
@@ -41,7 +60,7 @@ export default class Resources extends EventEmitter {
             { name: 'introInstructionsLabels', source: './models/intro/instructions/labels.glb' },
             { name: 'introInstructionsArrows', source: './models/intro/instructions/arrows.png', type: 'texture' },
             { name: 'introInstructionsControls', source: './models/intro/instructions/controls.png', type: 'texture' },
-            { name: 'introInstructionsOther', source: './models/intro/instructions/other.png', type: 'texture' },
+            { name: 'introInstructionsOther', source: './models/intro/instructions/pc_kontrols.png', type: 'texture' },
 
             { name: 'introArrowKeyBase', source: './models/intro/arrowKey/base.glb' },
             { name: 'introArrowKeyCollision', source: './models/intro/arrowKey/collision.glb' },
@@ -91,7 +110,7 @@ export default class Resources extends EventEmitter {
             // { name: 'carDefaultBunnyEarRight', source: './models/car/default/bunnyEarRight.glb' },
 
             // Togg
-            { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/Tog_Shade_Version.glb' },
+            { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/base.glb' },
             { name: 'carCyberTruckWheel', source: './models/car/cyberTruck/wheel.glb' },
             { name: 'carCyberTruckBackLightsBrake', source: './models/car/cyberTruck/backLightsBrake.glb' },
             { name: 'carCyberTruckBackLightsReverse', source: './models/car/cyberTruck/backLightsReverse.glb' },
@@ -167,7 +186,7 @@ export default class Resources extends EventEmitter {
 
             // Sosyalino modeli 
             { name: 'Sosyalino', source: './models/sosyalino.glb' },
-            
+
             // Kapsul
             { name: 'kapsulModel', source: './models/kapsul/Kapsul_Bina.glb' },
 
@@ -177,13 +196,17 @@ export default class Resources extends EventEmitter {
             // Bilim Merkezi modeli
             { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
 
-            
+            // Atmosfer Alanı modeli
+            { name: 'atmosferAlaniModel', source: './models/AtmosferAlani_with_road.glb' },
 
             // Kelebekler Vadisi
             { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
 
             //CalisanGenclikMerkezi
             { name: 'calisanGenclikMerkezi', source: './models/calisanGenclikMerkezi.glb' },
+
+            //Konya Genc Kart
+            { name: 'konyaGencKartModel', source: './models/konyaGencKart/3D_Ekran_Bina.glb' },
 
             // Webby trophy
             { name: 'webbyTrophyBase', source: './models/webbyTrophy/base.glb' },

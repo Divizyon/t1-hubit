@@ -55,7 +55,7 @@ export default class GreenBox
                 relativePosition: { x: 6, y: -6, z: 2 }, // GreenBox'un sağ alt köşesinde
                 size: { x: 1.5, y: 1.5, z: 4 },
                 color: '#ff0000',
-                visible: true
+                visible: false
             }
         ];
         
@@ -82,9 +82,9 @@ export default class GreenBox
         this.collision = {}
         // Orijinal konumu kaydet
         this.collisionOffset = {
-            x: 0.1, // GreenBox'a göre göreceli X konumu
-            y: 0.1, // GreenBox'a göre göreceli Y konumu
-            z: 2.4  // GreenBox'a göre göreceli Z konumu
+            x: 0.05, // GreenBox'a göre göreceli X konumu - küçültüldü
+            y: 0.05, // GreenBox'a göre göreceli Y konumu - küçültüldü
+            z: 1.2   // GreenBox'a göre göreceli Z konumu - küçültüldü
         }
         
         // Başlangıç konumunu ayarla
@@ -94,20 +94,20 @@ export default class GreenBox
         
         // Çarpışma kutusu boyutları
         this.collisionSize = {
-            x: 4.8,  // Çarpışma kutusu genişliği
-            y: 4.2,  // Çarpışma kutusu yüksekliği
-            z: 3.4   // Çarpışma kutusu derinliği
+            x: 2.4,  // Çarpışma kutusu genişliği - küçültüldü
+            y: 2.1,  // Çarpışma kutusu yüksekliği - küçültüldü
+            z: 1.7   // Çarpışma kutusu derinliği - küçültüldü
         }
         
         // Ölçek faktörü - çarpışma kutusu için
-        this.collisionScale = 1.4 // Çarpışma kutusu ölçek faktörü
+        this.collisionScale = 1.2 // Çarpışma kutusu ölçek faktörü - küçültüldü
         
         // Duvar kalınlıkları
         this.wallThickness = {
-            left: 0.2,   // Sol duvar kalınlığı (-x yönü) - kalınlaştırıldı
-            top: 0.2,    // Üst duvar kalınlığı (+y yönü) - kalınlaştırıldı
-            front: 0.1,  // Ön duvar kalınlığı (-z yönü)
-            back: 0.1    // Arka duvar kalınlığı (+z yönü)
+            left: 0.1,   // Sol duvar kalınlığı (-x yönü) - küçültüldü
+            top: 0.1,    // Üst duvar kalınlığı (+y yönü) - küçültüldü
+            front: 0.05, // Ön duvar kalınlığı (-z yönü) - küçültüldü
+            back: 0.05   // Arka duvar kalınlığı (+z yönü) - küçültüldü
         }
         
         // Çarpışma kutusunun görselliği için özellikler
@@ -153,6 +153,7 @@ export default class GreenBox
                 hy, 
                 hz
             ))
+            leftWall.name = "greenBox_leftWall"
             body.addShape(leftWall, new CANNON.Vec3(-hx, 0, 0))
             
             // +z yönündeki duvar (arka)
@@ -161,6 +162,7 @@ export default class GreenBox
                 hy, 
                 this.wallThickness.back
             ))
+            backWall.name = "greenBox_backWall"
             body.addShape(backWall, new CANNON.Vec3(0, 0, hz))
             
             // -z yönündeki duvar (ön)
@@ -169,6 +171,7 @@ export default class GreenBox
                 hy, 
                 this.wallThickness.front
             ))
+            frontWall.name = "greenBox_frontWall"
             body.addShape(frontWall, new CANNON.Vec3(0, 0, -hz))
             
             // +y yönündeki duvar (üst) - kalınlaştırıldı
@@ -177,6 +180,7 @@ export default class GreenBox
                 this.wallThickness.top, 
                 hz
             ))
+            topWall.name = "greenBox_topWall"
             body.addShape(topWall, new CANNON.Vec3(0, hy, 0))
             
             // NOT: +x (sağ), -y (alt) ve taban duvarları eklemedik, böylece o yönlerden girebiliriz
@@ -201,13 +205,23 @@ export default class GreenBox
                 soundName: "brick",
             })
             
-            // Model ölçeğini ayarla
+            // Model ölçeğini ayarla ve mesh'lere isim ver
             if (this.greenBoxObject && this.greenBoxObject.container) {
                 this.greenBoxObject.container.scale.set(
                     this.modelSize.x, 
                     this.modelSize.y, 
                     this.modelSize.z
                 );
+                
+                // Ana model mesh'ine isim ver
+                this.greenBoxObject.container.name = "greenBox_mainModel"
+                
+                // Alt mesh'lere isim ver
+                this.greenBoxObject.container.traverse((child) => {
+                    if (child.isMesh) {
+                        child.name = `greenBox_${child.name || 'mesh'}`
+                    }
+                })
             }
             
             // Collision body'yi ayrı bir değişkende saklayalım, modele bağlamayalım

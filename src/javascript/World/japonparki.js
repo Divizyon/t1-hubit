@@ -2,22 +2,14 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import CANNON from 'cannon'
 
-export default class Kapsul {
+export default class Japonparki {
     constructor(_options) {
         this.time = _options.time;
         this.scene = _options.scene;
         this.physics = _options.physics;
-        this.resources = _options.resources;
-        this.objects = _options.objects;
-        this.debug = _options.debug;
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
-        
-        // Create container
-        this.container = new THREE.Object3D();
-        this.container.matrixAutoUpdate = false;
-        
         this.setModel();
         
         if (this.time) {
@@ -25,48 +17,39 @@ export default class Kapsul {
                 this.tick(this.time.delta * 0.001);
             });
         } else {
-            console.warn('Kapsul: time parametresi verilmedi, animasyonlar çalışmayacak.');
+            console.warn('Japonparki: time parametresi verilmedi, animasyonlar çalışmayacak.');
         }
     }
 
     setModel() {
         if (!this.scene) {
-            console.warn('Kapsul: scene parametresi verilmedi, model sahneye eklenmeyecek.');
+            console.warn('Japonparki: scene parametresi verilmedi, model sahneye eklenmeyecek.');
             return;
         }
 
         const loader = new GLTFLoader();
-        loader.load('./models/kapsul/Kapsul_Bina.glb', (gltf) => {
-            console.log('Kapsul modeli yüklendi:', gltf);
+        loader.load('./models/japonparki/japonparki.glb', (gltf) => {
+            console.log('Balık modeli yüklendi:', gltf);
             console.log('Animasyonlar:', gltf.animations);
-
-            const base = this.resources.items.baseModel;
-    if (!base || !base.scene) {
-      console.error('Stadyum modeli bulunamadı');
-      return;
-    }
+             
+           
+            
             
             this.model = gltf.scene;
-            this.model.position.set(29, -24, 5);// Model Pozisyonu - Etkileşim alanının yanında
-            this.model.scale.set(1.5, 1.5, 1.5);
+            this.model.position.set(-50, -40, .7);
+            this.model.scale.set(.3, .3, .3);
             
             // Modeli döndür
-            this.model.rotation.x = 0;
+            this.model.rotation.x = Math.PI / 2;
             
-            // Model artık container'a ekleniyor, doğrudan scene'e değil
-            this.container.add(this.model);
-            this.container.updateMatrix();
+    
+            this.scene.add(this.model);
 
-          // Base modelini klonla ve Kapsül modeline ekle
-    const baseModel = base.scene.clone(true);
-    baseModel.position.set(29.5, -23.2, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
-    baseModel.scale.set(2.5, 2.5, 1.5); // Base modelinin ölçeği
-    this.container.add(baseModel);
-
+          
             if (this.physics) {
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
-                    position: new CANNON.Vec3(32, -25, 0), // Collision Body Pozisyonu
+                    position: new CANNON.Vec3(1, -39, .7),
                     material: this.physics.materials.items.floor
                 });
 
@@ -80,15 +63,15 @@ export default class Kapsul {
             }
 
             // Işık ekle (sadece bir kez)
-            if (!this.container.__kapsulLightAdded) {
-                const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+            if (!this.scene.__balikLightAdded) {
+                this.scene.add(new THREE.AmbientLight(0xffffff, 2));
                 const dirLight = new THREE.DirectionalLight(0xffffff, 2);
                 dirLight.position.set(5, 10, 7.5);
-                this.container.add(ambientLight);
-                this.container.add(dirLight);
-                this.container.__kapsulLightAdded = true;
+                this.scene.add(dirLight);
+                this.scene.__balikLightAdded = true;
             }
 
+            
             // Materyal ve mesh kontrolü
             this.model.traverse((child) => {
                 if (child.isMesh) {
@@ -108,6 +91,7 @@ export default class Kapsul {
                     child.material.opacity = 1;
                 }
             });
+            
 
             // Animasyonları başlat
             if (gltf.animations && gltf.animations.length > 0) {
