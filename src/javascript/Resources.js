@@ -12,6 +12,10 @@ export default class Resources extends EventEmitter {
         this.items = {}
 
         this.loader.load([
+            // Trafik lambası ve yön tabelaları
+            { name: 'trafikLambasiModel', source: './models/cevre/traficlamba.glb' },
+            { name: 'yonTabelasi1Model', source: './models/cevre/yontabelasi1.glb' },
+            { name: 'yonTabelasi2Model', source: './models/cevre/yontabelasi2.glb' },
             // Matcaps
             { name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
             { name: 'matcapBlack', source: './models/matcaps/black.png', type: 'texture' },
@@ -45,6 +49,14 @@ export default class Resources extends EventEmitter {
             // Basket
             { name: 'basketModel', source: './models/basket/basket.glb' },
             
+            // Cowork
+            { name: 'coworkModel', source: './models/cowork/cowork.glb' },
+        
+
+
+            // Base modeli
+            { name: 'baseModel', source: './models/base/base.glb' },
+
             { name: 'introStaticBase', source: './models/intro/static/base.glb' },
             { name: 'introStaticCollision', source: './models/intro/static/collision.glb' },
             { name: 'introStaticFloorShadow', source: './models/intro/static/floorShadow.png', type: 'texture' },
@@ -102,7 +114,7 @@ export default class Resources extends EventEmitter {
             // { name: 'carDefaultBunnyEarRight', source: './models/car/default/bunnyEarRight.glb' },
 
             // Togg
-            { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/Tog_Shade_Version.glb' },
+            { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/base.glb' },
             { name: 'carCyberTruckWheel', source: './models/car/cyberTruck/wheel.glb' },
             { name: 'carCyberTruckBackLightsBrake', source: './models/car/cyberTruck/backLightsBrake.glb' },
             { name: 'carCyberTruckBackLightsReverse', source: './models/car/cyberTruck/backLightsReverse.glb' },
@@ -172,6 +184,9 @@ export default class Resources extends EventEmitter {
 
             // Yol modeli
             { name: 'roadModel', source: './models/road/road.glb' },
+
+            // Render
+            { name: 'renderModel', source: './models/render/base.glb' },
 
             // Sosyalino modeli 
             { name: 'Sosyalino', source: './models/sosyalino.glb' },
@@ -249,6 +264,8 @@ export default class Resources extends EventEmitter {
             // // Egg
             // { name: 'eggBase', source: './models/egg/base.glb' },
             // { name: 'eggCollision', source: './models/egg/collision.glb' },
+
+            { name: 'legoParcaModel', source: './models/cevre/lego parca.glb' },
         ])
 
         this.loader.on('fileEnd', (_resource, _data) => {

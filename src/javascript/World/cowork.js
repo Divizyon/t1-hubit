@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-40, -10, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-10,-30, 0); // Artık doğru yerde tanımlandı
 
-export default class Konseralani {
+export default class Cowork {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
     this.scene = scene;
     this.resources = resources;
@@ -23,9 +23,9 @@ export default class Konseralani {
   }
 
   _buildModel() {
-    const gltf = this.resources.items.konseralaniModel;
+    const gltf = this.resources.items.coworkModel;
     if (!gltf || !gltf.scene) {
-      console.error('Konseralani modeli bulunamadı');
+      console.error('Cowork modeli bulunamadı');
       return;
     }
 
@@ -73,7 +73,6 @@ export default class Konseralani {
 
     body.addShape(boxShape);
     this.physics.world.addBody(body);
-
 
     // Obje sistemine ekle
     if (this.objects) {

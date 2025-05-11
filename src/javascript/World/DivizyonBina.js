@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-60, 0, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-72.5, 0, 2); // Artık doğru yerde tanımlandı
 
 export default class DivizyonBina {
     constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -23,6 +23,7 @@ export default class DivizyonBina {
     }
 
     _buildModel() {
+        // Model dosyasını al
         const gltf = this.resources.items.divizyonBinaModel;
         if (!gltf || !gltf.scene) {
             console.error('Divizyon bina modeli bulunamadı');
@@ -45,6 +46,19 @@ export default class DivizyonBina {
                 child.receiveShadow = true;
             }
         });
+
+        // Base modelini al
+        const base = this.resources.items.baseModel;
+        if (!base || !base.scene) {
+            console.error('Base modeli bulunamadı');
+            // Base modeli olmadan da devam edelim, kritik değil
+        } else {
+            // Base modelini klonla ve Divizyon modeline ekle
+            const baseModel = base.scene.clone(true);
+            baseModel.position.set(-72.5, 0, 0); // Base modelinin Divizyon altına yerleştirilmesi için pozisyon ayarı
+            baseModel.scale.set(1.5, 1.5, 1.5); // Base modelinin ölçeği
+            this.container.add(baseModel);
+        }
 
         // Model pozisyonu ve dönüşü
         model.position.copy(this.position);
@@ -92,7 +106,6 @@ export default class DivizyonBina {
 }
 
 /* 
-
 İndex.js dosyasında DivizyonBina'yı oluşturmak için:
 import DivizyonBina from './DivizyonBina';
 
@@ -109,5 +122,4 @@ this.setDivizyonBina()
     rotateZ:   Math.PI / 2 // Z ekseninde 90 derece döndürme
   });
 }
-
 */

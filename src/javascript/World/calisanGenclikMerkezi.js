@@ -7,7 +7,7 @@ export default class CalisanGenclikMerkezi {
         this.shadows = shadows
         this.debug = debug
         this.scene = scene
-
+        
         // Debug
         if (this.debug) {
             this.debugFolder = this.debug.addFolder('calisanGenclikMerkezi')
@@ -30,6 +30,7 @@ export default class CalisanGenclikMerkezi {
             console.log('Available resources:', Object.keys(this.resources.items))
             return
         }
+       
 
         this.model = this.objects.add({
             base: this.resources.items.calisanGenclikMerkezi.scene,
@@ -41,6 +42,8 @@ export default class CalisanGenclikMerkezi {
             sleep: true
         })
 
+      
+
         if (this.model && this.model.container && this.model.container instanceof THREE.Object3D) {
             this.scene.add(this.model.container)
             console.log('Model added to scene at position:', this.model.container.position)
@@ -50,7 +53,7 @@ export default class CalisanGenclikMerkezi {
         } else {
             console.error('Eklenebilecek bir THREE.Object3D bulunamadı:', this.model)
         }
-
+ ;
         // Debug
         if (this.debug) {
             this.debugFolder

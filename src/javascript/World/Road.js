@@ -14,7 +14,7 @@ export default class Road {
         this.container = new THREE.Object3D()
         this.container.matrixAutoUpdate = false
 
-        this.setModel()
+            this.setModel()
     }
 
     setModel() {

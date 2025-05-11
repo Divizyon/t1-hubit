@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-30, -40, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-30, -40, -1.5); // Artık doğru yerde tanımlandı
 
 export default class Stadyum {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -10,7 +10,6 @@ export default class Stadyum {
     this.objects = objects;
     this.physics = physics;
     this.debug = debug;
-
     this.rotateX = rotateX;
     this.rotateY = rotateY;
     this.rotateZ = rotateZ;
@@ -25,6 +24,12 @@ export default class Stadyum {
   _buildModel() {
     const gltf = this.resources.items.stadyumModel;
     if (!gltf || !gltf.scene) {
+      console.error('Stadyum modeli bulunamadı');
+      return;
+    }
+
+    const base = this.resources.items.baseModel;
+    if (!base || !base.scene) {
       console.error('Stadyum modeli bulunamadı');
       return;
     }
@@ -50,6 +55,12 @@ export default class Stadyum {
     model.position.copy(this.position);
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
+
+    // Base modelini klonla ve Kapsül modeline ekle
+    const baseModel = base.scene.clone(true);
+    baseModel.position.set(-30, -40, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
+    baseModel.scale.set(3, 2.3, 1.5); // Base modelinin ölçeği
+    this.container.add(baseModel);
 
     // Bounding box hesapla
     model.updateMatrixWorld(true);

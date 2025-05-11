@@ -28,7 +28,7 @@ export default class Sosyalino {
     // Ana modeli oluştur, şimdilik collision yok
     this.model = this.objects.add({
       base: this.resources.items.Sosyalino.scene,
-      offset: new THREE.Vector3(82, 50, 0),
+      offset: new THREE.Vector3(82, 50, 1.5),
       rotation: new THREE.Euler(Math.PI/2, Math.PI, 0),
       shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
       mass: 0, // Kütle sıfır olabilir çünkü modelin hareketi fizik nesnesi ile kontrol edilecek
@@ -69,6 +69,12 @@ export default class Sosyalino {
     rotationQuaternion.setFromEuler(Math.PI/2, Math.PI, 0)
     boxBody.quaternion = boxBody.quaternion.mult(rotationQuaternion)
     
+    const base = this.resources.items.baseModel;
+    if (!base || !base.scene) {
+      console.error('Stadyum modeli bulunamadı');
+      return;
+    }
+
     // Fizik motoruna ekle
     if (this.physics && this.physics.world) {
       this.physics.world.addBody(boxBody)
@@ -91,7 +97,11 @@ export default class Sosyalino {
           this.sounds.play('brick', relativeVelocity)
         })
       }
-      
+      // Base modelini klonla ve Kapsül modeline ekle
+    const baseModel = base.scene.clone(true);
+    baseModel.position.set(82, 50, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
+    baseModel.scale.set(1, 1, 1.5); // Base modelinin ölçeği
+    this.container.add(baseModel);
       // Debug görsel (opsiyonel)
       if (this.physics.models && this.physics.models.container) {
         const boxGeometry = new THREE.BoxGeometry(4, 4, 4)
@@ -125,6 +135,8 @@ export default class Sosyalino {
     }
   }
   
+
+
   // Sosyalino için etkileşim butonu ve alanı oluştur
   setSosyalinoInteraction() {
     try {

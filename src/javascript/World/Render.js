@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-40, -10, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-69, 15, 0); // Artık doğru yerde tanımlandı
 
-export default class Konseralani {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+export default class Render {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 5 }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -23,9 +23,9 @@ export default class Konseralani {
   }
 
   _buildModel() {
-    const gltf = this.resources.items.konseralaniModel;
+    const gltf = this.resources.items.renderModel;
     if (!gltf || !gltf.scene) {
-      console.error('Konseralani modeli bulunamadı');
+      console.error('Render bina modeli bulunamadı');
       return;
     }
 
@@ -57,7 +57,7 @@ export default class Konseralani {
     const size = bbox.getSize(new THREE.Vector3());
 
     // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 3, size.y / 3, size.z / 2);
+    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
     const boxShape = new CANNON.Box(halfExtents);
 
     const body = new CANNON.Body({
@@ -73,7 +73,6 @@ export default class Konseralani {
 
     body.addShape(boxShape);
     this.physics.world.addBody(body);
-
 
     // Obje sistemine ekle
     if (this.objects) {
