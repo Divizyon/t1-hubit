@@ -225,21 +225,21 @@ export default class bilimmerkezi {
     this.shadows = _options.shadows
     this.sounds = _options.sounds
     this.areas = _options.areas
-    
+
     // Set up
     this.container = new THREE.Object3D()
     this.container.matrixAutoUpdate = false
-    
+
     this.setbilimmerkezi()
     
   }
-  
+
   setbilimmerkezi() {
     this.model = this.objects.add({
       base: this.resources.items.bilimmerkezi.scene,
       collision: { children: [] },
-      offset: new THREE.Vector3(0, -10, -3),
-      rotation: new THREE.Euler(Math.PI/20, Math.PI, Math.PI),
+      offset: new THREE.Vector3(10, 18, -3),
+      rotation: new THREE.Euler(Math.PI / 20, Math.PI, Math.PI),
       shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
       mass: 0,
       soundName: 'brick',
