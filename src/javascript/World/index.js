@@ -21,6 +21,8 @@ import CrossroadsSection from "./Sections/CrossroadsSection.js";
 import InformationSection from "./Sections/InformationSection.js";
 import PlaygroundSection from "./Sections/PlaygroundSection.js";
 import KelebeklerSection from "./Sections/KelebeklerSection.js";
+import FutbolKaleSection from "./Sections/FutbolKaleSection.js";
+import FutbolTopuSection from "./Sections/FutbolTopuSection.js";
 import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import gsap from "gsap";
@@ -107,6 +109,8 @@ export default class World {
     this.setKonseralani(); // Konseralani modelini ekler
     this.setJaponparki(); // Japonparki modelini ekler
     this.setBasket(); // Basket modelini ekler
+    this.setFutbolKaleSection(); // Futbol kalesi modelini ekler
+    this.setFutbolTopuSection(); // Futbol topu modelini ekler
     
 
   }
@@ -1409,6 +1413,53 @@ setBasket() {
     rotateZ:   0 // Y ekseninde 90 derece,
   });
 }
+
+  setFutbolKaleSection() {
+    try {
+      this.futbolKaleSection = new FutbolKaleSection({
+        config: this.config,
+        time: this.time,
+        resources: this.resources,
+        objects: this.objects,
+        areas: this.areas,
+        debug: this.debug
+      });
+      
+      // Oluşturulan section'ı ana container'a ekle
+      if (this.futbolKaleSection && this.futbolKaleSection.container) {
+        this.container.add(this.futbolKaleSection.container);
+        console.log("Futbol Kale Section başarıyla eklendi");
+      } else {
+        console.warn("Futbol Kale Section container'ı bulunamadı");
+      }
+    } catch (error) {
+      console.error("Futbol Kale Section eklenirken hata oluştu:", error);
+    }
+  }
+
+  setFutbolTopuSection() {
+    try {
+      this.futbolTopuSection = new FutbolTopuSection({
+        config: this.config,
+        time: this.time,
+        resources: this.resources,
+        objects: this.objects,
+        areas: this.areas,
+        debug: this.debug,
+        physics: this.physics
+      });
+      
+      // Oluşturulan section'ı ana container'a ekle
+      if (this.futbolTopuSection && this.futbolTopuSection.container) {
+        this.container.add(this.futbolTopuSection.container);
+        console.log("Futbol Topu Section başarıyla eklendi");
+      } else {
+        console.warn("Futbol Topu Section container'ı bulunamadı");
+      }
+    } catch (error) {
+      console.error("Futbol Topu Section eklenirken hata oluştu:", error);
+    }
+  }
 
 }
 

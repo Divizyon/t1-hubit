@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "cannon": "^0.6.2",
+    "cannon-es": "^0.20.0",
     "canvas": "^3.1.0",
     "dat.gui": "^0.7.9",
     "gsap": "^3.12.5",

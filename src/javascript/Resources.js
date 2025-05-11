@@ -185,6 +185,9 @@ export default class Resources extends EventEmitter {
             // Bilim Merkezi modeli
             { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
 
+            // Futbol Kalesi modeli
+            { name: 'kale', source: './models/futbolKale/kale.glb' },
+
             
 
             // Kelebekler Vadisi
