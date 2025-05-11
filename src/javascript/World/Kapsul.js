@@ -7,9 +7,17 @@ export default class Kapsul {
         this.time = _options.time;
         this.scene = _options.scene;
         this.physics = _options.physics;
+        this.resources = _options.resources;
+        this.objects = _options.objects;
+        this.debug = _options.debug;
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
+        
+        // Create container
+        this.container = new THREE.Object3D();
+        this.container.matrixAutoUpdate = false;
+        
         this.setModel();
         
         if (this.time) {
@@ -29,23 +37,25 @@ export default class Kapsul {
 
         const loader = new GLTFLoader();
         loader.load('./models/kapsul/Kapsul_Bina.glb', (gltf) => {
-            console.log('Balık modeli yüklendi:', gltf);
+            console.log('Kapsul modeli yüklendi:', gltf);
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(0, 0, 3);// Model Pozisyonu
+            this.model.position.set(30, -25, 3);// Model Pozisyonu - Etkileşim alanının yanında
             this.model.scale.set(1.5, 1.5, 1.5);
             
             // Modeli döndür
             this.model.rotation.x = 0;
             
-            this.scene.add(this.model);
+            // Model artık container'a ekleniyor, doğrudan scene'e değil
+            this.container.add(this.model);
+            this.container.updateMatrix();
 
           
             if (this.physics) {
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
-                    position: new CANNON.Vec3(0, 0, 0), // Collision Body Pozisyonu
+                    position: new CANNON.Vec3(32, -25, 0), // Collision Body Pozisyonu
                     material: this.physics.materials.items.floor
                 });
 
@@ -59,12 +69,13 @@ export default class Kapsul {
             }
 
             // Işık ekle (sadece bir kez)
-            if (!this.scene.__balikLightAdded) {
-                this.scene.add(new THREE.AmbientLight(0xffffff, 2));
+            if (!this.container.__kapsulLightAdded) {
+                const ambientLight = new THREE.AmbientLight(0xffffff, 2);
                 const dirLight = new THREE.DirectionalLight(0xffffff, 2);
                 dirLight.position.set(5, 10, 7.5);
-                this.scene.add(dirLight);
-                this.scene.__balikLightAdded = true;
+                this.container.add(ambientLight);
+                this.container.add(dirLight);
+                this.container.__kapsulLightAdded = true;
             }
 
             // Materyal ve mesh kontrolü
