@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import CANNON from 'cannon'
 
-export default class AlaaddinTepesi {
+export default class Japonparki {
     constructor(_options) {
         this.time = _options.time;
         this.scene = _options.scene;
@@ -17,24 +17,24 @@ export default class AlaaddinTepesi {
                 this.tick(this.time.delta * 0.001);
             });
         } else {
-            console.warn('AlaaddinTepesi: time parametresi verilmedi, animasyonlar çalışmayacak.');
+            console.warn('Japonparki: time parametresi verilmedi, animasyonlar çalışmayacak.');
         }
     }
 
     setModel() {
         if (!this.scene) {
-            console.warn('AlaaddinTepesi: scene parametresi verilmedi, model sahneye eklenmeyecek.');
+            console.warn('Japonparki: scene parametresi verilmedi, model sahneye eklenmeyecek.');
             return;
         }
 
         const loader = new GLTFLoader();
-        loader.load('./models/alladintepesi/AlaaddinTepesi.glb', (gltf) => {
+        loader.load('./models/japonparki/japonparki.glb', (gltf) => {
             console.log('Balık modeli yüklendi:', gltf);
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-10, -40, .7);
-            this.model.scale.set(.5, .5, .5);
+            this.model.position.set(-50, -40, .7);
+            this.model.scale.set(.3, .3, .3);
             
             // Modeli döndür
             this.model.rotation.x = Math.PI / 2;
