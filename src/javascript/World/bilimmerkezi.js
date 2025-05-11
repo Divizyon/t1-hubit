@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import CANNON from 'cannon'
 
-let posizyonX = 35  // Model konumları
+let posizyonX = 25  // Model konumları
 let posizyonY = 30
 let posizyonZ = 0
 
@@ -87,14 +87,14 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         })
       );
       // ENTER yazısını butonla aynı hizaya getir, sadece biraz yukarıda olsun (37.5, 23)
-      areaLabelMesh.position.set(37.8, 23, 0);
+      areaLabelMesh.position.set(27.6, 23, 0);
       areaLabelMesh.matrixAutoUpdate = false;
       areaLabelMesh.updateMatrix();
       this.container.add(areaLabelMesh);
   
       // Etkileşim alanı oluştur
       this.bilimMerkeziArea = this.areas.add({
-        position: new THREE.Vector2(37.5, 23),
+        position: new THREE.Vector2(27.3, 23),
         halfExtents: new THREE.Vector2(2, 2),
       });
   

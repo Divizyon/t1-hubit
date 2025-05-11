@@ -28,7 +28,7 @@ export default class Sosyalino {
     // Ana modeli oluştur, şimdilik collision yok
     this.model = this.objects.add({
       base: this.resources.items.Sosyalino.scene,
-      offset: new THREE.Vector3(82, 50, 1.5),
+      offset: new THREE.Vector3(62, 23, 1.5),
       rotation: new THREE.Euler(Math.PI/2, Math.PI, 0),
       shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
       mass: 0, // Kütle sıfır olabilir çünkü modelin hareketi fizik nesnesi ile kontrol edilecek
@@ -48,7 +48,7 @@ export default class Sosyalino {
   // Yeni bir metot: 4x4x4 boyutlarında bir collision küpü oluştur
   createCollisionBox() {
     // Modelin konumu
-    const position = new THREE.Vector3(82, 50, 1)
+    const position = new THREE.Vector3(62, 23, 0)
     
     // Collision için küp boyutları (4x4x4)
     const halfExtents = new CANNON.Vec3(1.5, 1.5, 1.5) // halfExtents olduğu için boyutların yarısı
@@ -99,7 +99,7 @@ export default class Sosyalino {
       }
       // Base modelini klonla ve Kapsül modeline ekle
     const baseModel = base.scene.clone(true);
-    baseModel.position.set(82, 50, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
+    baseModel.position.set(62, 23, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
     baseModel.scale.set(1, 1, 1.5); // Base modelinin ölçeği
     this.container.add(baseModel);
       // Debug görsel (opsiyonel)
@@ -147,7 +147,7 @@ export default class Sosyalino {
 
       // Etkileşim alanı oluştur
       this.sosyalinoArea = this.areas.add({
-        position: new THREE.Vector2(78, 50), // Aynı koordinatlar
+        position: new THREE.Vector2(68, 23), // Aynı koordinatlar
         halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
       });
 

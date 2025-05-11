@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import CANNON from 'cannon'
 
-let posizyonX = 19  // Model konumları
-let posizyonY = 15
+let posizyonX = 43  // Model konumları
+let posizyonY = 19
 let posizyonZ = 0
 
 export default class roketplatformu  { // Kup modelini temsil eden sınıf

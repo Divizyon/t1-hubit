@@ -36,6 +36,10 @@ import Basket from "./basket.js";
 import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
+
+import KonyaGencKart from './KonyaGenckart.js';
+import PopUpModule from './PopUpModule.js'
+
 import KonyaGencKart from "./KonyaGencKart.js";
 import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
@@ -93,7 +97,6 @@ export default class World {
     this.setWalls();
     this.setSections();
     this.setEasterEggs();
-    this.setCevre(); // Çevre modellerini ekle
 
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setRender(); // Render modelini ekler
@@ -641,7 +644,7 @@ export default class World {
     this.sesOdasi = this.objects.add({
       base: this.resources.items.sesOdasiModel.scene,
       collision: this.resources.items.brickCollision.scene, // Basit çarpışma modeli kullanıyoruz
-      offset: new THREE.Vector3(-65, -10, 0), // Y koordinatını 10 yaptım
+      offset: new THREE.Vector3(-65, -15, 0), // Y koordinatını 10 yaptım
       rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
       shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
       mass: 0, // Statik bir bina olduğu için kütle 0
@@ -669,8 +672,8 @@ export default class World {
 
   setRocket() {
     // Platform ve roket için ortak koordinatlar ve yükseklikler
-    const platformX = 19;
-    const platformY = 15;
+    const platformX = 43;
+    const platformY = 19;
     const platformZ = 0;
     const platformHeight = 1; // Platformun yüksekliği (gerekirse ayarlanabilir)
 
@@ -718,7 +721,7 @@ export default class World {
         alphaMap: createButtonTexture('LAUNCH'),
       })
     );
-    areaLabelMesh.position.set(19, 10, 0);
+    areaLabelMesh.position.set(40, 19, 0);
     areaLabelMesh.matrixAutoUpdate = false;
     areaLabelMesh.updateMatrix();
     this.container.add(areaLabelMesh);
@@ -726,8 +729,8 @@ export default class World {
 
     // Enter etkileşimi için area ekle
     this.rocketArea = this.areas.add({
-      position: new THREE.Vector2(19, 10),
-      halfExtents: new THREE.Vector2(3, 3),
+      position: new THREE.Vector2(39.6, 19),
+      halfExtents: new THREE.Vector2(2, 2),
     });
     // Roket uçuş ve iniş kontrolü için flag ve interval
     this.rocketIsFlying = false;
@@ -1402,14 +1405,14 @@ export default class World {
           alphaMap: this.resources.items.areaResetTexture,
         })
       );
-      areaLabelMesh.position.set(25, -25, 0.5); // Kapsul merkez konumu yakınında
+      areaLabelMesh.position.set(48, -1, 0.5); // Kapsul merkez konumu yakınında
       areaLabelMesh.matrixAutoUpdate = false;
       areaLabelMesh.updateMatrix();
       this.container.add(areaLabelMesh);
 
       // Etkileşim alanı oluştur
       this.kapsulArea = this.areas.add({
-        position: new THREE.Vector2(25, -25), // Kapsul merkez konumu
+        position: new THREE.Vector2(48, -1), // Kapsul merkez konumu
         halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
       });
 
@@ -1518,6 +1521,8 @@ export default class World {
     }
   }
 
+
+
   setCevre() {
     try {
       this.cevre = new Cevre({
@@ -1538,4 +1543,5 @@ export default class World {
       console.error("Çevre modelleri eklenirken hata oluştu:", error);
     }
   }
+
 }
