@@ -164,7 +164,7 @@ export default class Resources extends EventEmitter {
 
             // Sosyalino modeli 
             { name: 'Sosyalino', source: './models/sosyalino.glb' },
-            
+
             // Kapsul
             { name: 'kapsulModel', source: './models/kapsul/Kapsul_Bina.glb' },
 
@@ -174,7 +174,8 @@ export default class Resources extends EventEmitter {
             // Bilim Merkezi modeli
             { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
 
-            
+            // Atmosfer Alanı modeli
+            { name: 'atmosferAlaniModel', source: './models/AtmosferAlani_with_road.glb' },
 
             // Kelebekler Vadisi
             { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },

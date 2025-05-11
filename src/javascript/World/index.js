@@ -29,6 +29,7 @@ import bilimmerkezi from "./bilimmerkezi.js";
 import roketplatformu from "./roketplatformu.js";
 
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
+import AtmosferAlani from "./AtmosferAlani.js";
 
 
 export default class World {
@@ -94,7 +95,7 @@ export default class World {
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
     this.setDivizyonBina(); // Divizyon Bina modelini ekler
-
+    this.setAtmosferAlani(); // Atmosfer Alanı modelini ekler
   }
 
   setReveal() {
@@ -601,7 +602,7 @@ export default class World {
     this.sesOdasi = this.objects.add({
       base: this.resources.items.sesOdasiModel.scene,
       collision: this.resources.items.brickCollision.scene, // Basit çarpışma modeli kullanıyoruz
-      offset: new THREE.Vector3(-62, 30, 0), // Z=0 yaparak modeli zemin seviyesine yerleştiriyorum
+      offset: new THREE.Vector3(-62, 10, 0), // Y koordinatını 10 yaptım
       rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
       shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
       mass: 0, // Statik bir bina olduğu için kütle 0
@@ -678,7 +679,7 @@ export default class World {
         alphaMap: createButtonTexture('LAUNCH'),
       })
     );
-    areaLabelMesh.position.set(10, 15, 0);
+    areaLabelMesh.position.set(19, 10, 0);
     areaLabelMesh.matrixAutoUpdate = false;
     areaLabelMesh.updateMatrix();
     this.container.add(areaLabelMesh);
@@ -686,7 +687,7 @@ export default class World {
 
     // Enter etkileşimi için area ekle
     this.rocketArea = this.areas.add({
-      position: new THREE.Vector2(10, 15),
+      position: new THREE.Vector2(19, 10),
       halfExtents: new THREE.Vector2(3, 3),
     });
     // Roket uçuş ve iniş kontrolü için flag ve interval
@@ -1421,5 +1422,29 @@ export default class World {
       sounds: this.sounds
     })
     this.container.add(this.kelebekler.container)
+  }
+
+  setAtmosferAlani() {
+    try {
+      this.atmosferAlani = new AtmosferAlani({
+        resources: this.resources,
+        objects: this.objects,
+        debug: this.debug,
+        time: this.time,
+        physics: this.physics,
+        shadows: this.shadows,
+        materials: this.materials,
+        areas: this.areas,
+        sounds: this.sounds
+      });
+      if (this.atmosferAlani && this.atmosferAlani.container) {
+        this.container.add(this.atmosferAlani.container);
+        console.log("Atmosfer Alanı başarıyla eklendi");
+      } else {
+        console.warn("Atmosfer Alanı container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("Atmosfer Alanı eklenirken hata oluştu:", error);
+    }
   }
 }

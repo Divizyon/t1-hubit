@@ -1,10 +1,8 @@
 import * as THREE from 'three'
 import CANNON from 'cannon'
 
-export default class DivizyonBina
-{
-    constructor(_options)
-    {
+export default class DivizyonBina {
+    constructor(_options) {
         // Options
         this.resources = _options.resources
         this.objects = _options.objects
@@ -21,14 +19,13 @@ export default class DivizyonBina
         this.container.matrixAutoUpdate = true
 
         // Debug
-        if(this.debug)
-        {
+        if (this.debug) {
             this.debugFolder = this.debug.addFolder('divizyonBina')
             this.debugFolder.open()
         }
-        
+
         // DivizyonBina modelinin varlığını kontrol et
-        if(this.resources.items.divizyonBinaModel) {
+        if (this.resources.items.divizyonBinaModel) {
             this.setModel()
             this.setInteractionArea() // Etkileşim alanını ekle
         } else {
@@ -36,13 +33,12 @@ export default class DivizyonBina
         }
     }
 
-    setModel()
-    {
+    setModel() {
         this.model = {}
-        
+
         // Resource
         this.model.resource = this.resources.items.divizyonBinaModel
-        
+
         // Model container
         this.model.container = new THREE.Object3D()
         this.model.container.matrixAutoUpdate = true
@@ -55,32 +51,32 @@ export default class DivizyonBina
                 // Model referansını küresel olarak kaydet
                 const divizyonBinaModel = this.model.resource.scene.clone()
                 this.model.divizyonBinaModel = divizyonBinaModel;
-                
+
                 // DivizyonBina konumu - ORİJİNAL KONUM KULLAN
-                const centerPosition = new THREE.Vector3(-45, 25, 0);
-                
+                const centerPosition = new THREE.Vector3(-75, 10, 0);
+
                 // Model boyutlarını tanımla
                 const size = {
                     x: 4.5,  // Binanın genişliği
                     y: 4.5,  // Binanın yüksekliği
                     z: 4.5   // Binanın derinliği
                 };
-                
+
                 // Ölçek faktörü - biraz daha geniş bir çarpışma kutusu için
                 const scaleFactor = 1.3;
-                
+
                 // Pozisyon bilgileri
                 const posizyonX = centerPosition.x;
                 const posizyonY = centerPosition.y;
                 const posizyonZ = centerPosition.z;
-                
+
                 // Fizik gövdesi oluştur
                 const body = new CANNON.Body({
                     mass: 0,  // Statik nesne
                     position: new CANNON.Vec3(posizyonX, posizyonY, posizyonZ),
                     material: this.physics.materials.items.floor
                 });
-                
+
                 // Tek bir box collision (modelin tamamı için)
                 const mainShape = new CANNON.Box(new CANNON.Vec3(
                     Math.abs(size.x) * scaleFactor / 2,
@@ -88,10 +84,10 @@ export default class DivizyonBina
                     Math.abs(size.z) * scaleFactor / 2
                 ));
                 body.addShape(mainShape);
-                
+
                 // Collision Eklemek İçin
                 this.physics.world.addBody(body);
-                
+
                 // DivizyonBina'yı objects üzerinden ekle
                 this.divizyonBinaObject = this.objects.add({
                     base: this.model.resource.scene,
@@ -102,16 +98,16 @@ export default class DivizyonBina
                     sleep: false, // Fizik hesaplamaları yapılsın
                     name: "DivizyonBina" // İsim
                 });
-                
+
                 // Modelin görünürlüğünü kontrol et
                 if (this.divizyonBinaObject && this.divizyonBinaObject.container) {
                     this.divizyonBinaObject.container.position.copy(centerPosition);
                     this.divizyonBinaObject.container.scale.set(0.8, 0.8, 0.8);
                     this.divizyonBinaObject.container.visible = true;
-                    
+
                     // Fizik gövdesini modele bağla
                     this.divizyonBinaObject.collision = { body };
-                    
+
                     // Debug için görsel bir çarpışma kutusu oluştur (sadece debug modunda)
                     if (this.debug) {
                         const debugBox = new THREE.BoxHelper(
@@ -127,12 +123,12 @@ export default class DivizyonBina
                         );
                         debugBox.position.copy(centerPosition);
                         this.container.add(debugBox);
-                        
+
                         // Debug kontrollerini ekle
                         const collisionFolder = this.debugFolder.addFolder('collision');
                         collisionFolder.add(debugBox, 'visible').name('showCollisionBox');
                     }
-                    
+
                     console.log("DivizyonBina başarıyla eklendi - basit çarpışma kutusu ile");
                 }
             } else {
@@ -141,15 +137,14 @@ export default class DivizyonBina
         } catch (error) {
             console.error('HATA: DivizyonBina modeli eklenirken bir hata oluştu:', error)
         }
-        
+
         // Debug paneli
-        if(this.debug)
-        {
+        if (this.debug) {
             const folder = this.debugFolder.addFolder('position')
             folder.add(this.model.container.position, 'x').step(0.1).name('positionX')
             folder.add(this.model.container.position, 'y').step(0.1).name('positionY')
             folder.add(this.model.container.position, 'z').step(0.1).name('positionZ')
-            
+
             const rotationFolder = this.debugFolder.addFolder('rotation')
             rotationFolder.add(this.model.container.rotation, 'x').step(0.01).name('rotationX')
             rotationFolder.add(this.model.container.rotation, 'y').step(0.01).name('rotationY')
@@ -284,7 +279,7 @@ export default class DivizyonBina
                     this.sounds.play("click");
                 }
             });
-            
+
             console.log("DivizyonBina etkileşim alanı başarıyla eklendi");
         } catch (error) {
             console.error("DivizyonBina etkileşim alanı eklenirken hata oluştu:", error);
