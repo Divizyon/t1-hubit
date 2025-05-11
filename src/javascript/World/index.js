@@ -27,15 +27,16 @@ import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
 import roketplatformu from "./roketplatformu.js";
+import GreenBox from "./GreenBox.js";
+import Render from "./Render.js";
 import Stadyum from "./stadyum.js";
 import Konseralani from "./konseralani.js";
 import Japonparki from "./japonparki.js";
 import Basket from "./basket.js";
 import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
-import GreenBox from "./GreenBox.js";
 import AtmosferAlani from "./AtmosferAlani.js";
-import KonyaGencKart from './KonyaGencKart.js';
+import KonyaGencKart from './KonyaGenckart.js';
 import PopUpModule from './PopUpModule.js'
 
 
@@ -92,6 +93,7 @@ export default class World {
     this.setEasterEggs();
 
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
+    this.setRender(); // Render modelini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
     this.setAladdinTepesi(); // Aladdin Tepesi modelini ekler
@@ -488,6 +490,10 @@ export default class World {
 
     this.container.add(this.car.container);
 
+
+
+  
+
     // Sounds.js'ye araç referansını set ediyoruz (uzamsal ses için önemli)
     if (this.sounds) {
       this.sounds.setCar(this.car);
@@ -495,6 +501,18 @@ export default class World {
     } else {
       console.error("Ses sistemi başlatılmamış!");
     }
+  }
+
+  setRender() {
+    this.render = new Render({
+      scene:     this.scene,
+      resources: this.resources,
+      physics:   this.physics,
+      debug:     this.debugFolder,
+      rotateX:   0,   // 
+      rotateY:   0,
+      rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+    });
   }
 
   setSections() {

@@ -24,7 +24,7 @@ export default class DivizyonBina {
 
     _buildModel() {
         // Model dosyasını al
-        const gltf = this.resources.items.divizyonbinaModel;
+        const gltf = this.resources.items.divizyonBinaModel;
         if (!gltf || !gltf.scene) {
             console.error('Divizyon bina modeli bulunamadı');
             return;

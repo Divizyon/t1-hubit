@@ -181,6 +181,9 @@ export default class Resources extends EventEmitter {
             // Yol modeli
             { name: 'roadModel', source: './models/road/road.glb' },
 
+            // Render
+            { name: 'renderModel', source: './models/render/base.glb' },
+
             // Sosyalino modeli 
             { name: 'Sosyalino', source: './models/sosyalino.glb' },
 
