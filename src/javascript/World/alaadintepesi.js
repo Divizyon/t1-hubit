@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon'
 
 export default class AlaaddinTepesi {
     constructor(_options) {
@@ -33,27 +33,10 @@ export default class AlaaddinTepesi {
             console.log('Animasyonlar:', gltf.animations);
 
             this.model = gltf.scene;
-
-<<<<<<< HEAD
-            this.model.position.set(-10, -40, .7);
-
-            this.model.position.set(-20, -20, .7)
-=======
-            this.model.position.set(0, -20, .7);
-
-
-            this.model.position.set(-10, -40, .7);
-
-            this.model.position.set(-20,-20, .7)
-
->>>>>>> 2b0fb6157a17acf3f7fa10708f15181a94a6fcaa
+            this.model.position.set(-20, -20, .7);
             this.model.scale.set(.5, .5, .5);
-
-            // Modeli döndür
             this.model.rotation.x = Math.PI / 2;
-
             this.scene.add(this.model);
-
 
             if (this.physics) {
                 this.collisionBody = new CANNON.Body({
@@ -61,17 +44,12 @@ export default class AlaaddinTepesi {
                     position: new CANNON.Vec3(-20, -20, .7),
                     material: this.physics.materials.items.floor
                 });
-
-
                 const radius = 5;
                 const sphereShape = new CANNON.Sphere(radius);
                 this.collisionBody.addShape(sphereShape);
-
-
                 this.physics.world.addBody(this.collisionBody);
             }
 
-            // Işık ekle (sadece bir kez)
             if (!this.scene.__balikLightAdded) {
                 this.scene.add(new THREE.AmbientLight(0xffffff, 2));
                 const dirLight = new THREE.DirectionalLight(0xffffff, 2);
@@ -80,7 +58,6 @@ export default class AlaaddinTepesi {
                 this.scene.__balikLightAdded = true;
             }
 
-            // Materyal ve mesh kontrolü
             this.model.traverse((child) => {
                 if (child.isMesh) {
                     console.log('Mesh bulundu:', child.name);
@@ -100,7 +77,6 @@ export default class AlaaddinTepesi {
                 }
             });
 
-            // Animasyonları başlat
             if (gltf.animations && gltf.animations.length > 0) {
                 console.log('Animasyonlar yükleniyor...');
                 this.mixer = new THREE.AnimationMixer(this.model);
