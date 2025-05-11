@@ -34,9 +34,19 @@ export default class AlaaddinTepesi {
 
             this.model = gltf.scene;
 
+<<<<<<< HEAD
             this.model.position.set(-10, -40, .7);
 
             this.model.position.set(-20, -20, .7)
+=======
+            this.model.position.set(0, -20, .7);
+
+
+            this.model.position.set(-10, -40, .7);
+
+            this.model.position.set(-20,-20, .7)
+
+>>>>>>> 2b0fb6157a17acf3f7fa10708f15181a94a6fcaa
             this.model.scale.set(.5, .5, .5);
 
             // Modeli döndür

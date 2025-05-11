@@ -11,6 +11,7 @@ import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
 import AladdinTepesi from './alaadintepesi.js'
+import AladdinTepesi from './alaadintepesi.js'
 import Kapsul from "./Kapsul.js";
 import DivizyonBina from "./DivizyonBina.js";
 import Sosyalino from "./SosyalinoModule.js";
@@ -36,9 +37,18 @@ import Basket from "./basket.js";
 
 import GreenBox from "./GreenBox.js";
 
+import Stadyum from "./stadyum.js";
+import Konseralani from "./konseralani.js";
+import Japonparki from "./japonparki.js";
+import Basket from "./basket.js";
+//import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
+
+import GreenBox from "./GreenBox.js";
+
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 
 import AtmosferAlani from "./AtmosferAlani.js";
+
 
 
 export default class World {
@@ -96,6 +106,7 @@ export default class World {
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
     this.setAladdinTepesi(); // Aladdin Tepesi modelini ekler
+    this.setAladdinTepesi(); // Aladdin Tepesi modelini ekler
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
@@ -104,6 +115,7 @@ export default class World {
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
     this.setDivizyonBina(); // Divizyon Bina modelini ekler
+
     this.setStadyum(); // Stadyum modelini ekler
     this.setKonseralani(); // Konseralani modelini ekler
     this.setJaponparki(); // Japonparki modelini ekler
@@ -111,6 +123,13 @@ export default class World {
 
 
     this.setAtmosferAlani(); // Atmosfer Alanı modelini ekler
+
+    this.setStadyum(); // Stadyum modelini ekler
+    this.setKonseralani(); // Konseralani modelini ekler
+    this.setJaponparki(); // Japonparki modelini ekler
+    this.setBasket(); // Basket modelini ekler
+
+
   }
 
   setReveal() {
@@ -847,6 +866,19 @@ export default class World {
 
     // Greenbox container'ını World container'ına ekle
     this.container.add(this.greenBox.container);
+    this.greenBox = new GreenBox({
+      resources: this.resources,
+      objects: this.objects,
+      debug: this.debug,
+      time: this.time,
+      physics: this.physics,
+      shadows: this.shadows,
+      materials: this.materials,
+      camera: this.camera
+    });
+
+    // Greenbox container'ını World container'ına ekle
+    this.container.add(this.greenBox.container);
   }
 
   setResetButton() {
@@ -1103,336 +1135,461 @@ export default class World {
       scene: this.scene,
       time: this.time,
       physics: this.physics
-    });
-    this.container.add(this.alaadintepesi.model);
-    console.log("Alaaddin Tepesi modeli başarıyla eklendi");
-  }
+  setAladdinTepesi() {
+        this.alaadintepesi = new AladdinTepesi({
+          scene: this.scene,
+          time: this.time,
+          physics: this.physics
+        });
+        this.container.add(this.alaadintepesi.model);
+        console.log("Alaaddin Tepesi modeli başarıyla eklendi");
+        this.container.add(this.alaadintepesi.model);
+        console.log("Alaaddin Tepesi modeli başarıyla eklendi");
+      }
 
   setKapsul() {
-    this.kapsul = new Kapsul({
-      time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder,
-      scene: this.scene
-    });
-    this.container.add(this.kapsul.container);
-    console.log("Kapsül modeli başarıyla eklendi");
-  }
+        this.kapsul = new Kapsul({
+          time: this.time,
+          resources: this.resources,
+          objects: this.objects,
+          physics: this.physics,
+          debug: this.debugFolder,
+          scene: this.scene
+        });
+        this.container.add(this.kapsul.container);
+        console.log("Kapsül modeli başarıyla eklendi");
+        this.kapsul = new Kapsul({
+          time: this.time,
+          resources: this.resources,
+          objects: this.objects,
+          physics: this.physics,
+          debug: this.debugFolder,
+          scene: this.scene
+        });
+        this.container.add(this.kapsul.container);
+        console.log("Kapsül modeli başarıyla eklendi");
+      }
 
   setKapsulArea() {
-    try {
-      // Etkileşim etiketi oluştur
-      const areaLabelMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(2, 0.5),
-        new THREE.MeshBasicMaterial({
-          transparent: true,
-          depthWrite: false,
-          color: 0xffffff,
-          alphaMap: this.resources.items.areaResetTexture,
-        })
-      );
-      areaLabelMesh.position.set(25, -25, 0.5); // Kapsul merkez konumu yakınında
-      areaLabelMesh.matrixAutoUpdate = false;
-      areaLabelMesh.updateMatrix();
-      this.container.add(areaLabelMesh);
+        try {
+          // Etkileşim etiketi oluştur
+          const areaLabelMesh = new THREE.Mesh(
+            new THREE.PlaneGeometry(2, 0.5),
+            new THREE.MeshBasicMaterial({
+              transparent: true,
+              depthWrite: false,
+              color: 0xffffff,
+              alphaMap: this.resources.items.areaResetTexture,
+            })
+          );
+          areaLabelMesh.position.set(25, -25, 0.5); // Kapsul merkez konumu yakınında
+          areaLabelMesh.matrixAutoUpdate = false;
+          areaLabelMesh.updateMatrix();
+          this.container.add(areaLabelMesh);
 
-      // Etkileşim alanı oluştur
-      this.kapsulArea = this.areas.add({
-        position: new THREE.Vector2(25, -25), // Kapsul merkez konumu
-        halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
-      });
+          // Etkileşim alanı oluştur
+          this.kapsulArea = this.areas.add({
+            position: new THREE.Vector2(25, -25), // Kapsul merkez konumu
+            halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
+          });
 
-      // Etkileşim fonksiyonunu tanımla
-      this.kapsulArea.on("interact", () => {
-        // Popup oluştur
-        const popupContainer = document.createElement("div");
-        popupContainer.style.position = "fixed";
-        popupContainer.style.top = "0";
-        popupContainer.style.left = "0";
-        popupContainer.style.width = "100%";
-        popupContainer.style.height = "100%";
-        popupContainer.style.display = "flex";
-        popupContainer.style.justifyContent = "center";
-        popupContainer.style.alignItems = "center";
-        popupContainer.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-        popupContainer.style.zIndex = "9999";
+          // Etkileşim fonksiyonunu tanımla
+          this.kapsulArea.on("interact", () => {
+            // Popup oluştur
+            const popupContainer = document.createElement("div");
+            popupContainer.style.position = "fixed";
+            popupContainer.style.top = "0";
+            popupContainer.style.left = "0";
+            popupContainer.style.width = "100%";
+            popupContainer.style.height = "100%";
+            popupContainer.style.display = "flex";
+            popupContainer.style.justifyContent = "center";
+            popupContainer.style.alignItems = "center";
+            popupContainer.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+            popupContainer.style.zIndex = "9999";
 
-        // Popup içeriği
-        const popupBox = document.createElement("div");
-        popupBox.style.backgroundColor = "white";
-        popupBox.style.color = "black";
-        popupBox.style.padding = "30px 40px";
-        popupBox.style.borderRadius = "8px";
-        popupBox.style.minWidth = "350px";
-        popupBox.style.maxWidth = "90%";
-        popupBox.style.textAlign = "center";
-        popupBox.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
+            // Popup içeriği
+            const popupBox = document.createElement("div");
+            popupBox.style.backgroundColor = "white";
+            popupBox.style.color = "black";
+            popupBox.style.padding = "30px 40px";
+            popupBox.style.borderRadius = "8px";
+            popupBox.style.minWidth = "350px";
+            popupBox.style.maxWidth = "90%";
+            popupBox.style.textAlign = "center";
+            popupBox.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
 
-        // Başlık
-        const titleEl = document.createElement("h2");
-        titleEl.style.margin = "0 0 25px 0";
-        titleEl.style.fontSize = "24px";
-        titleEl.style.fontWeight = "bold";
-        titleEl.textContent = "Kapsül Web Sitesi";
+            // Başlık
+            const titleEl = document.createElement("h2");
+            titleEl.style.margin = "0 0 25px 0";
+            titleEl.style.fontSize = "24px";
+            titleEl.style.fontWeight = "bold";
+            titleEl.textContent = "Kapsül Web Sitesi";
 
-        // Link oluştur
-        const linkEl = document.createElement("a");
-        linkEl.href = "https://www.kapsul.org.tr/";
-        linkEl.textContent = "www.kapsul.org.tr";
-        linkEl.target = "_blank";
-        linkEl.style.display = "inline-block";
-        linkEl.style.padding = "12px 25px";
-        linkEl.style.backgroundColor = "#3498db";
-        linkEl.style.color = "white";
-        linkEl.style.textDecoration = "none";
-        linkEl.style.borderRadius = "5px";
-        linkEl.style.fontWeight = "bold";
-        linkEl.style.margin = "15px 0";
-        linkEl.style.transition = "background-color 0.3s";
+            // Link oluştur
+            const linkEl = document.createElement("a");
+            linkEl.href = "https://www.kapsul.org.tr/";
+            linkEl.textContent = "www.kapsul.org.tr";
+            linkEl.target = "_blank";
+            linkEl.style.display = "inline-block";
+            linkEl.style.padding = "12px 25px";
+            linkEl.style.backgroundColor = "#3498db";
+            linkEl.style.color = "white";
+            linkEl.style.textDecoration = "none";
+            linkEl.style.borderRadius = "5px";
+            linkEl.style.fontWeight = "bold";
+            linkEl.style.margin = "15px 0";
+            linkEl.style.transition = "background-color 0.3s";
 
-        // Link hover efekti
-        linkEl.addEventListener("mouseover", () => {
-          linkEl.style.backgroundColor = "#2980b9";
-        });
-        linkEl.addEventListener("mouseout", () => {
-          linkEl.style.backgroundColor = "#3498db";
-        });
+            // Link hover efekti
+            linkEl.addEventListener("mouseover", () => {
+              linkEl.style.backgroundColor = "#2980b9";
+            });
+            linkEl.addEventListener("mouseout", () => {
+              linkEl.style.backgroundColor = "#3498db";
+            });
 
-        // Açıklama metni
-        const descriptionEl = document.createElement("p");
-        descriptionEl.textContent = "Kapsül hakkında daha fazla bilgi almak için tıklayın.";
-        descriptionEl.style.margin = "0 0 20px 0";
+            // Açıklama metni
+            const descriptionEl = document.createElement("p");
+            descriptionEl.textContent = "Kapsül hakkında daha fazla bilgi almak için tıklayın.";
+            descriptionEl.style.margin = "0 0 20px 0";
 
-        // Kapatma butonu
-        const closeButton = document.createElement("button");
-        closeButton.textContent = "Kapat";
-        closeButton.style.padding = "10px 20px";
-        closeButton.style.border = "none";
-        closeButton.style.backgroundColor = "#e0e0e0";
-        closeButton.style.color = "#333";
-        closeButton.style.cursor = "pointer";
-        closeButton.style.borderRadius = "5px";
-        closeButton.style.fontSize = "14px";
-        closeButton.style.marginTop = "20px";
+            // Kapatma butonu
+            const closeButton = document.createElement("button");
+            closeButton.textContent = "Kapat";
+            closeButton.style.padding = "10px 20px";
+            closeButton.style.border = "none";
+            closeButton.style.backgroundColor = "#e0e0e0";
+            closeButton.style.color = "#333";
+            closeButton.style.cursor = "pointer";
+            closeButton.style.borderRadius = "5px";
+            closeButton.style.fontSize = "14px";
+            closeButton.style.marginTop = "20px";
 
-        // Kapatma fonksiyonu
-        closeButton.addEventListener("click", () => {
-          document.body.removeChild(popupContainer);
-        });
+            // Kapatma fonksiyonu
+            closeButton.addEventListener("click", () => {
+              document.body.removeChild(popupContainer);
+            });
 
-        // Popup dışına tıklamayla kapatma
-        popupContainer.addEventListener("click", (event) => {
-          if (event.target === popupContainer) {
-            document.body.removeChild(popupContainer);
-          }
-        });
+            // Popup dışına tıklamayla kapatma
+            popupContainer.addEventListener("click", (event) => {
+              if (event.target === popupContainer) {
+                document.body.removeChild(popupContainer);
+              }
+            });
 
-        // Elementleri popupa ekle
-        popupBox.appendChild(titleEl);
-        popupBox.appendChild(descriptionEl);
-        popupBox.appendChild(linkEl);
-        popupBox.appendChild(closeButton);
-        popupContainer.appendChild(popupBox);
-        document.body.appendChild(popupContainer);
+            // Elementleri popupa ekle
+            popupBox.appendChild(titleEl);
+            popupBox.appendChild(descriptionEl);
+            popupBox.appendChild(linkEl);
+            popupBox.appendChild(closeButton);
+            popupContainer.appendChild(popupBox);
+            document.body.appendChild(popupContainer);
 
-        // Ses efekti çal
-        if (this.sounds) {
-          this.sounds.play("click");
+            // Ses efekti çal
+            if (this.sounds) {
+              this.sounds.play("click");
+            }
+          });
+
+          console.log("Kapsül etkileşim alanı başarıyla eklendi");
+        } catch (error) {
+          console.error("Kapsül etkileşim alanı eklenirken hata oluştu:", error);
         }
-      });
-
-      console.log("Kapsül etkileşim alanı başarıyla eklendi");
-    } catch (error) {
-      console.error("Kapsül etkileşim alanı eklenirken hata oluştu:", error);
-    }
-  }
+      }
 
   setSosyalino() {
-    try {
-      this.sosyalino = new Sosyalino({
-        resources: this.resources,
-        objects: this.objects,
-        shadows: this.shadows,
-        sounds: this.sounds,
+        try {
+          this.sosyalino = new Sosyalino({
+            resources: this.resources,
+            objects: this.objects,
+            shadows: this.shadows,
+            sounds: this.sounds,
+            areas: this.areas,  // Etkileşim için areas parametresini ekledim
+            physics: this.physics, // Fizik motoru için physics parametresi eklendi
+            time: this.time // Time nesnesi eklendi
         areas: this.areas,  // Etkileşim için areas parametresini ekledim
-        physics: this.physics, // Fizik motoru için physics parametresi eklendi
-        time: this.time // Time nesnesi eklendi
-      });
+            physics: this.physics, // Fizik motoru için physics parametresi eklendi
+            time: this.time // Time nesnesi eklendi
+          });
 
-      if (this.sosyalino && this.sosyalino.container) {
-        this.container.add(this.sosyalino.container);
-        console.log("Sosyalino modeli başarıyla eklendi");
-      } else {
-        console.warn("Sosyalino container nesnesi bulunamadı!");
+          if (this.sosyalino && this.sosyalino.container) {
+            this.container.add(this.sosyalino.container);
+            console.log("Sosyalino modeli başarıyla eklendi");
+          } else {
+            console.warn("Sosyalino container nesnesi bulunamadı!");
+          }
+        } catch (error) {
+          console.error("Sosyalino eklenirken hata oluştu:", error);
+        }
       }
-    } catch (error) {
-      console.error("Sosyalino eklenirken hata oluştu:", error);
-    }
-  }
 
   setCalisanGenclikMerkezi() {
-    try {
-      this.calisanGenclikMerkezi = new CalisanGenclikMerkezi(
-        this.resources,
-        this.objects,
-        this.shadows,
-        this.debug,
-        this.scene
-      )
+        try {
+          this.calisanGenclikMerkezi = new CalisanGenclikMerkezi(
+            this.resources,
+            this.objects,
+            this.shadows,
+            this.debug,
+            this.scene
+          )
 
-      if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.model) {
-        this.container.add(this.calisanGenclikMerkezi.model)
-        console.log("CalisanGenclikMerkezi modeli başarıyla eklendi")
-      } else {
-        console.warn("CalisanGenclikMerkezi modeli bulunamadı veya yüklenemedi!")
+          if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.model) {
+            this.container.add(this.calisanGenclikMerkezi.model)
+            console.log("CalisanGenclikMerkezi modeli başarıyla eklendi")
+          } else {
+            console.warn("CalisanGenclikMerkezi modeli bulunamadı veya yüklenemedi!")
+          }
+        } catch (error) {
+          console.error("CalisanGenclikMerkezi eklenirken hata oluştu:", error)
+        }
       }
-    } catch (error) {
-      console.error("CalisanGenclikMerkezi eklenirken hata oluştu:", error)
-    }
-  }
 
 
   setbilimmerkezi() { //küpü değiştir
-    this.bilimmerkezi = new bilimmerkezi({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
-      time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder,
-      areas: this.areas
-    })
-    this.container.add(this.bilimmerkezi.container) // Küçük harfle yazılmalı
-  }
+        this.bilimmerkezi = new bilimmerkezi({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+          time: this.time,
+          resources: this.resources,
+          objects: this.objects,
+          physics: this.physics,
+          debug: this.debugFolder,
+          areas: this.areas
+        })
+        this.container.add(this.bilimmerkezi.container) // Küçük harfle yazılmalı
+      }
+
+setroketplatformu() { //küpü değiştir
+        this.roketplatformu = new roketplatformu({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+          time: this.time,
+          resources: this.resources,
+          objects: this.objects,
+          physics: this.physics,
+          debug: this.debugFolder
+        })
+        this.container.add(this.roketplatformu.container)
+      }
+
+
+setaStadyum() { //küpü değiştir
+        this.stadyum = new Stadyum({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+          time: this.time,
+          resources: this.resources,
+          objects: this.objects,
+          physics: this.physics,
+          debug: this.debugFolder
+        })
+        this.container.add(this.stadyum.container) // Küçük harfle yazılmalı
+
+      }
+  setbilimmerkezi() { //küpü değiştir
+        this.bilimmerkezi = new bilimmerkezi({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+          time: this.time,
+          resources: this.resources,
+          objects: this.objects,
+          physics: this.physics,
+          debug: this.debugFolder,
+          areas: this.areas
+        })
+        this.container.add(this.bilimmerkezi.container) // Küçük harfle yazılmalı
+      }
 
   setroketplatformu() { //küpü değiştir
-    this.roketplatformu = new roketplatformu({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
-      time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder
-    })
-    this.container.add(this.roketplatformu.container)
-  }
+        this.roketplatformu = new roketplatformu({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+          time: this.time,
+          resources: this.resources,
+          objects: this.objects,
+          physics: this.physics,
+          debug: this.debugFolder
+        })
+        this.container.add(this.roketplatformu.container)
+      }
 
 
   setaStadyum() { //küpü değiştir
-    this.stadyum = new Stadyum({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
-      time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder
-    })
-    this.container.add(this.stadyum.container) // Küçük harfle yazılmalı
+        this.stadyum = new Stadyum({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+          time: this.time,
+          resources: this.resources,
+          objects: this.objects,
+          physics: this.physics,
+          debug: this.debugFolder
+        })
+        this.container.add(this.stadyum.container) // Küçük harfle yazılmalı
 
-  }
-  setDivizyonBina() {
-    try {
-      this.divizyonBina = new DivizyonBina({
-        scene: this.scene,
-        resources: this.resources,
-        physics: this.physics,
-        debug: this.debugFolder,
-        rotateX: 0,   // X ekseninde döndürme yok
-        rotateY: 0,   // Y ekseninde döndürme yok
-        rotateZ: Math.PI / 2 // Z ekseninde 90 derece döndürme
-      });
-
-      console.log("DivizyonBina modeli başarıyla eklendi");
-    } catch (error) {
-      console.error("DivizyonBina eklenirken hata oluştu:", error);
-    }
-  }
-
-
-  setKelebekler() {
-
-    this.kelebekler = new KelebeklerSection({
-      time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder
-    });
-
-    this.container.add(this.kelebekler.container)
-  }
-
-
-
-  setKonseralani() {
-    this.konseralani = new Konseralani({
-      scene: this.scene,
-      resources: this.resources,
-      physics: this.physics,
-      debug: this.debugFolder,
-      rotateX: Math.PI / 2,   // 
-      rotateY: 0,
-      rotateZ: 0// Y ekseninde 90 derece,
-    });
-  }
-  setStadyum() {
-    this.stadyum = new Stadyum({
-      scene: this.scene,
-      resources: this.resources,
-      physics: this.physics,
-      debug: this.debugFolder,
-      rotateX: Math.PI / 2,   // 
-      rotateY: 0,
-      rotateZ: 0 // Y ekseninde 90 derece,
-    });
-
-    this.container.add(this.kelebekler.container) // Doğru nesne!
-  }
-
-
-
-  setJaponparki() {
-    this.japonparki = new Japonparki({
-      scene: this.scene,
-      time: this.time,
-      physics: this.physics
-    });
-  }
-  setBasket() {
-    this.basket = new Basket({
-      scene: this.scene,
-      resources: this.resources,
-      physics: this.physics,
-      debug: this.debugFolder,
-      rotateX: Math.PI / 2,   // 
-      rotateY: 0,
-      rotateZ: 0 // Y ekseninde 90 derece,
-    });
-  }
-
-
-
-
-  setAtmosferAlani() {
-    try {
-      this.atmosferAlani = new AtmosferAlani({
-        resources: this.resources,
-        objects: this.objects,
-        debug: this.debug,
-        time: this.time,
-        physics: this.physics,
-        shadows: this.shadows,
-        materials: this.materials,
-        areas: this.areas,
-        sounds: this.sounds
-      });
-      if (this.atmosferAlani && this.atmosferAlani.container) {
-        this.container.add(this.atmosferAlani.container);
-        console.log("Atmosfer Alanı başarıyla eklendi");
-      } else {
-        console.warn("Atmosfer Alanı container nesnesi bulunamadı!");
       }
-    } catch (error) {
-      console.error("Atmosfer Alanı eklenirken hata oluştu:", error);
-    }
+  setDivizyonBina() {
+        try {
+          this.divizyonBina = new DivizyonBina({
+            scene: this.scene,
+            scene: this.scene,
+            resources: this.resources,
+            physics: this.physics,
+            debug: this.debugFolder,
+            rotateX: 0,   // X ekseninde döndürme yok
+            rotateY: 0,   // Y ekseninde döndürme yok
+            rotateZ: Math.PI / 2 // Z ekseninde 90 derece döndürme
+          });
+
+          console.log("DivizyonBina modeli başarıyla eklendi");
+          physics: this.physics,
+            debug: this.debugFolder,
+              rotateX: 0,   // X ekseninde döndürme yok
+                rotateY: 0,   // Y ekseninde döndürme yok
+                  rotateZ: Math.PI / 2 // Z ekseninde 90 derece döndürme
+        });
+
+    console.log("DivizyonBina modeli başarıyla eklendi");
+  } catch(error) {
+    console.error("DivizyonBina eklenirken hata oluştu:", error);
   }
 }
+
+
+
+setKelebekler() {
+
+
+  this.kelebekler = new KelebeklerSection({
+    time: this.time,
+    resources: this.resources,
+    objects: this.objects,
+    physics: this.physics,
+    debug: this.debugFolder
+  });
+
+  time: this.time,
+    resources: this.resources,
+      objects: this.objects,
+        physics: this.physics,
+          debug: this.debugFolder
+});
+
+this.container.add(this.kelebekler.container)
+  }
+
+
+
+
+setKonseralani() {
+  this.konseralani = new Konseralani({
+    scene: this.scene,
+    resources: this.resources,
+    physics: this.physics,
+    debug: this.debugFolder,
+    rotateX: Math.PI / 2,   // 
+    rotateY: 0,
+    rotateZ: 0// Y ekseninde 90 derece,
+  });
+}
+setStadyum() {
+  this.stadyum = new Stadyum({
+    scene: this.scene,
+    resources: this.resources,
+    physics: this.physics,
+    debug: this.debugFolder,
+    rotateX: Math.PI / 2,   // 
+    rotateY: 0,
+    rotateZ: 0 // Y ekseninde 90 derece,
+  });
+
+  this.container.add(this.kelebekler.container) // Doğru nesne!
+}
+
+
+
+setJaponparki() {
+  this.japonparki = new Japonparki({
+    scene: this.scene,
+    time: this.time,
+    physics: this.physics
+  });
+}
+setBasket() {
+  this.basket = new Basket({
+    scene: this.scene,
+    resources: this.resources,
+    physics: this.physics,
+    debug: this.debugFolder,
+    rotateX: Math.PI / 2,   // 
+    rotateY: 0,
+    rotateZ: 0 // Y ekseninde 90 derece,
+  });
+}
+
+
+
+
+setAtmosferAlani() {
+  try {
+    this.atmosferAlani = new AtmosferAlani({
+      resources: this.resources,
+      objects: this.objects,
+      debug: this.debug,
+      time: this.time,
+      physics: this.physics,
+      shadows: this.shadows,
+      materials: this.materials,
+      areas: this.areas,
+      sounds: this.sounds
+    });
+    if (this.atmosferAlani && this.atmosferAlani.container) {
+      this.container.add(this.atmosferAlani.container);
+      console.log("Atmosfer Alanı başarıyla eklendi");
+    } else {
+      console.warn("Atmosfer Alanı container nesnesi bulunamadı!");
+    }
+  } catch (error) {
+    console.error("Atmosfer Alanı eklenirken hata oluştu:", error);
+  }
+}
+
+
+
+setKonseralani() {
+  this.konseralani = new Konseralani({
+    scene: this.scene,
+    resources: this.resources,
+    physics: this.physics,
+    debug: this.debugFolder,
+    rotateX: Math.PI / 2,   // 
+    rotateY: 0,
+    rotateZ: 0// Y ekseninde 90 derece,
+  });
+}
+setStadyum() {
+  this.stadyum = new Stadyum({
+    scene: this.scene,
+    resources: this.resources,
+    physics: this.physics,
+    debug: this.debugFolder,
+    rotateX: Math.PI / 2,   // 
+    rotateY: 0,
+    rotateZ: 0 // Y ekseninde 90 derece,
+  });
+
+  this.container.add(this.kelebekler.container) // Doğru nesne!
+}
+
+
+
+setJaponparki() {
+  this.japonparki = new Japonparki({
+    scene: this.scene,
+    time: this.time,
+    physics: this.physics
+  });
+}
+setBasket() {
+  this.basket = new Basket({
+    scene: this.scene,
+    resources: this.resources,
+    physics: this.physics,
+    debug: this.debugFolder,
+    rotateX: Math.PI / 2,   // 
+    rotateY: 0,
+    rotateZ: 0 // Y ekseninde 90 derece,
+  });
+
+}
+
+}
+
