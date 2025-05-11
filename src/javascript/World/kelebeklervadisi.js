@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import CANNON from 'cannon'
 
-let posizyonX = 40
-let posizyonY = -40
+let posizyonX = 30
+let posizyonY = -25
 let posizyonZ = 0
 
 export default class kelebeklervadisi {

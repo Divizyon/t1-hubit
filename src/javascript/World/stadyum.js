@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-30, -40, -1.5); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(30.7, -45, -1.5); // Artık doğru yerde tanımlandı
 
 export default class Stadyum {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -58,7 +58,7 @@ export default class Stadyum {
 
     // Base modelini klonla ve Kapsül modeline ekle
     const baseModel = base.scene.clone(true);
-    baseModel.position.set(-30, -40, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
+    baseModel.position.set(30, -45, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
     baseModel.scale.set(3, 2.3, 1.5); // Base modelinin ölçeği
     this.container.add(baseModel);
 

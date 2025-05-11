@@ -38,7 +38,7 @@ export default class PopUpModule {
         opacity: 0 // Tamamen şeffaf yap
       })
     )
-    areaLabelMesh.position.set(30, 10, 5) // GreenBox ile aynı hizaya getirildi
+    areaLabelMesh.position.set(-52, 0, 5) // GreenBox ile aynı hizaya getirildi
     areaLabelMesh.matrixAutoUpdate = false
     areaLabelMesh.updateMatrix()
     this.container.add(areaLabelMesh)
@@ -53,7 +53,7 @@ export default class PopUpModule {
 
       // Etkileşim alanı oluştur
       this.popUpArea = this.areas.add({
-        position: new THREE.Vector2(30, 10), // GreenBox ile aynı hizaya getirildi
+        position: new THREE.Vector2(-52, 0), // GreenBox ile aynı hizaya getirildi
         halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
       })
 

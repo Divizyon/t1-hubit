@@ -36,7 +36,7 @@ export default class Japonparki {
             
             
             this.model = gltf.scene;
-            this.model.position.set(-50, -40, .7);
+            this.model.position.set(-8, -30, .7);
             this.model.scale.set(.3, .3, .3);
             
             // Modeli döndür
@@ -49,7 +49,7 @@ export default class Japonparki {
             if (this.physics) {
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
-                    position: new CANNON.Vec3(1, -39, .7),
+                    position: new CANNON.Vec3(-8, -30, .7),
                     material: this.physics.materials.items.floor
                 });
 
