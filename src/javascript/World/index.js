@@ -1241,7 +1241,9 @@ export default class World {
         objects: this.objects,
         shadows: this.shadows,
         sounds: this.sounds,
-        areas: this.areas  // Etkileşim için areas parametresini ekledim
+        areas: this.areas,  // Etkileşim için areas parametresini ekledim
+        physics: this.physics, // Fizik motoru için physics parametresi eklendi
+        time: this.time // Time nesnesi eklendi
       });
 
       if (this.sosyalino && this.sosyalino.container) {
