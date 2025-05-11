@@ -34,8 +34,8 @@ import Basket from "./basket.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import GreenBox from "./GreenBox.js";
 import AtmosferAlani from "./AtmosferAlani.js";
-import KonyaGenckart from './KonyaGenckart.js';
-import PopUpModule from './PopUpModule'
+import KonyaGencKart from './KonyaGencKart.js';
+import PopUpModule from './PopUpModule.js'
 
 
 export default class World {
@@ -109,7 +109,7 @@ export default class World {
     this.setJaponparki(); // Japonparki modelini ekler
     this.setBasket(); // Basket modelini ekler
 
-    this.setKonyaGenckart(); // Yeni eklenen model
+    this.setKonyaGencKart(); // Yeni eklenen model
     this.setPopUp();
   }
 
@@ -1639,9 +1639,9 @@ export default class World {
     this.container.add(this.kelebekler.container) // Doğru nesne!
 }
 
-  setKonyaGenckart() {
+  setKonyaGencKart() {
     try {
-      this.konyaGenckart = new KonyaGenckart({
+      this.KonyaGencKart = new KonyaGencKart({
         scene: this.scene,
         time: this.time,
         physics: this.physics,
