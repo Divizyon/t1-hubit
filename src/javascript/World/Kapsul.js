@@ -39,9 +39,15 @@ export default class Kapsul {
         loader.load('./models/kapsul/Kapsul_Bina.glb', (gltf) => {
             console.log('Kapsul modeli yüklendi:', gltf);
             console.log('Animasyonlar:', gltf.animations);
+
+            const base = this.resources.items.baseModel;
+    if (!base || !base.scene) {
+      console.error('Stadyum modeli bulunamadı');
+      return;
+    }
             
             this.model = gltf.scene;
-            this.model.position.set(30, -25, 3);// Model Pozisyonu - Etkileşim alanının yanında
+            this.model.position.set(29, -24, 5);// Model Pozisyonu - Etkileşim alanının yanında
             this.model.scale.set(1.5, 1.5, 1.5);
             
             // Modeli döndür
@@ -51,7 +57,12 @@ export default class Kapsul {
             this.container.add(this.model);
             this.container.updateMatrix();
 
-          
+          // Base modelini klonla ve Kapsül modeline ekle
+    const baseModel = base.scene.clone(true);
+    baseModel.position.set(29.5, -23.2, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
+    baseModel.scale.set(2.5, 2.5, 1.5); // Base modelinin ölçeği
+    this.container.add(baseModel);
+
             if (this.physics) {
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
