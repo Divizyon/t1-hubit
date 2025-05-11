@@ -8,7 +8,6 @@ export default class Road {
         this.debug = _options.debug
         this.time = _options.time
         this.physics = _options.physics
-        this.shadows = _options.shadows
         this.materials = _options.materials
 
         // Set up
@@ -60,13 +59,19 @@ export default class Road {
                 roadModel.rotation.set(Math.PI / 2, 0, 0);
 
                 // Ana yol modeli konumunu koruyalım
+
                 roadModel.position.set(30, 5, 0.002);
+
+
+                roadModel.position.set(30, 0, 0.002);
+                
 
                 // Tüm mesh'lerin materyallerini düzenle
                 roadModel.traverse((child) => {
                     if (child.isMesh) {
                         // Koyu renkli materyali kaldır, varsayılan materyali kullan
                         child.material = new THREE.MeshStandardMaterial({
+
                             color: 0xffffff, // Beyaz veya açık renk (veya istenirse şeffaf)
                             roughness: 0.5,
                             metalness: 0.0,
@@ -76,11 +81,21 @@ export default class Road {
                         });
                         child.castShadow = true;
                         child.receiveShadow = true;
+
+                            color: 0x333333,      // Koyu gri renk (daha belirgin)
+                            roughness: 0.3,       // Daha az pürüzlü
+                            metalness: 0.8,       // Daha metalik
+                            side: THREE.DoubleSide, // Çift taraflı render
+                           
+                            wireframe: false       // Wireframe kapalı
+                        })
+
                     }
                 })
 
                 // Modeli ekle
                 this.model.container.add(roadModel)
+
 
                 // Işık ekle - daha net bir görünüm için
                 const light = new THREE.DirectionalLight(0xffffff, 1.5)
@@ -93,6 +108,11 @@ export default class Road {
                 light.shadow.mapSize.height = 1024
 
                 this.model.container.add(light)
+
+
+                
+
+                
 
                 // Ambient ışık ekle - daha yumuşak aydınlatma
                 const ambientLight = new THREE.AmbientLight(0x404040, 0.8)

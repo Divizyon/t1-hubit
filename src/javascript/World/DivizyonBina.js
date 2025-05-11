@@ -1,3 +1,4 @@
+
 import * as THREE from 'three'
 import CANNON from 'cannon'
 
@@ -150,84 +151,120 @@ export default class DivizyonBina {
             rotationFolder.add(this.model.container.rotation, 'y').step(0.01).name('rotationY')
             rotationFolder.add(this.model.container.rotation, 'z').step(0.01).name('rotationZ')
         }
+
+import * as THREE from 'three';
+import CANNON from 'cannon';
+
+const DEFAULT_POSITION = new THREE.Vector3(-60, 0, 0); // Artık doğru yerde tanımlandı
+
+export default class DivizyonBina {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+    this.scene = scene;
+    this.resources = resources;
+    this.objects = objects;
+    this.physics = physics;
+    this.debug = debug;
+
+    this.rotateX = rotateX;
+    this.rotateY = rotateY;
+    this.rotateZ = rotateZ;
+
+    this.container = new THREE.Object3D();
+    this.position = DEFAULT_POSITION.clone();
+
+    this._buildModel();
+    this.scene.add(this.container);
+  }
+
+  _buildModel() {
+    const gltf = this.resources.items.divizyonBinaModel;
+    if (!gltf || !gltf.scene) {
+      console.error('Divizyon bina modeli bulunamadı');
+      return;
     }
 
-    // DivizyonBina için etkileşim alanı oluştur
-    setInteractionArea() {
-        try {
-            if (!this.areas) {
-                console.error("DivizyonBina etkileşim alanı eklenirken hata: areas objesi bulunamadı!");
-                return;
-            }
+    // Modeli klonla ve malzemeleri kopyala
+    const model = gltf.scene.clone(true);
+    model.traverse(child => {
+      if (child.isMesh) {
+        const origMat = child.material;
+        const mat = origMat.clone();
+        if (origMat.map) mat.map = origMat.map;
+        if (origMat.normalMap) mat.normalMap = origMat.normalMap;
+        if (origMat.roughnessMap) mat.roughnessMap = origMat.roughnessMap;
+        if (origMat.metalnessMap) mat.metalnessMap = origMat.metalnessMap;
+        mat.needsUpdate = true;
+        child.material = mat;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
 
-            // Etkileşim etiketi oluştur
-            const areaLabelMesh = new THREE.Mesh(
-                new THREE.PlaneGeometry(2, 0.5),
-                new THREE.MeshBasicMaterial({
-                    transparent: true,
-                    depthWrite: false,
-                    color: 0xffffff,
-                    alphaMap: this.resources.items.areaResetTexture,
-                })
-            );
-            areaLabelMesh.position.set(-40, 25, 10); // Binanın tamamen önüne taşıdım (X'i -42'den -40'a, Z'yi 5'ten 10'a çıkardım)
-            areaLabelMesh.matrixAutoUpdate = false;
-            areaLabelMesh.updateMatrix();
-            this.container.add(areaLabelMesh);
+    // Model pozisyonu ve dönüşü
+    model.position.copy(this.position);
+    model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    this.container.add(model);
 
-            // Etkileşim alanı oluştur
-            this.divizyonArea = this.areas.add({
-                position: new THREE.Vector2(-40, 25), // Butonun X koordinatını burada da güncelliyoruz
-                halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
-            });
+    // Bounding box hesapla
+    model.updateMatrixWorld(true);
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3());
 
-            // Etkileşim fonksiyonunu tanımla
-            this.divizyonArea.on("interact", () => {
-                // Popup oluştur
-                const popupContainer = document.createElement("div");
-                popupContainer.style.position = "fixed";
-                popupContainer.style.top = "0";
-                popupContainer.style.left = "0";
-                popupContainer.style.width = "100%";
-                popupContainer.style.height = "100%";
-                popupContainer.style.display = "flex";
-                popupContainer.style.justifyContent = "center";
-                popupContainer.style.alignItems = "center";
-                popupContainer.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-                popupContainer.style.zIndex = "9999";
+    // Fizik gövdesi oluştur
+    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+    const boxShape = new CANNON.Box(halfExtents);
 
-                // Popup içeriği
-                const popupBox = document.createElement("div");
-                popupBox.style.backgroundColor = "white";
-                popupBox.style.color = "black";
-                popupBox.style.padding = "30px 40px";
-                popupBox.style.borderRadius = "8px";
-                popupBox.style.minWidth = "350px";
-                popupBox.style.maxWidth = "90%";
-                popupBox.style.textAlign = "center";
-                popupBox.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
+    const body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(...this.position.toArray()),
+      material: this.physics.materials.items.floor
+    });
 
-                // Başlık
-                const titleEl = document.createElement("h2");
-                titleEl.style.margin = "0 0 25px 0";
-                titleEl.style.fontSize = "24px";
-                titleEl.style.fontWeight = "bold";
-                titleEl.textContent = "Divizyon Web Sitesi";
+    // Dönüşü quaternion olarak ayarla
+    const quat = new CANNON.Quaternion();
+    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
+    body.quaternion.copy(quat);
 
-                // Link oluştur
-                const linkEl = document.createElement("a");
-                linkEl.href = "https://www.divizyon.org/";
-                linkEl.textContent = "www.divizyon.org";
-                linkEl.target = "_blank";
-                linkEl.style.display = "inline-block";
-                linkEl.style.padding = "12px 25px";
-                linkEl.style.backgroundColor = "#3498db";
-                linkEl.style.color = "white";
-                linkEl.style.textDecoration = "none";
-                linkEl.style.borderRadius = "5px";
-                linkEl.style.fontWeight = "bold";
-                linkEl.style.margin = "15px 0";
-                linkEl.style.transition = "background-color 0.3s";
+    body.addShape(boxShape);
+    this.physics.world.addBody(body);
+
+    // Obje sistemine ekle
+    if (this.objects) {
+      const children = model.children.slice();
+      const objectEntry = this.objects.add({
+        base: { children },
+        collision: { children },
+        offset: this.position.clone(),
+        mass: 0
+      });
+      objectEntry.collision = { body };
+      if (objectEntry.container) {
+        this.container.add(objectEntry.container);
+      }
+
+    }
+  }
+}
+
+/* 
+
+İndex.js dosyasında DivizyonBina'yı oluşturmak için:
+import DivizyonBina from './DivizyonBina';
+
+this.setDivizyonBina()
+
+  setDivizyonBina() {
+  this.divizyonBina = new DivizyonBina({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   0,   // X ekseninde döndürme yok
+    rotateY:   0,   // Y ekseninde döndürme yok
+    rotateZ:   Math.PI / 2 // Z ekseninde 90 derece döndürme
+  });
+}
+
 
                 // Link hover efekti
                 linkEl.addEventListener("mouseover", () => {
@@ -286,3 +323,4 @@ export default class DivizyonBina {
         }
     }
 } 
+
