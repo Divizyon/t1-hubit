@@ -12,6 +12,10 @@ export default class Resources extends EventEmitter {
         this.items = {}
 
         this.loader.load([
+            // Trafik lambası ve yön tabelaları
+            { name: 'trafikLambasiModel', source: './models/cevre/traficlamba.glb' },
+            { name: 'yonTabelasi1Model', source: './models/cevre/yontabelasi1.glb' },
+            { name: 'yonTabelasi2Model', source: './models/cevre/yontabelasi2.glb' },
             // Matcaps
             { name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
             { name: 'matcapBlack', source: './models/matcaps/black.png', type: 'texture' },
@@ -260,6 +264,8 @@ export default class Resources extends EventEmitter {
             // // Egg
             // { name: 'eggBase', source: './models/egg/base.glb' },
             // { name: 'eggCollision', source: './models/egg/collision.glb' },
+
+            { name: 'legoParcaModel', source: './models/cevre/lego parca.glb' },
         ])
 
         this.loader.on('fileEnd', (_resource, _data) => {
