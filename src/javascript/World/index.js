@@ -27,6 +27,7 @@ import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
 import roketplatformu from "./roketplatformu.js";
+import GreenBox from "./GreenBox.js";
 
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 
@@ -818,36 +819,19 @@ export default class World {
   }
 
   setGreenBox() {
-    // Set up
-    this.greenBox = {};
-    this.greenBox.x = 30; // X konumu
-    this.greenBox.y = 10; // Y konumu
+    this.greenBox = new GreenBox({
+      resources: this.resources,
+      objects: this.objects,
+      debug: this.debug,
+      time: this.time,
+      physics: this.physics,
+      shadows: this.shadows,
+      materials: this.materials,
+      camera: this.camera
+    });
 
-    // Check if resources and greenBoxBase exist
-    if (
-      this.resources &&
-      this.resources.items &&
-      this.resources.items.greenBoxBase &&
-      this.resources.items.greenBoxBase.scene
-    ) {
-      // Add the greenBox
-      this.greenBoxObject = this.objects.add({
-        base: this.resources.items.greenBoxBase.scene,
-        collision: this.resources.items.greenBoxCollision
-          ? this.resources.items.greenBoxCollision.scene
-          : null,
-        offset: new THREE.Vector3(this.greenBox.x, this.greenBox.y, 0),
-        rotation: new THREE.Euler(0, 0, 0),
-        duplicated: true,
-        shadow: { sizeX: 2.5, sizeY: 2.5, offsetZ: -0.15, alpha: 0.5 },
-        mass: 0,
-        soundName: "brick",
-      });
-
-      console.log("Green Box başarıyla eklendi:", this.greenBoxObject);
-    } else {
-      console.error("Green Box modeli yüklenemedi veya bulunamadı!");
-    }
+    // Greenbox container'ını World container'ına ekle
+    this.container.add(this.greenBox.container);
   }
 
   setResetButton() {
