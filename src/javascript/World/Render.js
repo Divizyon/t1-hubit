@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(25, -10, 2.3); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-69, 15, 0); // Artık doğru yerde tanımlandı
 
 export default class Render {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 5 }) {
