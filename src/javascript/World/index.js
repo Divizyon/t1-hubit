@@ -1311,23 +1311,16 @@ setroketplatformu() {
   setDivizyonBina() {
     try {
       this.divizyonBina = new DivizyonBina({
+        scene:     this.scene,
         resources: this.resources,
-        objects: this.objects,
-        debug: this.debug,
-        time: this.time,
-        physics: this.physics,
-        shadows: this.shadows,
-        materials: this.materials,
-        areas: this.areas,    // Etkileşim alanları için
-        sounds: this.sounds   // Ses efektleri için
+        physics:   this.physics,
+        debug:     this.debugFolder,
+        rotateX:   0,   // X ekseninde döndürme yok
+        rotateY:   0,   // Y ekseninde döndürme yok
+        rotateZ:   Math.PI / 2 // Z ekseninde 90 derece döndürme
       });
-
-      if (this.divizyonBina && this.divizyonBina.container) {
-        this.container.add(this.divizyonBina.container);
-        console.log("DivizyonBina modeli başarıyla eklendi");
-      } else {
-        console.warn("DivizyonBina container nesnesi bulunamadı!");
-      }
+      
+      console.log("DivizyonBina modeli başarıyla eklendi");
     } catch (error) {
       console.error("DivizyonBina eklenirken hata oluştu:", error);
     }
