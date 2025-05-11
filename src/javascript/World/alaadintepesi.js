@@ -33,7 +33,7 @@ export default class AlaaddinTepesi {
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-            this.model.position.set(-20, -20, .7);
+            this.model.position.set(-20,-20, .7);
             this.model.scale.set(.5, .5, .5);
             
             // Modeli döndür
@@ -45,7 +45,7 @@ export default class AlaaddinTepesi {
             if (this.physics) {
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
-                    position: new CANNON.Vec3(1, -39, .7),
+                    position: new CANNON.Vec3(-20, -20, .7),
                     material: this.physics.materials.items.floor
                 });
 
@@ -109,17 +109,3 @@ export default class AlaaddinTepesi {
         }
     }
 }
-
-/* 
-Resource.js   { name: 'aladdinTepesi', source: './models/hubit/aladdinTepesi/base.glb' },
-İndex Js
-    setAladdinTepesi() {
-        this.aladdinTepesi = new AladdinTepesi({
-            scene: this.scene,
-            time: this.time,
-            physics: this.physics
-        });
-    }
-this.setAladdinTepesi()
-import AladdinTepesi from './Hubit/AlaaddinTepesi.js'
-*/

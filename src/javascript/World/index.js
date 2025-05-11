@@ -10,7 +10,7 @@ import Areas from "./Areas.js";
 import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
-import AlaaddinTepesi from "./alaadintepesi.js";
+import AladdinTepesi from './alaadintepesi.js'   
 import Kapsul from "./Kapsul.js";
 import DivizyonBina from "./DivizyonBina.js";
 import Sosyalino from "./SosyalinoModule.js";
@@ -86,7 +86,7 @@ export default class World {
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
-    this.setAlaaddinTepesi(); // Aladdin Tepesi modelini ekler
+    this.setAladdinTepesi(); // Aladdin Tepesi modelini ekler
     this.setKapsul(); // Kapsul modelini ekler
     this.setKapsulArea(); // Kapsul etkileşim alanını ekler
     this.setSosyalino(); // Sosyalino modelini ekler
@@ -1083,12 +1083,14 @@ export default class World {
     }
   }
 
-  setAlaaddinTepesi() {
-    this.aladdinTepesi = new AlaaddinTepesi({
-      scene: this.scene,
-      time: this.time,
-      physics: this.physics
+  setAladdinTepesi() {
+    this.alaadintepesi = new AladdinTepesi({
+        scene: this.scene,
+        time: this.time,
+        physics: this.physics
     });
+    this.container.add(this.alaadintepesi.model);
+    console.log("Alaaddin Tepesi modeli başarıyla eklendi");
   }
 
   setKapsul() {
@@ -1287,25 +1289,15 @@ export default class World {
     this.container.add(this.bilimmerkezi.container) // Küçük harfle yazılmalı
 }
 
-setroketplatformu() {
-  try {
-    this.roketplatformu = new roketplatformu({
+setroketplatformu() { //küpü değiştir
+  this.roketplatformu = new roketplatformu({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+      time: this.time,
       resources: this.resources,
       objects: this.objects,
-      shadows: this.shadows,
-      sounds: this.sounds,
-      areas: this.areas // Eğer etkileşim alanı ekleyeceksen
-    });
-    
-    if (this.roketplatformu && this.roketplatformu.container) {
-      this.container.add(this.roketplatformu.container);
-      console.log("Roket platformu modeli başarıyla eklendi");
-    } else {
-      console.warn("Roket platformu container nesnesi bulunamadı!");
-    }
-  } catch (error) {
-    console.error("Roket platformu eklenirken hata oluştu:", error);
-  }
+      physics: this.physics,
+      debug: this.debugFolder
+  })
+  this.container.add(this.roketplatformu.container)
 }
 
   setDivizyonBina() {
