@@ -28,11 +28,11 @@ export default class GreenBox
         
         // Kullanıcı tarafından ayarlanabilecek görünür küp değerleri
         this.visibleCubeSettings = {
-            // Konum değerleri - kolayca değiştirilebilir
-            position: {
-                x: 36, // GreenBox'un sağında
-                y: 4, // Aynı yükseklikte
-                z: 2   // Aynı z konumunda
+            // Göreceli konum (GreenBox'a bağlı olarak hesaplanacak)
+            relativePosition: {
+                x: 6,   // GreenBox'un 6 birim sağında
+                y: -6,  // GreenBox'un 6 birim altında
+                z: 2    // GreenBox'un 2 birim önünde
             },
             // Boyut değerleri - kolayca değiştirilebilir
             size: {
@@ -46,8 +46,21 @@ export default class GreenBox
             visible: false // Görünmez
         }
         
+        // Görünmez küp koleksiyonu - GreenBox'a bağlı küpler
+        this.connectedCubes = [];
+        
+        // Küp oluşturma ayarları
+        this.cubeSettings = [
+            {
+                relativePosition: { x: 6, y: -6, z: 2 }, // GreenBox'un sağ alt köşesinde
+                size: { x: 1.5, y: 1.5, z: 4 },
+                color: '#ff0000',
+                visible: true
+            }
+        ];
+        
         this.setModel()
-        this.setVisibleCube() // Görünür küp eklemesi
+        this.setConnectedCubes() // Birden fazla bağlı küp eklemesi
     }
 
     setModel()
@@ -67,9 +80,17 @@ export default class GreenBox
 
         // Çarpışma kutusu için ayrı konum ve boyut
         this.collision = {}
-        this.collision.x = 30.1 // X konumu
-        this.collision.y = 10.1 // Y konumu
-        this.collision.z = 2.4  // Z konumu
+        // Orijinal konumu kaydet
+        this.collisionOffset = {
+            x: 0.1, // GreenBox'a göre göreceli X konumu
+            y: 0.1, // GreenBox'a göre göreceli Y konumu
+            z: 2.4  // GreenBox'a göre göreceli Z konumu
+        }
+        
+        // Başlangıç konumunu ayarla
+        this.collision.x = this.greenBox.x + this.collisionOffset.x
+        this.collision.y = this.greenBox.y + this.collisionOffset.y
+        this.collision.z = this.greenBox.z + this.collisionOffset.z
         
         // Çarpışma kutusu boyutları
         this.collisionSize = {
@@ -87,6 +108,14 @@ export default class GreenBox
             top: 0.2,    // Üst duvar kalınlığı (+y yönü) - kalınlaştırıldı
             front: 0.1,  // Ön duvar kalınlığı (-z yönü)
             back: 0.1    // Arka duvar kalınlığı (+z yönü)
+        }
+        
+        // Çarpışma kutusunun görselliği için özellikler
+        this.collisionVisuals = {
+            visible: false,            // Çarpışma kutusunu görünmez yap
+            opacity: 0.3,             // Yarı saydam yap
+            color: '#ffff00',         // Sarı renk
+            wireframe: true           // Tel kafes görünümü
         }
         
         // Pozisyon bilgileri - Asıl model pozisyonu
@@ -184,6 +213,11 @@ export default class GreenBox
             // Collision body'yi ayrı bir değişkende saklayalım, modele bağlamayalım
             this.collisionBody = body;
             
+            // Çarpışma kutusu için görsel oluştur
+            if (this.collisionVisuals.visible) {
+                this.createCollisionVisuals(hx, hy, hz);
+            }
+            
             // Debug kontrollerini ekle
             if (this.debug) {
                 // GreenBox pozisyon kontrolü
@@ -212,13 +246,13 @@ export default class GreenBox
                 
                 // Çarpışma kutusu pozisyon kontrolü
                 const collisionFolder = this.debugFolder.addFolder('collision position')
-                collisionFolder.add(this.collision, 'x').step(0.1).name('collisionX').onChange(() => {
+                collisionFolder.add(this.collisionOffset, 'x').step(0.1).name('collisionOffsetX').onChange(() => {
                     this.updatePositions()
                 })
-                collisionFolder.add(this.collision, 'y').step(0.1).name('collisionY').onChange(() => {
+                collisionFolder.add(this.collisionOffset, 'y').step(0.1).name('collisionOffsetY').onChange(() => {
                     this.updatePositions()
                 })
-                collisionFolder.add(this.collision, 'z').step(0.1).name('collisionZ').onChange(() => {
+                collisionFolder.add(this.collisionOffset, 'z').step(0.1).name('collisionOffsetZ').onChange(() => {
                     this.updatePositions()
                 })
                 
@@ -251,6 +285,21 @@ export default class GreenBox
                 wallThicknessFolder.add(this.wallThickness, 'back', 0.1, 1).step(0.1).name('arka duvar').onChange(() => {
                     this.updateSizes()
                 })
+
+                // Çarpışma kutusu görsellik kontrolleri
+                const visualsFolder = this.debugFolder.addFolder('collision visuals')
+                visualsFolder.add(this.collisionVisuals, 'visible').name('görünür').onChange(() => {
+                    this.updateCollisionVisuals();
+                })
+                visualsFolder.addColor(this.collisionVisuals, 'color').name('renk').onChange(() => {
+                    this.updateCollisionVisuals();
+                })
+                visualsFolder.add(this.collisionVisuals, 'opacity', 0, 1).step(0.1).name('saydamlık').onChange(() => {
+                    this.updateCollisionVisuals();
+                })
+                visualsFolder.add(this.collisionVisuals, 'wireframe').name('tel kafes').onChange(() => {
+                    this.updateCollisionVisuals();
+                })
             }
 
             console.log("Green Box modeli ve görünmez çarpışma duvarları başarıyla eklendi (sol ve üst duvarlar kalınlaştırıldı)")
@@ -269,14 +318,58 @@ export default class GreenBox
             this.greenBoxObject.container.position.z = this.greenBox.z
         }
         
-        // Çarpışma kutusunun pozisyonunu güncelle (fiziksel)
+        // Çarpışma kutusunun pozisyonunu GreenBox'a göre güncelle
         if (this.collisionBody) {
+            // GreenBox'a göre göreceli konumu hesapla
+            this.collision.x = this.greenBox.x + this.collisionOffset.x
+            this.collision.y = this.greenBox.y + this.collisionOffset.y
+            this.collision.z = this.greenBox.z + this.collisionOffset.z
+            
+            // Fizik nesnesinin pozisyonunu ayarla
             this.collisionBody.position.set(
                 this.collision.x,
                 this.collision.y,
                 this.collision.z
             )
+            
+            // Görsel duvarların pozisyonunu da güncelle
+            if (this.collisionMeshes && this.collisionMeshes.length > 0) {
+                const hx = Math.abs(this.collisionSize.x) * this.collisionScale / 2;
+                const hy = Math.abs(this.collisionSize.y) * this.collisionScale / 2;
+                const hz = Math.abs(this.collisionSize.z) * this.collisionScale / 2;
+                
+                // Sol duvar
+                this.collisionMeshes[0].position.set(
+                    this.collision.x - hx, 
+                    this.collision.y, 
+                    this.collision.z
+                );
+                
+                // Üst duvar
+                this.collisionMeshes[1].position.set(
+                    this.collision.x, 
+                    this.collision.y + hy, 
+                    this.collision.z
+                );
+                
+                // Ön duvar
+                this.collisionMeshes[2].position.set(
+                    this.collision.x, 
+                    this.collision.y, 
+                    this.collision.z - hz
+                );
+                
+                // Arka duvar
+                this.collisionMeshes[3].position.set(
+                    this.collision.x, 
+                    this.collision.y, 
+                    this.collision.z + hz
+                );
+            }
         }
+        
+        // Bağlı küplerin pozisyonlarını da güncelle
+        this.updateAllCubePositions();
     }
     
     updateSizes()
@@ -336,204 +429,337 @@ export default class GreenBox
             this.collisionBody.addShape(topWall, new CANNON.Vec3(0, hy, 0))
             
             // NOT: +x (sağ), -y (alt) ve taban duvarları eklemiyoruz
+            
+            // Görsel duvarların da boyutlarını güncelle
+            if (this.collisionMeshes && this.collisionMeshes.length > 0) {
+                // Eski mesh'leri kaldır
+                this.collisionMeshes.forEach(mesh => {
+                    this.container.remove(mesh);
+                });
+                
+                // Yeni mesh'leri oluştur
+                this.collisionMeshes = [];
+                this.createCollisionVisuals(hx, hy, hz);
+            }
         }
     }
 
-    setVisibleCube()
+    setConnectedCubes()
     {
-        // Görünür küp için THREE.js geometri ve materyal oluştur
-        const geometry = new THREE.BoxGeometry(
-            this.visibleCubeSettings.size.x,
-            this.visibleCubeSettings.size.y,
-            this.visibleCubeSettings.size.z
-        )
-        
-        const material = new THREE.MeshStandardMaterial({
-            color: this.visibleCubeSettings.color,
-            metalness: 0.3,
-            roughness: 0.4,
-            transparent: true, // Transparanlık özelliğini aktif et
-            opacity: this.visibleCubeSettings.visible ? 1.0 : 0.0 // Görünür değilse tamamen şeffaf
-        })
-        
-        // Mesh oluştur ve sahneye ekle
-        this.visibleCubeMesh = new THREE.Mesh(geometry, material)
-        this.visibleCubeMesh.position.set(
-            this.visibleCubeSettings.position.x,
-            this.visibleCubeSettings.position.y,
-            this.visibleCubeSettings.position.z
-        )
-        
-        // Görünürlük ayarı
-        this.visibleCubeMesh.visible = this.visibleCubeSettings.visible
-        
-        // Gölge özellikleri (görünmez ise gölge de görünmez)
-        this.visibleCubeMesh.castShadow = this.visibleCubeSettings.visible
-        this.visibleCubeMesh.receiveShadow = this.visibleCubeSettings.visible
-        
-        // Container'a ekle
-        this.container.add(this.visibleCubeMesh)
-        
-        // Küp için fizik gövdesi oluştur (Çarpışma özellikleri korunuyor)
-        this.visibleCubeBody = new CANNON.Body({
-            mass: 0, // Statik nesne
-            position: new CANNON.Vec3(
-                this.visibleCubeSettings.position.x,
-                this.visibleCubeSettings.position.y,
-                this.visibleCubeSettings.position.z
-            ),
-            material: this.physics.materials.items.floor
-        })
-        
-        // Küp için çarpışma şekli ekle
-        const shape = new CANNON.Box(new CANNON.Vec3(
-            this.visibleCubeSettings.size.x / 2,
-            this.visibleCubeSettings.size.y / 2,
-            this.visibleCubeSettings.size.z / 2
-        ))
-        
-        this.visibleCubeBody.addShape(shape)
-        
-        // Fizik motoruna ekle
-        this.physics.world.addBody(this.visibleCubeBody)
+        // Her küp ayarı için bir küp oluştur
+        this.cubeSettings.forEach((settings, index) => {
+            this.createConnectedCube(settings, index);
+        });
         
         // Debug kontrollerini ekle
         if(this.debug)
         {
-            const cubeFolder = this.debugFolder.addFolder('görünmez küp')
+            const connectedCubesFolder = this.debugFolder.addFolder('Bağlantılı Küpler')
             
-            // Pozisyon kontrolleri
-            cubeFolder.add(this.visibleCubeSettings.position, 'x').step(0.1).name('küpX').onChange(() => {
-                this.updateCubePosition()
-            })
-            cubeFolder.add(this.visibleCubeSettings.position, 'y').step(0.1).name('küpY').onChange(() => {
-                this.updateCubePosition()
-            })
-            cubeFolder.add(this.visibleCubeSettings.position, 'z').step(0.1).name('küpZ').onChange(() => {
-                this.updateCubePosition()
-            })
-            
-            // Boyut kontrolleri
-            cubeFolder.add(this.visibleCubeSettings.size, 'x', 0.1, 10).step(0.1).name('genişlik').onChange(() => {
-                this.updateCubeSize()
-            })
-            cubeFolder.add(this.visibleCubeSettings.size, 'y', 0.1, 10).step(0.1).name('yükseklik').onChange(() => {
-                this.updateCubeSize()
-            })
-            cubeFolder.add(this.visibleCubeSettings.size, 'z', 0.1, 10).step(0.1).name('derinlik').onChange(() => {
-                this.updateCubeSize()
-            })
-            
-            // Renk kontrolü
-            cubeFolder.addColor(this.visibleCubeSettings, 'color').name('renk').onChange(() => {
-                if(this.visibleCubeMesh && this.visibleCubeMesh.material) {
-                    this.visibleCubeMesh.material.color.set(this.visibleCubeSettings.color)
-                }
-            })
-            
-            // Görünürlük kontrolü
-            cubeFolder.add(this.visibleCubeSettings, 'visible').name('görünür').onChange(() => {
-                this.updateCubeVisibility()
-            })
+            this.cubeSettings.forEach((settings, index) => {
+                const cubeFolder = connectedCubesFolder.addFolder(`Küp ${index + 1}`);
+                
+                // Göreceli pozisyon kontrolleri
+                cubeFolder.add(settings.relativePosition, 'x', -20, 20).step(0.1).name('göreceli X').onChange(() => {
+                    this.updateAllCubePositions();
+                });
+                cubeFolder.add(settings.relativePosition, 'y', -20, 20).step(0.1).name('göreceli Y').onChange(() => {
+                    this.updateAllCubePositions();
+                });
+                cubeFolder.add(settings.relativePosition, 'z', -20, 20).step(0.1).name('göreceli Z').onChange(() => {
+                    this.updateAllCubePositions();
+                });
+                
+                // Boyut kontrolleri
+                cubeFolder.add(settings.size, 'x', 0.1, 10).step(0.1).name('genişlik').onChange(() => {
+                    this.updateCubeSize(index);
+                });
+                cubeFolder.add(settings.size, 'y', 0.1, 10).step(0.1).name('yükseklik').onChange(() => {
+                    this.updateCubeSize(index);
+                });
+                cubeFolder.add(settings.size, 'z', 0.1, 10).step(0.1).name('derinlik').onChange(() => {
+                    this.updateCubeSize(index);
+                });
+                
+                // Renk kontrolü
+                cubeFolder.addColor(settings, 'color').name('renk').onChange(() => {
+                    if(this.connectedCubes[index] && this.connectedCubes[index].mesh && this.connectedCubes[index].mesh.material) {
+                        this.connectedCubes[index].mesh.material.color.set(settings.color);
+                    }
+                });
+                
+                // Görünürlük kontrolü
+                cubeFolder.add(settings, 'visible').name('görünür').onChange(() => {
+                    this.updateCubeVisibility(index);
+                });
+            });
         }
         
-        console.log("Görünmez küp ve çarpışma kutusu başarıyla eklendi")
+        console.log("GreenBox'a bağlı küpler başarıyla eklendi");
     }
     
-    updateCubePosition()
+    createConnectedCube(settings, index)
     {
-        // Mesh pozisyonunu güncelle
-        if(this.visibleCubeMesh)
-        {
-            this.visibleCubeMesh.position.x = this.visibleCubeSettings.position.x
-            this.visibleCubeMesh.position.y = this.visibleCubeSettings.position.y
-            this.visibleCubeMesh.position.z = this.visibleCubeSettings.position.z
-        }
+        // Küp için mesh oluştur
+        const geometry = new THREE.BoxGeometry(
+            settings.size.x,
+            settings.size.y,
+            settings.size.z
+        );
         
-        // Fizik gövdesini güncelle
-        if(this.visibleCubeBody)
-        {
-            this.visibleCubeBody.position.set(
-                this.visibleCubeSettings.position.x,
-                this.visibleCubeSettings.position.y,
-                this.visibleCubeSettings.position.z
-            )
-        }
+        const material = new THREE.MeshStandardMaterial({
+            color: settings.color,
+            metalness: 0.3,
+            roughness: 0.4,
+            transparent: true,
+            opacity: settings.visible ? 1.0 : 0.0
+        });
+        
+        // Gerçek pozisyonu GreenBox'a göreceli olarak hesapla
+        const absolutePosition = this.calculateAbsolutePosition(settings.relativePosition);
+        
+        // Mesh oluştur
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(
+            absolutePosition.x,
+            absolutePosition.y,
+            absolutePosition.z
+        );
+        
+        // Görünürlük ve gölge özelliklerini ayarla
+        mesh.visible = settings.visible;
+        mesh.castShadow = settings.visible;
+        mesh.receiveShadow = settings.visible;
+        
+        // Container'a ekle
+        this.container.add(mesh);
+        
+        // Küp için fizik gövdesi oluştur
+        const body = new CANNON.Body({
+            mass: 0, // Statik nesne
+            position: new CANNON.Vec3(
+                absolutePosition.x,
+                absolutePosition.y,
+                absolutePosition.z
+            ),
+            material: this.physics.materials.items.floor
+        });
+        
+        // Küp için çarpışma şekli ekle
+        const shape = new CANNON.Box(new CANNON.Vec3(
+            settings.size.x / 2,
+            settings.size.y / 2,
+            settings.size.z / 2
+        ));
+        
+        body.addShape(shape);
+        
+        // Fizik motoruna ekle
+        this.physics.world.addBody(body);
+        
+        // Küpü koleksiyona ekle
+        this.connectedCubes.push({
+            settings: settings,
+            mesh: mesh,
+            body: body
+        });
     }
     
-    updateCubeSize()
+    calculateAbsolutePosition(relativePosition)
     {
+        // GreenBox'ın mevcut pozisyonuna göre mutlak pozisyonu hesapla
+        return {
+            x: this.greenBox.x + relativePosition.x,
+            y: this.greenBox.y + relativePosition.y,
+            z: this.greenBox.z + relativePosition.z
+        };
+    }
+    
+    updateAllCubePositions()
+    {
+        // Tüm küplerin pozisyonlarını güncelle
+        this.connectedCubes.forEach((cube, index) => {
+            const absolutePosition = this.calculateAbsolutePosition(this.cubeSettings[index].relativePosition);
+            
+            // Mesh pozisyonunu güncelle
+            if(cube.mesh) {
+                cube.mesh.position.set(
+                    absolutePosition.x,
+                    absolutePosition.y,
+                    absolutePosition.z
+                );
+            }
+            
+            // Fizik gövdesini güncelle
+            if(cube.body) {
+                cube.body.position.set(
+                    absolutePosition.x,
+                    absolutePosition.y,
+                    absolutePosition.z
+                );
+            }
+        });
+    }
+    
+    updateCubeSize(index)
+    {
+        const cube = this.connectedCubes[index];
+        const settings = this.cubeSettings[index];
+        
+        if(!cube || !settings) return;
+        
         // Mesh'i kaldır ve yeniden oluştur
-        if(this.visibleCubeMesh)
-        {
-            this.container.remove(this.visibleCubeMesh)
+        if(cube.mesh) {
+            this.container.remove(cube.mesh);
             
             const geometry = new THREE.BoxGeometry(
-                this.visibleCubeSettings.size.x,
-                this.visibleCubeSettings.size.y,
-                this.visibleCubeSettings.size.z
-            )
+                settings.size.x,
+                settings.size.y,
+                settings.size.z
+            );
             
             const material = new THREE.MeshStandardMaterial({
-                color: this.visibleCubeSettings.color,
+                color: settings.color,
                 metalness: 0.3,
                 roughness: 0.4,
                 transparent: true,
-                opacity: this.visibleCubeSettings.visible ? 1.0 : 0.0
-            })
+                opacity: settings.visible ? 1.0 : 0.0
+            });
             
-            this.visibleCubeMesh = new THREE.Mesh(geometry, material)
-            this.visibleCubeMesh.position.set(
-                this.visibleCubeSettings.position.x,
-                this.visibleCubeSettings.position.y,
-                this.visibleCubeSettings.position.z
-            )
+            const absolutePosition = this.calculateAbsolutePosition(settings.relativePosition);
+            
+            cube.mesh = new THREE.Mesh(geometry, material);
+            cube.mesh.position.set(
+                absolutePosition.x,
+                absolutePosition.y,
+                absolutePosition.z
+            );
             
             // Görünürlük ayarı
-            this.visibleCubeMesh.visible = this.visibleCubeSettings.visible
+            cube.mesh.visible = settings.visible;
             
             // Gölge özellikleri
-            this.visibleCubeMesh.castShadow = this.visibleCubeSettings.visible
-            this.visibleCubeMesh.receiveShadow = this.visibleCubeSettings.visible
+            cube.mesh.castShadow = settings.visible;
+            cube.mesh.receiveShadow = settings.visible;
             
-            this.container.add(this.visibleCubeMesh)
+            this.container.add(cube.mesh);
         }
         
         // Fizik gövdesini güncelle
-        if(this.visibleCubeBody)
-        {
+        if(cube.body) {
             // Eski şekli temizle
-            while(this.visibleCubeBody.shapes.length > 0)
-            {
-                this.visibleCubeBody.removeShape(this.visibleCubeBody.shapes[0])
+            while(cube.body.shapes.length > 0) {
+                cube.body.removeShape(cube.body.shapes[0]);
             }
             
             // Yeni şekil ekle
             const shape = new CANNON.Box(new CANNON.Vec3(
-                this.visibleCubeSettings.size.x / 2,
-                this.visibleCubeSettings.size.y / 2,
-                this.visibleCubeSettings.size.z / 2
-            ))
+                settings.size.x / 2,
+                settings.size.y / 2,
+                settings.size.z / 2
+            ));
             
-            this.visibleCubeBody.addShape(shape)
+            cube.body.addShape(shape);
         }
     }
     
-    updateCubeVisibility()
+    updateCubeVisibility(index)
     {
+        const cube = this.connectedCubes[index];
+        const settings = this.cubeSettings[index];
+        
+        if(!cube || !settings) return;
+        
         // Görünürlük durumunu güncelle
-        if(this.visibleCubeMesh)
-        {
-            this.visibleCubeMesh.visible = this.visibleCubeSettings.visible
+        if(cube.mesh) {
+            cube.mesh.visible = settings.visible;
             
             // Malzeme opasitesini güncelle
-            if(this.visibleCubeMesh.material) {
-                this.visibleCubeMesh.material.opacity = this.visibleCubeSettings.visible ? 1.0 : 0.0
+            if(cube.mesh.material) {
+                cube.mesh.material.opacity = settings.visible ? 1.0 : 0.0;
             }
             
             // Gölge özelliklerini güncelle
-            this.visibleCubeMesh.castShadow = this.visibleCubeSettings.visible
-            this.visibleCubeMesh.receiveShadow = this.visibleCubeSettings.visible
+            cube.mesh.castShadow = settings.visible;
+            cube.mesh.receiveShadow = settings.visible;
         }
+    }
+
+    // Çarpışma kutusu görsellerini oluştur
+    createCollisionVisuals(hx, hy, hz) {
+        // Sol duvar
+        this.createWallMesh(
+            new THREE.Vector3(this.wallThickness.left, hy*2, hz*2),
+            new THREE.Vector3(this.collision.x - hx, this.collision.y, this.collision.z),
+            this.collisionVisuals.color
+        );
+        
+        // Üst duvar
+        this.createWallMesh(
+            new THREE.Vector3(hx*2, this.wallThickness.top, hz*2),
+            new THREE.Vector3(this.collision.x, this.collision.y + hy, this.collision.z),
+            this.collisionVisuals.color
+        );
+        
+        // Ön duvar
+        this.createWallMesh(
+            new THREE.Vector3(hx*2, hy*2, this.wallThickness.front),
+            new THREE.Vector3(this.collision.x, this.collision.y, this.collision.z - hz),
+            this.collisionVisuals.color
+        );
+        
+        // Arka duvar
+        this.createWallMesh(
+            new THREE.Vector3(hx*2, hy*2, this.wallThickness.back),
+            new THREE.Vector3(this.collision.x, this.collision.y, this.collision.z + hz),
+            this.collisionVisuals.color
+        );
+    }
+    
+    // Duvar görsellerini oluşturmak için yardımcı fonksiyon
+    createWallMesh(size, position, color) {
+        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+        const material = new THREE.MeshStandardMaterial({
+            color: color,
+            transparent: true,
+            opacity: this.collisionVisuals.opacity,
+            wireframe: this.collisionVisuals.wireframe,
+            side: THREE.DoubleSide
+        });
+        
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.copy(position);
+        
+        // Görünürlük ve gölge ayarları
+        mesh.visible = this.collisionVisuals.visible;
+        mesh.castShadow = false;
+        mesh.receiveShadow = false;
+        
+        // Çarpışma görsellerini saklayalım
+        if (!this.collisionMeshes) {
+            this.collisionMeshes = [];
+        }
+        
+        this.collisionMeshes.push(mesh);
+        this.container.add(mesh);
+        
+        return mesh;
+    }
+    
+    // Çarpışma kutusu görsellerini güncelle
+    updateCollisionVisuals() {
+        if (!this.collisionMeshes) return;
+        
+        this.collisionMeshes.forEach(mesh => {
+            // Görünürlük ayarı
+            mesh.visible = this.collisionVisuals.visible;
+            
+            // Materyal özellikleri
+            if (mesh.material) {
+                mesh.material.color.set(this.collisionVisuals.color);
+                mesh.material.opacity = this.collisionVisuals.opacity;
+                mesh.material.wireframe = this.collisionVisuals.wireframe;
+            }
+        });
     }
 } 
