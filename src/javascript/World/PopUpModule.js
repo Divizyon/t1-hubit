@@ -2,209 +2,305 @@ import * as THREE from 'three'
 
 export default class PopUpModule {
   constructor(_options) {
-    // Options
-    this.resources = _options.resources
-    this.objects = _options.objects
-    this.shadows = _options.shadows
-    this.sounds = _options.sounds
-    this.areas = _options.areas
+    // Diğer modüllerden gelen kaynakları ve referansları sakla
+    this.resources = _options.resources  // Kaynaklar (textures, models vb.)
+    this.objects = _options.objects      // Sahnedeki tüm 3B nesneler
+    this.shadows = _options.shadows      // Gölge işlemleri
+    this.sounds = _options.sounds        // Ses efektleri
+    this.areas = _options.areas          // Etkileşim alanları
     
-    // Debug için objects kontrolü
+    // Gerekli objects parametresinin varlığını kontrol et - yoksa hata ver
     if (!this.objects) {
       console.error("PopUpModule: objects parametresi bulunamadı!")
       return
     }
     
-    // Set up
+    // Ana container oluştur - tüm popup nesneleri bunun içine eklenecek
     this.container = new THREE.Object3D()
-    this.container.matrixAutoUpdate = false
+    this.container.matrixAutoUpdate = false  // Performans için matrixAutoUpdate'i kapat
     
+    // İlk popup ayarlarını yap
     this.setPopUp()
     
-    // Etkileşim alanını ayarla
+    // Etkileşim alanı varsa, etkileşim işlevselliğini ekle
     if (this.areas) {
       this.setPopUpInteraction()
     }
+    
+    // Enter tuşu basımını dinlemek için event listener ekle
+    this.addKeyboardListener()
   }
   
+  // Popup temel bileşenlerini oluştur
   setPopUp() {
-    // Etkileşim etiketi oluştur
+    // Görünmez etkileşim etiketi/planı oluştur
     const areaLabelMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(2, 0.5),
+      new THREE.PlaneGeometry(2, 0.5),  // 2x0.5 birim boyutunda düzlem geometrisi
       new THREE.MeshBasicMaterial({
-        transparent: true,
-        depthWrite: false,
-        color: 0xffffff,
-        opacity: 0 // Tamamen şeffaf yap
+        transparent: true,              // Şeffaflığı etkinleştir
+        depthWrite: false,              // Derinlik yazımını devre dışı bırak
+        color: 0xffffff,                // Beyaz renk (görünmez olduğu için önemsiz)
+        opacity: 0                      // Tamamen şeffaf yap
       })
     )
-    areaLabelMesh.position.set(30, 10, 5) // GreenBox ile aynı hizaya getirildi
-    areaLabelMesh.matrixAutoUpdate = false
-    areaLabelMesh.updateMatrix()
-    this.container.add(areaLabelMesh)
+    // GreenBox ile aynı konuma yerleştir - Y değeri 15 olarak güncellendi
+    areaLabelMesh.position.set(30, 15, 5)
+    areaLabelMesh.matrixAutoUpdate = false  // Performans için otomatik matris güncellemesini kapat
+    areaLabelMesh.updateMatrix()            // Matris pozisyonunu manuel güncelle
+    this.container.add(areaLabelMesh)       // Container'a ekle
   }
   
+  // Klavye dinleyicisi ekle - Enter tuşu için
+  addKeyboardListener() {
+    // Enter tuşu dinleyicisi
+    this.keyDownHandler = (event) => {
+      // Enter tuşuna basıldığında (Tuş kodu 13)
+      if (event.keyCode === 13 || event.key === "Enter") {
+        // Etkileşim alanı yakında mı kontrol et
+        if (this.isNearInteractionArea) {
+          // Etkileşimi başlat
+          this.showPopUp()
+          
+          // Ses efekti çal
+          if (this.sounds) {
+            this.sounds.play("click")
+          }
+        }
+      }
+    }
+    
+    // Event dinleyicisini ekle
+    window.addEventListener("keydown", this.keyDownHandler)
+  }
+  
+  // Popup etkileşimli alanını ve davranışını ayarla
   setPopUpInteraction() {
     try {
+      // Areas modülünün varlığını tekrar kontrol et
       if (!this.areas) {
         console.error("Pop-up etkileşim alanı eklenirken hata: areas objesi bulunamadı!")
         return
       }
 
-      // Etkileşim alanı oluştur
+      // 2B etkileşim alanı oluştur - kullanıcı yaklaştığında Enter tuşunu kullanacak
       this.popUpArea = this.areas.add({
-        position: new THREE.Vector2(30, 10), // GreenBox ile aynı hizaya getirildi
-        halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
+        position: new THREE.Vector2(30, 15),     // Konum - GreenBox ile aynı (Y değeri 15 olarak güncellendi)
+        halfExtents: new THREE.Vector2(2, 2),    // Boyut - 4x4 birimlik alan (yarım genişlik x2)
       })
 
-      // Etkileşim fonksiyonunu tanımla
-      this.popUpArea.on("interact", () => {
-        // Popup oluştur
-        const popupContainer = document.createElement("div")
-        popupContainer.style.position = "fixed"
-        popupContainer.style.top = "0"
-        popupContainer.style.left = "0"
-        popupContainer.style.width = "100%"
-        popupContainer.style.height = "100%"
-        popupContainer.style.display = "flex"
-        popupContainer.style.justifyContent = "center"
-        popupContainer.style.alignItems = "center"
-        popupContainer.style.backgroundColor = "rgba(0, 0, 0, 0.7)"
-        popupContainer.style.zIndex = "9999"
-
-        // Popup içeriği
-        const popupBox = document.createElement("div")
-        popupBox.style.position = "relative"
-        popupBox.style.backgroundColor = "white"
-        popupBox.style.padding = "20px"
-        popupBox.style.borderRadius = "8px"
-        popupBox.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)"
-        popupBox.style.maxWidth = "90%"
-        popupBox.style.maxHeight = "90vh"
-        popupBox.style.overflow = "auto"
-
-        // Görsel
-        const image = document.createElement("img")
-        image.src = "/models/greenBoximage/konya.JPG"
-        image.style.maxWidth = "100%"
-        image.style.height = "auto"
-        image.style.display = "block"
-        image.style.marginBottom = "20px"
-        image.style.cursor = "pointer"
-
-        // Görsele tıklama olayı ekle
-        image.addEventListener("click", () => {
-          console.log("Objects:", this.objects) // Debug için objects'ı kontrol et
-          
-          // GreenBox'ı bul
-          let greenBox = null
-          
-          // Objects yapısını kontrol et
-          if (this.objects && this.objects.items) {
-            console.log("Objects items:", this.objects.items) // Debug için items'ı kontrol et
-            
-            // GreenBox'ı items içinde ara
-            for (const key in this.objects.items) {
-              const item = this.objects.items[key]
-              if (item && item.container && item.container.name === "greenBox_mainModel") {
-                greenBox = item.container
-                console.log("GreenBox bulundu:", greenBox) // Debug için bulunan GreenBox'ı kontrol et
-                break
-              }
-            }
-          }
-
-          if (greenBox) {
-            console.log("GreenBox children:", greenBox.children) // Debug için children'ı kontrol et
-            
-            // Front wall'u bul
-            const frontWall = greenBox.children.find(child => 
-              child.isMesh && child.name === "greenBox_pureUc"
-            )
-            
-            if (frontWall) {
-              console.log("Front wall bulundu:", frontWall) // Debug için front wall'u kontrol et
-              
-              // Texture yükle
-              const textureLoader = new THREE.TextureLoader()
-              textureLoader.load(
-                '/models/greenBoximage/konya.JPG', // Texture yolu
-                (texture) => {
-                  // Texture'ı ayarla
-                  texture.wrapS = THREE.RepeatWrapping
-                  texture.wrapT = THREE.RepeatWrapping
-                  texture.repeat.set(1, 1)
-                  
-                  // Yeni material oluştur
-                  const newMaterial = new THREE.MeshStandardMaterial({
-                    map: texture,
-                    metalness: 0.3,
-                    roughness: 0.4
-                  })
-                  
-                  // Material'i güncelle
-                  frontWall.material = newMaterial
-                  frontWall.material.needsUpdate = true
-                  console.log("Texture uygulandı") // Debug için texture uygulamasını kontrol et
-                },
-                // Loading callback
-                undefined,
-                // Error callback
-                (error) => {
-                  console.error("Texture yüklenirken hata oluştu:", error)
-                }
-              )
-            } else {
-              console.error("Front wall bulunamadı! Mevcut mesh'ler:", greenBox.children.map(child => child.name))
-            }
-          } else {
-            console.error("GreenBox bulunamadı! Objects yapısı:", this.objects)
-          }
-
-          // Popup'ı kapat
-          document.body.removeChild(popupContainer)
-        })
-
-        // Kapatma butonu
-        const closeButton = document.createElement("button")
-        closeButton.textContent = "Kapat"
-        closeButton.style.padding = "10px 20px"
-        closeButton.style.border = "none"
-        closeButton.style.backgroundColor = "#e0e0e0"
-        closeButton.style.color = "#333"
-        closeButton.style.cursor = "pointer"
-        closeButton.style.borderRadius = "5px"
-        closeButton.style.fontSize = "14px"
-        closeButton.style.display = "block"
-        closeButton.style.margin = "0 auto"
-
-        // Kapatma fonksiyonu
-        closeButton.addEventListener("click", () => {
-          document.body.removeChild(popupContainer)
-        })
-
-        // Popup dışına tıklamayla kapatma
-        popupContainer.addEventListener("click", (event) => {
-          if (event.target === popupContainer) {
-            document.body.removeChild(popupContainer)
-          }
-        })
-
-        // Elementleri popupa ekle
-        popupBox.appendChild(image)
-        popupBox.appendChild(closeButton)
-        popupContainer.appendChild(popupBox)
-        document.body.appendChild(popupContainer)
-
-        // Ses efekti çal
-        if (this.sounds) {
-          this.sounds.play("click")
-        }
+      // Etkileşim olayları tanımla
+      
+      // Yaklaşma olayı - kullanıcı alana yaklaştığında
+      this.popUpArea.on("in", () => {
+        console.log("Etkileşim alanına girildi")
+        
+        // Etkileşim durumunu güncelle
+        this.isNearInteractionArea = true
+      })
+      
+      // Uzaklaşma olayı - kullanıcı alandan uzaklaştığında
+      this.popUpArea.on("out", () => {
+        console.log("Etkileşim alanından çıkıldı")
+        
+        // Etkileşim durumunu güncelle
+        this.isNearInteractionArea = false
       })
       
       console.log("Pop-up etkileşim alanı başarıyla eklendi")
     } catch (error) {
       console.error("Pop-up etkileşim alanı eklenirken hata oluştu:", error)
+    }
+  }
+  
+  // Popup'ı görüntüle - Enter tuşu ile çağrılır
+  showPopUp() {
+    // Ana popup container'ı oluştur - tüm ekranı kaplar
+    const popupContainer = document.createElement("div")
+    popupContainer.style.position = "fixed"          // Sabit pozisyon
+    popupContainer.style.top = "0"                   // Üstten sıfır
+    popupContainer.style.left = "0"                  // Soldan sıfır
+    popupContainer.style.width = "100%"              // Tam genişlik
+    popupContainer.style.height = "100%"             // Tam yükseklik
+    popupContainer.style.display = "flex"            // Flexbox düzeni
+    popupContainer.style.justifyContent = "center"   // Yatay ortalama
+    popupContainer.style.alignItems = "center"       // Dikey ortalama
+    popupContainer.style.backgroundColor = "rgba(0, 0, 0, 0.7)"  // Yarı saydam siyah arka plan
+    popupContainer.style.zIndex = "9999"             // En üstte göster
+
+    // İçerik kutusu - görsel ve butonlar burada olacak
+    const popupBox = document.createElement("div")
+    popupBox.style.position = "relative"             // Göreceli konum
+    popupBox.style.backgroundColor = "white"         // Beyaz arka plan
+    popupBox.style.padding = "20px"                  // İç boşluk
+    popupBox.style.borderRadius = "8px"              // Köşe yuvarlatma
+    popupBox.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)"  // Gölge efekti
+    popupBox.style.maxWidth = "90%"                  // Maksimum genişlik
+    popupBox.style.maxHeight = "90vh"                // Maksimum yükseklik
+    popupBox.style.overflow = "auto"                 // Gerekirse kaydırma çubuğu
+    popupBox.style.textAlign = "center"              // İçeriği ortala
+    
+    // Popup başlığı oluştur
+    const title = document.createElement("h2")       // H2 başlık elementi
+    title.textContent = "Arkaplan Seçin"             // Başlık metni
+    title.style.marginBottom = "20px"                // Alt boşluk
+    popupBox.appendChild(title)                      // Başlığı kutuya ekle
+    
+    // Görseller için galeri container'ı oluştur
+    const imageGallery = document.createElement("div")
+    imageGallery.style.display = "flex"              // Flexbox düzeni
+    imageGallery.style.flexWrap = "wrap"             // Gerekirse alt satıra geç
+    imageGallery.style.justifyContent = "center"     // Yatay ortala
+    imageGallery.style.gap = "15px"                  // Öğeler arası boşluk
+    imageGallery.style.marginBottom = "20px"         // Alt boşluk
+    
+    // Kullanılacak görsel dosyalarını ve başlıklarını tanımla
+    const imageFiles = [
+      { src: "/models/greenBoximage/lake_greenscreen.webp", title: "Göl" },
+      { src: "/models/greenBoximage/iceland_greenscreen.webp", title: "İzlanda" },
+      { src: "/models/greenBoximage/desert_greenscreen_.webp", title: "Çöl" }
+    ]
+    
+    // Her bir görsel için döngü oluştur
+    imageFiles.forEach(imgData => {
+      // Her görsel için dış container
+      const imageContainer = document.createElement("div")
+      imageContainer.style.width = "200px"           // Genişlik
+      imageContainer.style.marginBottom = "10px"     // Alt boşluk
+      imageContainer.style.cursor = "pointer"        // İmleç şekli - tıklanabilir
+      
+      // Görsel elementi
+      const image = document.createElement("img")
+      image.src = imgData.src                        // Görsel kaynağı
+      image.style.width = "100%"                     // Container'a göre tam genişlik
+      image.style.height = "auto"                    // Otomatik yükseklik (oran korunur)
+      image.style.borderRadius = "4px"               // Köşe yuvarlatma
+      image.style.transition = "transform 0.2s"      // Animasyon için geçiş efekti
+      image.alt = imgData.title                      // Alternatif metin (erişilebilirlik)
+      
+      // Görsel etiketi/başlığı
+      const imageLabel = document.createElement("div")
+      imageLabel.textContent = imgData.title         // Etiket metni
+      imageLabel.style.marginTop = "5px"             // Üst boşluk
+      
+      // Fareyle üzerine gelindiğinde büyütme efekti
+      imageContainer.addEventListener("mouseover", () => {
+        image.style.transform = "scale(1.05)"        // %5 büyüt
+      })
+      
+      // Fare ayrıldığında normal boyuta dön
+      imageContainer.addEventListener("mouseout", () => {
+        image.style.transform = "scale(1)"           // Normal boyut
+      })
+      
+      // Görsele tıklama olayı - texture'ı değiştir ve popup'ı kapat
+      imageContainer.addEventListener("click", () => {
+        this.applyTexture(imgData.src)               // Seçilen texture'ı uygula
+        document.body.removeChild(popupContainer)    // Popup'ı kapat
+      })
+      
+      // Görsel ve etiketi container'a ekle
+      imageContainer.appendChild(image)
+      imageContainer.appendChild(imageLabel)
+      imageGallery.appendChild(imageContainer)       // Galeri container'ına ekle
+    })
+    
+    // Galeriyi popup kutusuna ekle
+    popupBox.appendChild(imageGallery)
+
+    // Kapatma butonu oluştur
+    const closeButton = document.createElement("button")
+    closeButton.textContent = "Kapat"                // Buton metni
+    closeButton.style.padding = "10px 20px"          // İç boşluk
+    closeButton.style.border = "none"                // Kenarlık yok
+    closeButton.style.backgroundColor = "#e0e0e0"    // Gri arka plan
+    closeButton.style.color = "#333"                 // Koyu gri metin
+    closeButton.style.cursor = "pointer"             // İmleç şekli - tıklanabilir
+    closeButton.style.borderRadius = "5px"           // Köşe yuvarlatma
+    closeButton.style.fontSize = "14px"              // Font boyutu
+    closeButton.style.display = "block"              // Blok element
+    closeButton.style.margin = "0 auto"              // Yatay ortalama
+
+    // Kapatma butonu tıklama olayı
+    closeButton.addEventListener("click", () => {
+      document.body.removeChild(popupContainer)      // Popup'ı DOM'dan kaldır
+    })
+
+    // Popup dışına tıklamayla kapatma - arka plan tıklamaları
+    popupContainer.addEventListener("click", (event) => {
+      if (event.target === popupContainer) {         // Sadece arka plana tıklandığında
+        document.body.removeChild(popupContainer)    // Popup'ı kapat
+      }
+    })
+
+    // Tüm elementleri ana container'a ekle
+    popupBox.appendChild(closeButton)                // Buton ekle
+    popupContainer.appendChild(popupBox)             // İçerik kutusunu ana container'a ekle
+    document.body.appendChild(popupContainer)        // Popup'ı sayfaya ekle
+  }
+  
+  // Texture uygulama fonksiyonu - seçilen görseli GreenBox'a uygula
+  applyTexture(texturePath) {
+    console.log("Texture uygulanıyor:", texturePath)
+    
+    // GreenBox nesnesini bul
+    let greenBox = null
+    
+    // Objects içinde GreenBox'ı ara
+    if (this.objects && this.objects.items) {
+      // Tüm nesneler içinde döngü oluştur
+      for (const key in this.objects.items) {
+        const item = this.objects.items[key]
+        // greenBox_mainModel isimli nesneyi bul
+        if (item && item.container && item.container.name === "greenBox_mainModel") {
+          greenBox = item.container
+          console.log("GreenBox bulundu")
+          break
+        }
+      }
+    }
+
+    if (greenBox) {
+      // GreenBox'ın ön duvarını (greenscreen) bul
+      const frontWall = greenBox.children.find(child => 
+        child.isMesh && child.name === "greenBox_pureUc"  // İsimlendirmeye göre filtreleme
+      )
+      
+      if (frontWall) {
+        // Three.js texture yükleyici oluştur
+        const textureLoader = new THREE.TextureLoader()
+        // Seçilen texture'ı yükle
+        textureLoader.load(
+          texturePath,                             // Dosya yolu
+          (texture) => {
+            // Texture başarıyla yüklendiğinde
+            // Texture ayarlarını yapılandır
+            texture.wrapS = THREE.RepeatWrapping    // Yatay sarma modu
+            texture.wrapT = THREE.RepeatWrapping    // Dikey sarma modu
+            texture.repeat.set(1, 1)                // Tekrarlama ayarı (x, y)
+            
+            // Yeni 3B materyal oluştur
+            const newMaterial = new THREE.MeshStandardMaterial({
+              map: texture,                        // Texture'ı materyal haritasına ata
+              metalness: 0.3,                      // Metalik özellik derecesi
+              roughness: 0.4                       // Pürüzlülük derecesi
+            })
+            
+            // Duvarın materyalini güncelle
+            frontWall.material = newMaterial       // Yeni materyal ata
+            frontWall.material.needsUpdate = true  // Material güncellemesini zorla
+            console.log("Texture uygulandı")
+          },
+          undefined,                               // Yükleme ilerleme callback'i (kullanılmıyor)
+          (error) => {
+            // Hata durumunda
+            console.error("Texture yüklenirken hata oluştu:", error)
+          }
+        )
+      } else {
+        console.error("Front wall bulunamadı!")
+      }
+    } else {
+      console.error("GreenBox bulunamadı!")
     }
   }
 } 

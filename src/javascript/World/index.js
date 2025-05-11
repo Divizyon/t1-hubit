@@ -34,8 +34,8 @@ import Basket from "./basket.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import GreenBox from "./GreenBox.js";
 import AtmosferAlani from "./AtmosferAlani.js";
-import KonyaGencKart from './KonyaGencKart.js';
-import PopUpModule from './PopUpModule.js'
+import KonyaGencKart from "./KonyaGencKart.js";
+import PopUpModule from "./PopUpModule.js"
 
 
 export default class World {
@@ -569,14 +569,14 @@ export default class World {
     // this.container.add(this.sections.crossroads.container)
 
     // // Projects
-    // this.sections.projects = new ProjectsSection({
-    //     ...options,
-    //     x: 30,
-    //     y: - 30
-    //     // x: 0,
-    //     // y: 0
-    // })
-    // this.container.add(this.sections.projects.container)
+     this.sections.projects = new ProjectsSection({
+         ...options,
+         x: 0,
+         y: 35
+         // x: 0,
+         // y: 0
+     })
+     this.container.add(this.sections.projects.container)
 
     // // Information
     // this.sections.information = new InformationSection({

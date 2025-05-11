@@ -25,7 +25,7 @@ export default class Materials
         this.setFloorShadow()
     }
 
-    setPures() {
+       setPures() {
         // Setup
         this.pures = {}
         this.pures.items = {}
@@ -238,6 +238,7 @@ export default class Materials
         this.pures.items.customcolor50 = new THREE.MeshBasicMaterial({ color: 0x71ECEC })
         this.pures.items.customcolor50.name = '71ECEC'
     }
+    
     setShades()
     {
         // Setup

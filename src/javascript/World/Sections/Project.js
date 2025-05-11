@@ -23,6 +23,7 @@ export default class Project
         this.floorTexture = _options.floorTexture
         this.link = _options.link
         this.distinctions = _options.distinctions
+        this.labels = _options.labels || [] // Etiketler için yeni özellik (opsiyonel)
 
         // Set up
         this.container = new THREE.Object3D()
@@ -30,7 +31,7 @@ export default class Project
         // this.container.updateMatrix()
 
         this.setBoards()
-        this.setFloor()
+        //this.setFloor()
     }
 
     setBoards()
@@ -51,6 +52,16 @@ export default class Project
                 this.boards.threeColor.set(this.boards.color)
             })
         }
+
+        // Varsayılan etiketleri ayarla - bunu daha sonra dışarıdan güncelleyebilirsiniz
+        const defaultLabels = [
+            "Çatalhöyük",
+            "Genç Kültür Kart",
+            "Gençlik Meclisi",
+            "Karatay Medresesi",
+            "Mevlana Türbesi",
+            "Sille Köyü"
+        ]
 
         // Create each board
         let i = 0
@@ -78,10 +89,10 @@ export default class Project
             image.addEventListener('load', () =>
             {
                 board.texture = new THREE.Texture(image)
-                // board.texture.magFilter = THREE.NearestFilter
-                // board.texture.minFilter = THREE.LinearFilter
+                board.texture.magFilter = THREE.NearestFilter
+                board.texture.minFilter = THREE.LinearFilter
                 board.texture.anisotropy = 4
-                // board.texture.colorSpace = THREE.SRGBColorSpace
+                board.texture.colorSpace = THREE.SRGBColorSpace
                 board.texture.needsUpdate = true
 
                 board.planeMesh.material.uniforms.uTexture.value = board.texture
@@ -101,6 +112,80 @@ export default class Project
             board.planeMesh.material.uniforms.uColor.value = this.boards.threeColor
             board.planeMesh.material.uniforms.uTextureAlpha.value = 0
             this.container.add(board.planeMesh)
+            
+            // Etiket ekle - Canvas kullanarak her tahta için metin oluşturma
+            // Etiket için bir canvas oluştur
+            const labelText = this.labels[i] || defaultLabels[i] || `Etiket ${i+1}`
+            const labelCanvas = document.createElement('canvas')
+            const context = labelCanvas.getContext('2d')
+            
+            // Canvas boyutunu ayarla
+            labelCanvas.width = 512
+            labelCanvas.height = 128
+            
+            // Yazı tipini ve rengi ayarla
+            context.font = 'bold 64px Arial'
+            context.textAlign = 'center'
+            context.fillStyle = 'white' // Beyaz renk daha belirgin görünecek
+            context.shadowColor = 'rgba(0, 0, 0, 0.5)' // Gölge ekle
+            context.shadowBlur = 5
+            context.shadowOffsetX = 2
+            context.shadowOffsetY = 2
+            context.clearRect(0, 0, labelCanvas.width, labelCanvas.height)
+            
+            // Metni çiz
+            context.fillText(labelText, labelCanvas.width / 2, labelCanvas.height / 2 + 20)
+            
+            // Canvas'tan doku oluştur
+            const labelTexture = new THREE.CanvasTexture(labelCanvas)
+            labelTexture.minFilter = THREE.LinearFilter
+            labelTexture.wrapS = THREE.ClampToEdgeWrapping
+            labelTexture.wrapT = THREE.ClampToEdgeWrapping
+            
+            // Etiket için materyal oluştur - daha belirgin görünmesi için ayarlar
+            const labelMaterial = new THREE.MeshBasicMaterial({
+                map: labelTexture,
+                transparent: true,
+                opacity: 1.0, // Tam opaklık
+                depthWrite: false, // Derinlik yazımını devre dışı bırak (her zaman diğer nesnelerin önünde görünsün)
+                depthTest: false, // Derinlik testini devre dışı bırak
+                side: THREE.DoubleSide,
+                toneMapped: false, // Tone mapping'i devre dışı bırak, renk değişmesin
+                blending: THREE.AdditiveBlending // Eklemeli karıştırma kullan, daha parlak görünsün
+            })
+            
+            // Etiket mesh'i oluştur
+            const labelMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(4, 1.5),
+                labelMaterial
+            )
+            
+            // Etiketi konumlandır - tahtanın altında
+            labelMesh.position.x = board.x
+            labelMesh.position.y = board.y - 2.5
+            labelMesh.position.z = 0.1 // Z pozisyonunu artır, diğer nesnelerin önünde görünsün
+            labelMesh.matrixAutoUpdate = false
+            labelMesh.updateMatrix()
+            labelMesh.renderOrder = 999 // Yüksek render sırası, diğer nesnelerden sonra çizilsin
+            
+            // Etiketi sahneye ekle
+            this.container.add(labelMesh)
+            
+            // Etiket için tıklanabilir alan ekle
+            const clickableArea = this.areas.add({
+                position: new THREE.Vector2(board.x, board.y - 2.5),
+                halfExtents: new THREE.Vector2(2, 2)
+            })
+            
+            // Click olayı - daha sonra link ekleyebilirsiniz
+            clickableArea.on('interact', () => {
+                console.log(`${labelText} etiketine tıklandı! Link buraya eklenecek.`)
+                // window.open('YOUR_LINK_HERE', '_blank')
+            })
+            
+            // Etiket referansını tahta nesnesinde sakla
+            board.label = labelMesh
+            board.labelClickArea = clickableArea
 
             // Save
             this.boards.items.push(board)
@@ -109,7 +194,7 @@ export default class Project
         }
     }
 
-    setFloor()
+    /*setFloor()
     {
         this.floor = {}
 
@@ -125,9 +210,9 @@ export default class Project
         this.container.add(this.floor.container)
 
         // Texture
-        this.floor.texture = this.floorTexture
-        this.floor.texture.magFilter = THREE.NearestFilter
-        this.floor.texture.minFilter = THREE.LinearFilter
+        //this.floor.texture = this.floorTexture
+        //this.floor.texture.magFilter = THREE.NearestFilter
+        //this.floor.texture.minFilter = THREE.LinearFilter
 
         // Geometry
         this.floor.geometry = this.geometries.floor
@@ -205,5 +290,5 @@ export default class Project
         this.floor.areaLabel.matrixAutoUpdate = false
         this.floor.areaLabel.updateMatrix()
         this.floor.container.add(this.floor.areaLabel)
-    }
+    }*/
 }
