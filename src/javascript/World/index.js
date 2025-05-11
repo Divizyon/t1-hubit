@@ -1264,7 +1264,10 @@ export default class World {
         this.objects,
         this.shadows,
         this.debug,
-        this.scene
+        this.scene,
+        this.physics, // Fizik motoru parametresi eklendi
+        this.time, // Time nesnesi parametresi eklendi
+        this.areas // Areas (etkileşim alanları) parametresi eklendi
       )
 
       if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.model) {
