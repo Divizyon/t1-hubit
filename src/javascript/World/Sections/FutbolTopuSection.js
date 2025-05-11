@@ -52,10 +52,49 @@ export default class FutbolTopuSection {
     // İlk konumu kaydet (reset için)
     this.futbolTopu.initialPosition = new THREE.Vector3(-10, -38, 0);
     
+    // Base ve collision modellerini düzenleme
+    // Model ağaçlarını hazırla
+    const baseScene = this.resources.items.bowlingBallBase.scene.clone();
+    const collisionScene = this.resources.items.bowlingBallCollision.scene.clone();
+    
+    // Base ve collision modellerinin merkez noktalarını belirleme
+    const baseCenter = new THREE.Vector3();
+    const collisionCenter = new THREE.Vector3();
+    
+    // Base modeli için merkezleme
+    if (baseScene.children.length > 0) {
+      // Base modelinde center_* isimli bir nesne arayalım
+      const baseCenterObj = baseScene.children.find(child => child.name.match(/^center_?[0-9]{0,3}?$/i));
+      if (baseCenterObj) {
+        baseCenter.copy(baseCenterObj.position);
+      }
+    }
+    
+    // Collision modeli için merkezleme
+    if (collisionScene.children.length > 0) {
+      // Collision modelinde center_* isimli bir nesne arayalım
+      const collisionCenterObj = collisionScene.children.find(child => child.name.match(/^center_?[0-9]{0,3}?$/i));
+      if (collisionCenterObj) {
+        collisionCenter.copy(collisionCenterObj.position);
+      }
+    }
+    
+    // Merkezleri eşleştirmek için offset hesaplama
+    const merkezFarki = new THREE.Vector3().subVectors(baseCenter, collisionCenter);
+    
+    // Collision modeline offset uygulama (collision modeli base modeline göre ayarla)
+    collisionScene.children.forEach(child => {
+      child.position.add(merkezFarki);
+    });
+    
+    console.log("Base merkezi:", baseCenter);
+    console.log("Collision merkezi (düzeltilmeden önce):", collisionCenter);
+    console.log("Merkez farkı:", merkezFarki);
+    
     // Bowling topu modelini yükle
     this.futbolTopu.top = this.objects.add({
-      base: this.resources.items.bowlingBallBase.scene,
-      collision: this.resources.items.bowlingBallCollision.scene,
+      base: baseScene,
+      collision: collisionScene,
       offset: this.futbolTopu.initialPosition.clone(), // İstenen konum
       rotation: new THREE.Euler(0, 0, 0), // Rotasyonu ayarla
       duplicated: true,
@@ -234,12 +273,15 @@ export default class FutbolTopuSection {
       const boxGeometry = new THREE.BoxGeometry(0.2, 0.2, 2); // İnce ve uzun kutular
       const boxMaterial = new THREE.MeshBasicMaterial({
         color: index === 0 ? 0xff0000 : 0x00ff00, // Alt: kırmızı, Üst: yeşil
-        wireframe: true
+        wireframe: true,
+        transparent: true,
+        opacity: 0.0 // Tamamen şeffaf yaparak görünmez hale getir
       });
       
       // Görsel mesh oluştur
       const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
       boxMesh.position.copy(position);
+      boxMesh.visible = false; // Görünürlüğü tamamen kapatarak çizimleri devre dışı bırak
       
       // Mesh'i container'a ekle
       this.container.add(boxMesh);
@@ -314,6 +356,13 @@ export default class FutbolTopuSection {
             // Pozisyonu güncelle
             this.updateBoxPosition(index, position);
           });
+          
+        // Görünürlük kontrolü debug menüsüne ekle
+        boxFolder.add(boxMesh, 'visible')
+          .name('Görünür')
+          .onChange((value) => {
+            boxMesh.visible = value;
+          });
       }
     });
 
@@ -330,7 +379,7 @@ export default class FutbolTopuSection {
       });
     });
 
-    console.log("2 adet ayarlanabilir collision kutusu eklendi");
+    console.log("2 adet ayarlanabilir collision kutusu eklendi (görünmez modda)");
   }
 
   // Kutuların pozisyonlarını güncelleme
