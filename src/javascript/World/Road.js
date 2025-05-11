@@ -10,7 +10,6 @@ export default class Road
         this.debug = _options.debug
         this.time = _options.time
         this.physics = _options.physics
-        this.shadows = _options.shadows
         this.materials = _options.materials
 
         // Set up
@@ -64,7 +63,7 @@ export default class Road
                 roadModel.rotation.set(Math.PI/2, 0, 0);
                 
                 // Ana yol modeli konumunu koruyalım
-                roadModel.position.set(30, 5, 0.002);
+                roadModel.position.set(30, 0, 0.002);
                 
                 // Tüm mesh'lerin materyallerini düzenle
                 roadModel.traverse((child) => {
@@ -75,30 +74,16 @@ export default class Road
                             roughness: 0.3,       // Daha az pürüzlü
                             metalness: 0.8,       // Daha metalik
                             side: THREE.DoubleSide, // Çift taraflı render
-                            emissive: 0x222222,   // Hafif ışıma ekle
+                           
                             wireframe: false       // Wireframe kapalı
                         })
-                        
-                        // Gölge ayarları
-                        child.castShadow = true
-                        child.receiveShadow = true
                     }
                 })
                 
                 // Modeli ekle
                 this.model.container.add(roadModel)
                 
-                // Işık ekle - daha net bir görünüm için
-                const light = new THREE.DirectionalLight(0xffffff, 1.5)
-                light.position.set(5, 8, 5)
-                light.lookAt(0, 0, 0)
-                light.castShadow = true
-                
-                // Gölge ayarları
-                light.shadow.mapSize.width = 1024
-                light.shadow.mapSize.height = 1024
-                
-                this.model.container.add(light)
+
                 
                 // Ambient ışık ekle - daha yumuşak aydınlatma
                 const ambientLight = new THREE.AmbientLight(0x404040, 0.8)
