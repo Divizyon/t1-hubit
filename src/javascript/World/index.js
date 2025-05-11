@@ -36,8 +36,14 @@ import Basket from "./basket.js";
 import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
+
 import KonyaGencKart from './KonyaGenckart.js';
 import PopUpModule from './PopUpModule.js'
+
+import KonyaGencKart from "./KonyaGencKart.js";
+import Cevre from './cevre.js';
+import PopUpModule from "./PopUpModule.js"
+
 
 
 
@@ -590,14 +596,14 @@ export default class World {
     // this.container.add(this.sections.crossroads.container)
 
     // // Projects
-    // this.sections.projects = new ProjectsSection({
-    //     ...options,
-    //     x: 30,
-    //     y: - 30
-    //     // x: 0,
-    //     // y: 0
-    // })
-    // this.container.add(this.sections.projects.container)
+     this.sections.projects = new ProjectsSection({
+         ...options,
+         x: 0,
+         y: 35
+         // x: 0,
+         // y: 0
+     })
+     this.container.add(this.sections.projects.container)
 
     // // Information
     // this.sections.information = new InformationSection({
@@ -1512,6 +1518,29 @@ export default class World {
       console.log("Kapsül etkileşim alanı başarıyla eklendi");
     } catch (error) {
       console.error("Kapsül etkileşim alanı eklenirken hata oluştu:", error);
+    }
+  }
+
+
+
+  setCevre() {
+    try {
+      this.cevre = new Cevre({
+        scene: this.scene,
+        resources: this.resources,
+        physics: this.physics,
+        debug: this.debugFolder,
+        time: this.time
+      });
+      
+      if (this.cevre && this.cevre.container) {
+        this.container.add(this.cevre.container);
+        console.log("Çevre modelleri başarıyla eklendi");
+      } else {
+        console.warn("Çevre container nesnesi bulunamadı!");
+      }
+    } catch (error) {
+      console.error("Çevre modelleri eklenirken hata oluştu:", error);
     }
   }
 

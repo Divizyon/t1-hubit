@@ -82,9 +82,9 @@ export default class GreenBox
         this.collision = {}
         // Orijinal konumu kaydet
         this.collisionOffset = {
-            x: 0.05, // GreenBox'a göre göreceli X konumu - küçültüldü
-            y: 0.05, // GreenBox'a göre göreceli Y konumu - küçültüldü
-            z: 1.2   // GreenBox'a göre göreceli Z konumu - küçültüldü
+            x: 0,    // GreenBox'a göre göreceli X konumu - modelle hizalandı
+            y: 0,    // GreenBox'a göre göreceli Y konumu - modelle hizalandı
+            z: 0     // GreenBox'a göre göreceli Z konumu - modelle hizalandı
         }
         
         // Başlangıç konumunu ayarla
@@ -94,20 +94,20 @@ export default class GreenBox
         
         // Çarpışma kutusu boyutları
         this.collisionSize = {
-            x: 2.4,  // Çarpışma kutusu genişliği - küçültüldü
-            y: 2.1,  // Çarpışma kutusu yüksekliği - küçültüldü
-            z: 1.7   // Çarpışma kutusu derinliği - küçültüldü
+            x: 3.0,  // Çarpışma kutusu genişliği - modele göre daha uygun boyut
+            y: 3.0,  // Çarpışma kutusu yüksekliği - modele göre daha uygun boyut
+            z: 2.5   // Çarpışma kutusu derinliği - modele göre daha uygun boyut
         }
         
         // Ölçek faktörü - çarpışma kutusu için
-        this.collisionScale = 1.2 // Çarpışma kutusu ölçek faktörü - küçültüldü
+        this.collisionScale = 1.0 // Çarpışma kutusu ölçeği 1.0 olarak ayarlandı
         
         // Duvar kalınlıkları
         this.wallThickness = {
-            left: 0.1,   // Sol duvar kalınlığı (-x yönü) - küçültüldü
-            top: 0.1,    // Üst duvar kalınlığı (+y yönü) - küçültüldü
-            front: 0.05, // Ön duvar kalınlığı (-z yönü) - küçültüldü
-            back: 0.05   // Arka duvar kalınlığı (+z yönü) - küçültüldü
+            left: 0.2,   // Sol duvar kalınlığı (-x yönü)
+            top: 0.2,    // Üst duvar kalınlığı (+y yönü)
+            front: 0.2,  // Ön duvar kalınlığı (-z yönü)
+            back: 0.2    // Arka duvar kalınlığı (+z yönü)
         }
         
         // Çarpışma kutusunun görselliği için özellikler
