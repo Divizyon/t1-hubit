@@ -45,6 +45,14 @@ export default class Resources extends EventEmitter {
             // Basket
             { name: 'basketModel', source: './models/basket/basket.glb' },
             
+            // Cowork
+            { name: 'coworkModel', source: './models/cowork/cowork.glb' },
+        
+
+
+            // Base modeli
+            { name: 'baseModel', source: './models/base/base.glb' },
+
             { name: 'introStaticBase', source: './models/intro/static/base.glb' },
             { name: 'introStaticCollision', source: './models/intro/static/collision.glb' },
             { name: 'introStaticFloorShadow', source: './models/intro/static/floorShadow.png', type: 'texture' },

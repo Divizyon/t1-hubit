@@ -32,11 +32,17 @@ import Stadyum from "./stadyum.js";
 import Konseralani from "./konseralani.js";
 import Japonparki from "./japonparki.js";
 import Basket from "./basket.js";
+import Cowork from "./cowork.js";
+
+
+      
+
 //import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 
 import GreenBox from "./GreenBox.js";
 
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
+
 
 
 
@@ -107,6 +113,8 @@ export default class World {
     this.setKonseralani(); // Konseralani modelini ekler
     this.setJaponparki(); // Japonparki modelini ekler
     this.setBasket(); // Basket modelini ekler
+    this.setCowork(); // Cowork modelini ekler
+
     
 
   }
@@ -1367,9 +1375,9 @@ setaStadyum() { //küpü değiştir
     resources: this.resources,
     physics:   this.physics,
     debug:     this.debugFolder,
-    rotateX:   Math.PI / 2,   // 
-    rotateY:   0,
-    rotateZ:   0// Y ekseninde 90 derece,
+    rotateX:   0,   
+    rotateY:   0, 
+    rotateZ:   Math.PI / 2// Y ekseninde 90 derece,
   });
 }
 setStadyum() {
@@ -1378,9 +1386,9 @@ setStadyum() {
     resources: this.resources,
     physics:   this.physics,
     debug:     this.debugFolder,
-    rotateX:   Math.PI / 2,   // 
+    rotateX:  0,   // 
     rotateY:   0,
-    rotateZ:   0 // Y ekseninde 90 derece,
+    rotateZ:   Math.PI / 2, // Y ekseninde 90 derece,
   });
   
     this.container.add(this.kelebekler.container) // Doğru nesne!
@@ -1406,6 +1414,18 @@ setBasket() {
     rotateZ:   0 // Y ekseninde 90 derece,
   });
 }
+setCowork() {
+  this.cowork = new Cowork({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   0,   // 
+    rotateY:   0,
+    rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+  });
+}
+
 
 }
 

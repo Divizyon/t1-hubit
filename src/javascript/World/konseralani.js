@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-60, 0, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-40, -10, 0); // Artık doğru yerde tanımlandı
 
 export default class Konseralani {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -73,6 +73,7 @@ export default class Konseralani {
 
     body.addShape(boxShape);
     this.physics.world.addBody(body);
+
 
     // Obje sistemine ekle
     if (this.objects) {

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-60, 0, 2); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-10,-30, 0); // Artık doğru yerde tanımlandı
 
-export default class DivizyonBina {
+export default class Cowork {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
     this.scene = scene;
     this.resources = resources;
@@ -23,9 +23,9 @@ export default class DivizyonBina {
   }
 
   _buildModel() {
-    const gltf = this.resources.items.divizyonBinaModel;
+    const gltf = this.resources.items.coworkModel;
     if (!gltf || !gltf.scene) {
-      console.error('Divizyon bina modeli bulunamadı');
+      console.error('Cowork modeli bulunamadı');
       return;
     }
 
@@ -45,21 +45,11 @@ export default class DivizyonBina {
         child.receiveShadow = true;
       }
     });
-    const base = this.resources.items.baseModel;
-    if (!base || !base.scene) {
-      console.error('Stadyum modeli bulunamadı');
-      return;
-    }
 
     // Model pozisyonu ve dönüşü
     model.position.copy(this.position);
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
-// Base modelini klonla ve Kapsül modeline ekle
-const baseModel = base.scene.clone(true);
-baseModel.position.set(-60, 0, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
-baseModel.scale.set(1.5, 1.5, 1.5); // Base modelinin ölçeği
-this.container.add(baseModel);
 
     // Bounding box hesapla
     model.updateMatrixWorld(true);
@@ -67,7 +57,7 @@ this.container.add(baseModel);
     const size = bbox.getSize(new THREE.Vector3());
 
     // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2);
+    const halfExtents = new CANNON.Vec3(size.x / 3, size.y / 3, size.z / 2);
     const boxShape = new CANNON.Box(halfExtents);
 
     const body = new CANNON.Body({
@@ -103,21 +93,23 @@ this.container.add(baseModel);
 
 /* 
 
-İndex.js dosyasında DivizyonBina'yı oluşturmak için:
-import DivizyonBina from './DivizyonBina';
+İndex.js dosyasında Divizyon'u oluşturmak için:
+import Divizyon from './Divizyon';
 
-this.setDivizyonBina()
+this.setDivizyon()
 
-  setDivizyonBina() {
-  this.divizyonBina = new DivizyonBina({
+  setDivizyon() {
+  this.divizyon = new Divizyon({
     scene:     this.scene,
     resources: this.resources,
     physics:   this.physics,
     debug:     this.debugFolder,
-    rotateX:   0,   // X ekseninde döndürme yok
-    rotateY:   0,   // Y ekseninde döndürme yok
-    rotateZ:   Math.PI / 2 // Z ekseninde 90 derece döndürme
+    rotateX:   0,   // 
+    rotateY:   0,
+    rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
   });
 }
+
+
 
 */
