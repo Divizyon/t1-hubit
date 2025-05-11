@@ -31,6 +31,9 @@ export default class Japonparki {
         loader.load('./models/japonparki/japonparki.glb', (gltf) => {
             console.log('Balık modeli yüklendi:', gltf);
             console.log('Animasyonlar:', gltf.animations);
+             
+           
+            
             
             this.model = gltf.scene;
             this.model.position.set(-50, -40, .7);
@@ -39,6 +42,7 @@ export default class Japonparki {
             // Modeli döndür
             this.model.rotation.x = Math.PI / 2;
             
+    
             this.scene.add(this.model);
 
           
@@ -67,6 +71,7 @@ export default class Japonparki {
                 this.scene.__balikLightAdded = true;
             }
 
+            
             // Materyal ve mesh kontrolü
             this.model.traverse((child) => {
                 if (child.isMesh) {
@@ -86,6 +91,7 @@ export default class Japonparki {
                     child.material.opacity = 1;
                 }
             });
+            
 
             // Animasyonları başlat
             if (gltf.animations && gltf.animations.length > 0) {
