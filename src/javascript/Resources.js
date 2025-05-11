@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import Loader from './Utils/Loader.js'
 import EventEmitter from './Utils/EventEmitter.js'
 
+
 export default class Resources extends EventEmitter {
     constructor() {
         super()
@@ -28,8 +29,7 @@ export default class Resources extends EventEmitter {
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
             // Aladin Tepesi
-            { name: 'alaadinTepesiModel', source: './models/alladintepesi/AlaaddinTepesi.glb' },
-
+            { name: 'aladdinTepesi', source: './models/alladintepesi/AlaaddinTepesi.glb' },
             // Ses Odası
             { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
 
