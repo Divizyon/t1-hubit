@@ -28,7 +28,7 @@ import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
 import roketplatformu from "./roketplatformu.js";
 import GreenBox from "./GreenBox.js";
-
+import Render from "./Render.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 
 
@@ -84,6 +84,7 @@ export default class World {
     this.setEasterEggs();
 
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
+    this.setRender(); // Render modelini ekler
     this.setSesOdasi(); // Ses odası modelini ekler
     this.setGreenBox(); // Yeşil kutu modelini ekler
     this.setAlaaddinTepesi(); // Aladdin Tepesi modelini ekler
@@ -470,6 +471,10 @@ export default class World {
 
     this.container.add(this.car.container);
 
+
+
+  
+
     // Sounds.js'ye araç referansını set ediyoruz (uzamsal ses için önemli)
     if (this.sounds) {
       this.sounds.setCar(this.car);
@@ -477,6 +482,18 @@ export default class World {
     } else {
       console.error("Ses sistemi başlatılmamış!");
     }
+  }
+
+  setRender() {
+    this.render = new Render({
+      scene:     this.scene,
+      resources: this.resources,
+      physics:   this.physics,
+      debug:     this.debugFolder,
+      rotateX:   0,   // 
+      rotateY:   0,
+      rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+    });
   }
 
   setSections() {
