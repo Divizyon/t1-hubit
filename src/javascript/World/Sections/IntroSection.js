@@ -130,8 +130,8 @@ export default class IntroSection {
         }
 
         this.otherInstructions = {}
-        this.otherInstructions.x = 16
-        this.otherInstructions.y = - 2
+        this.otherInstructions.x = 15
+        this.otherInstructions.y = 5
 
         // Diğer talimatlar için container oluştur
         this.otherInstructions.container = new THREE.Object3D()
@@ -290,5 +290,5 @@ export default class IntroSection {
             start: new THREE.Vector2(0, - 4.5),
             delta: new THREE.Vector2(0, - 4.5)
         })
-    }*/s
+    }*/
 }
