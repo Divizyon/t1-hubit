@@ -30,6 +30,8 @@ import roketplatformu from "./roketplatformu.js";
 import GreenBox from "./GreenBox.js";
 
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
+import KonyaGenckart from './KonyaGenckart.js';
+import PopUpModule from './PopUpModule'
 
 
 export default class World {
@@ -95,7 +97,8 @@ export default class World {
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
     this.setDivizyonBina(); // Divizyon Bina modelini ekler
-
+    this.setKonyaGenckart(); // Yeni eklenen model
+    this.setPopUp();
   }
 
   setReveal() {
@@ -1330,5 +1333,41 @@ setroketplatformu() { //küpü değiştir
     })
     this.container.add(this.kelebekler.container) // Doğru nesne!
 }
+
+  setKonyaGenckart() {
+    try {
+      this.konyaGenckart = new KonyaGenckart({
+        scene: this.scene,
+        time: this.time,
+        physics: this.physics,
+        resources: this.resources,
+        areas: this.areas,
+        sounds: this.sounds
+      });
+      
+      console.log("Konya Genç Kart modeli başarıyla eklendi");
+    } catch (error) {
+      console.error("Konya Genç Kart eklenirken hata oluştu:", error);
+    }
+  }
+
+  setPopUp() {
+    try {
+      this.popUp = new PopUpModule({
+        scene: this.scene,
+        time: this.time,
+        physics: this.physics,
+        resources: this.resources,
+        areas: this.areas,
+        sounds: this.sounds,
+        objects: this.objects  // objects parametresini ekledim
+      });
+      
+      this.container.add(this.popUp.container);
+      console.log("Pop-up başarıyla eklendi");
+    } catch (error) {
+      console.error("Pop-up eklenirken hata oluştu:", error);
+    }
+  }
 
 }

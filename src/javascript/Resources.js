@@ -41,7 +41,7 @@ export default class Resources extends EventEmitter {
             { name: 'introInstructionsLabels', source: './models/intro/instructions/labels.glb' },
             { name: 'introInstructionsArrows', source: './models/intro/instructions/arrows.png', type: 'texture' },
             { name: 'introInstructionsControls', source: './models/intro/instructions/controls.png', type: 'texture' },
-            { name: 'introInstructionsOther', source: './models/intro/instructions/other.png', type: 'texture' },
+            { name: 'introInstructionsOther', source: './models/intro/instructions/pc_kontrols.png', type: 'texture' },
 
             { name: 'introArrowKeyBase', source: './models/intro/arrowKey/base.glb' },
             { name: 'introArrowKeyCollision', source: './models/intro/arrowKey/collision.glb' },
@@ -174,13 +174,14 @@ export default class Resources extends EventEmitter {
             // Bilim Merkezi modeli
             { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
 
-            
-
             // Kelebekler Vadisi
             { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
 
             //CalisanGenclikMerkezi
             { name: 'calisanGenclikMerkezi', source: './models/calisanGenclikMerkezi.glb' },
+
+            //Konya Genc Kart
+            { name: 'konyaGencKartModel', source: './models/konyaGencKart/3D_Ekran_Bina.glb' },
 
             // Webby trophy
             { name: 'webbyTrophyBase', source: './models/webbyTrophy/base.glb' },
