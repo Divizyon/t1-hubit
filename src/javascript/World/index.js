@@ -36,8 +36,10 @@ import Basket from "./basket.js";
 import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
+import Cevre from './cevre.js';
 import KonyaGencKart from './KonyaGenckart.js';
 import PopUpModule from './PopUpModule.js'
+
 
 
 
@@ -91,6 +93,7 @@ export default class World {
     this.setWalls();
     this.setSections();
     this.setEasterEggs();
+    this.setCevre(); // Çevre modellerini ekle
 
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
     this.setRender(); // Render modelini ekler
@@ -1515,4 +1518,15 @@ export default class World {
     }
   }
 
+  setCevre() {
+    this.cevre = new Cevre({
+      scene: this.scene,
+      resources: this.resources,
+      physics: this.physics,
+      debug: this.debug,
+      time: this.time,
+      objects: this.objects // objects parametresi eklendi
+    });
+    this.container.add(this.cevre.container);
+  }
 }
