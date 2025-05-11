@@ -1326,9 +1326,6 @@ setaStadyum() { //küpü değiştir
   })
   this.container.add(this.stadyum.container) // Küçük harfle yazılmalı
   
-  
-  
-  
 }
   setDivizyonBina() {
     try {
@@ -1349,12 +1346,6 @@ setaStadyum() { //küpü değiştir
   }
   
 
- 
-  setKelebekler()  {
-    // Kelebekler Vadisi
-
-  
-
   setKelebekler() {
 
     this.kelebekler = new KelebeklerSection({
@@ -1363,7 +1354,7 @@ setaStadyum() { //küpü değiştir
         objects: this.objects,
         physics: this.physics,
         debug: this.debugFolder
-    })
+    });
 
     this.container.add(this.kelebekler.container)
   }
@@ -1391,12 +1382,12 @@ setStadyum() {
     rotateY:   0,
     rotateZ:   0 // Y ekseninde 90 derece,
   });
-=======
+  
     this.container.add(this.kelebekler.container) // Doğru nesne!
 }
 
 
-}
+
 setJaponparki() {
   this.japonparki = new Japonparki({
       scene: this.scene,
@@ -1415,5 +1406,6 @@ setBasket() {
     rotateZ:   0 // Y ekseninde 90 derece,
   });
 }
+
 }
 

@@ -35,7 +35,7 @@ export default class AlaaddinTepesi {
             this.model = gltf.scene;
 
             this.model.position.set(-10, -40, .7);
-=======
+
             this.model.position.set(-20,-20, .7)
             this.model.scale.set(.5, .5, .5);
             
