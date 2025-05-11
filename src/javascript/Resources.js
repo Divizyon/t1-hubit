@@ -102,7 +102,7 @@ export default class Resources extends EventEmitter {
             // { name: 'carDefaultBunnyEarRight', source: './models/car/default/bunnyEarRight.glb' },
 
             // Togg
-            { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/Tog_Shade_Version.glb' },
+            { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/base.glb' },
             { name: 'carCyberTruckWheel', source: './models/car/cyberTruck/wheel.glb' },
             { name: 'carCyberTruckBackLightsBrake', source: './models/car/cyberTruck/backLightsBrake.glb' },
             { name: 'carCyberTruckBackLightsReverse', source: './models/car/cyberTruck/backLightsReverse.glb' },

@@ -39,7 +39,7 @@ export default class Car
         this.setModels()
         this.setMovement()
         this.setChassis()
-        this.setAntena()
+        // this.setAntena()
         this.setBackLights()
         this.setWheels()
         this.setTransformControls()
