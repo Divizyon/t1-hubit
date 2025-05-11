@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import CANNON from 'cannon'
 
 export default class Sosyalino {
   constructor(_options) {
@@ -7,7 +8,9 @@ export default class Sosyalino {
     this.objects = _options.objects
     this.shadows = _options.shadows
     this.sounds = _options.sounds
-    this.areas = _options.areas // Etkileşim alanları için areas objesini ekledim
+    this.areas = _options.areas // Etkileşim alanları için areas objesi ekledim
+    this.physics = _options.physics // Fizik motoru için physics eklendi
+    this.time = _options.time // Time nesnesi eklendi
     
     // Set up
     this.container = new THREE.Object3D()
@@ -22,13 +25,13 @@ export default class Sosyalino {
   }
   
   setSosyalino() {
+    // Ana modeli oluştur, şimdilik collision yok
     this.model = this.objects.add({
       base: this.resources.items.Sosyalino.scene,
-      collision: { children: [] }, // Boş collision nesnesi tanımlandı, içinden geçilebilmesi için
       offset: new THREE.Vector3(82, 50, 0),
       rotation: new THREE.Euler(Math.PI/2, Math.PI, 0),
       shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
-      mass: 0,
+      mass: 0, // Kütle sıfır olabilir çünkü modelin hareketi fizik nesnesi ile kontrol edilecek
       soundName: 'brick',
       sleep: false
     })
@@ -36,6 +39,89 @@ export default class Sosyalino {
     // Container'a ekle
     if (this.model && this.model.container) {
       this.container.add(this.model.container)
+    }
+    
+    // Sosyalino için 4x4x4'lük collision küpünü oluştur
+    this.createCollisionBox()
+  }
+  
+  // Yeni bir metot: 4x4x4 boyutlarında bir collision küpü oluştur
+  createCollisionBox() {
+    // Modelin konumu
+    const position = new THREE.Vector3(82, 50, 1)
+    
+    // Collision için küp boyutları (4x4x4)
+    const halfExtents = new CANNON.Vec3(1.5, 1.5, 1.5) // halfExtents olduğu için boyutların yarısı
+    
+    // Küp için şekil oluştur
+    const boxShape = new CANNON.Box(halfExtents)
+    
+    // Fizik gövdesi oluştur
+    const boxBody = new CANNON.Body({
+      mass: 0, // Kütle 0 olarak ayarlandı - statik nesne olacak
+      position: new CANNON.Vec3(position.x, position.y, position.z),
+      shape: boxShape,
+      material: this.physics ? this.physics.materials.items.dummy : undefined
+    })
+    
+    // Modele uygun rotasyon uygula
+    const rotationQuaternion = new CANNON.Quaternion()
+    rotationQuaternion.setFromEuler(Math.PI/2, Math.PI, 0)
+    boxBody.quaternion = boxBody.quaternion.mult(rotationQuaternion)
+    
+    // Fizik motoruna ekle
+    if (this.physics && this.physics.world) {
+      this.physics.world.addBody(boxBody)
+      
+      // Fizik gövdesini modele bağla (model fizik gövdesini takip etsin)
+      this.time.on('tick', () => {
+        if (this.model && this.model.container) {
+          this.model.container.position.copy(boxBody.position)
+          this.model.container.quaternion.copy(boxBody.quaternion)
+        }
+      })
+      
+      // Collision gövdesini kaydet
+      this.collisionBody = boxBody
+      
+      // Collision gövdesi için ses olayı ekle
+      if (this.sounds) {
+        this.collisionBody.addEventListener('collide', (_event) => {
+          const relativeVelocity = _event.contact.getImpactVelocityAlongNormal()
+          this.sounds.play('brick', relativeVelocity)
+        })
+      }
+      
+      // Debug görsel (opsiyonel)
+      if (this.physics.models && this.physics.models.container) {
+        const boxGeometry = new THREE.BoxGeometry(4, 4, 4)
+        const boxMaterial = new THREE.MeshBasicMaterial({
+          color: 0xff0000,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.5
+        })
+        
+        this.collisionMesh = new THREE.Mesh(boxGeometry, boxMaterial)
+        this.collisionMesh.position.copy(position)
+        this.collisionMesh.quaternion.copy(this.model.container.quaternion)
+        
+        // Debug görselinin görünürlüğünü fizik modelleriyle sync et
+        this.physics.models.container.add(this.collisionMesh)
+        
+        // Tick ile pozisyon güncelleme
+        this.time.on('tick', () => {
+          this.collisionMesh.position.copy(boxBody.position)
+          this.collisionMesh.quaternion.set(
+            boxBody.quaternion.x,
+            boxBody.quaternion.y,
+            boxBody.quaternion.z,
+            boxBody.quaternion.w
+          )
+        })
+      }
+    } else {
+      console.error("Fizik motoru bulunamadı, collision box oluşturulamadı!")
     }
   }
   
@@ -46,21 +132,6 @@ export default class Sosyalino {
         console.error("Sosyalino etkileşim alanı eklenirken hata: areas objesi bulunamadı!");
         return;
       }
-
-      // Etkileşim etiketi oluştur
-      const areaLabelMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(2, 0.5),
-        new THREE.MeshBasicMaterial({
-          transparent: true,
-          depthWrite: false,
-          color: 0xffffff,
-          alphaMap: this.resources.items.areaResetTexture,
-        })
-      );
-      areaLabelMesh.position.set(78, 50, 5); // Modelin önüne konumlandırdım
-      areaLabelMesh.matrixAutoUpdate = false;
-      areaLabelMesh.updateMatrix();
-      this.container.add(areaLabelMesh);
 
       // Etkileşim alanı oluştur
       this.sosyalinoArea = this.areas.add({

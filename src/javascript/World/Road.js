@@ -8,7 +8,6 @@ export default class Road {
         this.debug = _options.debug
         this.time = _options.time
         this.physics = _options.physics
-        this.shadows = _options.shadows
         this.materials = _options.materials
 
         // Set up

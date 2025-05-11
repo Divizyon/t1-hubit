@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import Loader from './Utils/Loader.js'
 import EventEmitter from './Utils/EventEmitter.js'
 
+
 export default class Resources extends EventEmitter {
     constructor() {
         super()
@@ -28,12 +29,22 @@ export default class Resources extends EventEmitter {
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
             // Aladin Tepesi
-            { name: 'alaadinTepesiModel', source: './models/alladintepesi/AlaaddinTepesi.glb' },
-
+            { name: 'aladdinTepesi', source: './models/alladintepesi/AlaaddinTepesi.glb' },
             // Ses Odası
             { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
+                // Stadyum
+            { name: 'stadyumModel', source: './models/stadyum/stadyum.glb' },
 
-            // Intro
+            // Konseralani
+            { name: 'konseralaniModel', source: './models/konseralani/konser_alani.glb' },
+            // Intro    
+           
+            // Japonparki
+            { name: 'japonparkiModel', source: './models/japonparki/japonparki.glb' },
+           
+            // Basket
+            { name: 'basketModel', source: './models/basket/basket.glb' },
+            
             { name: 'introStaticBase', source: './models/intro/static/base.glb' },
             { name: 'introStaticCollision', source: './models/intro/static/collision.glb' },
             { name: 'introStaticFloorShadow', source: './models/intro/static/floorShadow.png', type: 'texture' },
