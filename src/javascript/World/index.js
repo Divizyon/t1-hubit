@@ -27,9 +27,17 @@ import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
 import roketplatformu from "./roketplatformu.js";
+ 
+import Stadyum from "./stadyum.js";
+import Konseralani from "./konseralani.js";
+import Japonparki from "./japonparki.js";
+import Basket from "./basket.js";
+//import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
+
 import GreenBox from "./GreenBox.js";
 
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
+
 
 
 export default class World {
@@ -95,6 +103,11 @@ export default class World {
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
     this.setDivizyonBina(); // Divizyon Bina modelini ekler
+    this.setStadyum(); // Stadyum modelini ekler
+    this.setKonseralani(); // Konseralani modelini ekler
+    this.setJaponparki(); // Japonparki modelini ekler
+    this.setBasket(); // Basket modelini ekler
+    
 
   }
 
@@ -1302,6 +1315,21 @@ setroketplatformu() { //küpü değiştir
   this.container.add(this.roketplatformu.container)
 }
 
+
+setaStadyum() { //küpü değiştir
+  this.stadyum = new Stadyum({ // Burada ödemli olan birinin küçük harf ile diğerinin ise büyük harf ile yazılması gerekiyor farklı şeyler
+      time: this.time,
+      resources: this.resources,
+      objects: this.objects,
+      physics: this.physics,
+      debug: this.debugFolder
+  })
+  this.container.add(this.stadyum.container) // Küçük harfle yazılmalı
+  
+  
+  
+  
+}
   setDivizyonBina() {
     try {
       this.divizyonBina = new DivizyonBina({
@@ -1319,10 +1347,16 @@ setroketplatformu() { //küpü değiştir
       console.error("DivizyonBina eklenirken hata oluştu:", error);
     }
   }
+  
+
+ 
+  setKelebekler()  {
+    // Kelebekler Vadisi
 
   
 
   setKelebekler() {
+
     this.kelebekler = new KelebeklerSection({
         time: this.time,
         resources: this.resources,
@@ -1330,7 +1364,56 @@ setroketplatformu() { //küpü değiştir
         physics: this.physics,
         debug: this.debugFolder
     })
+
+    this.container.add(this.kelebekler.container)
+  }
+
+
+
+  setKonseralani() {
+  this.konseralani = new Konseralani({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   Math.PI / 2,   // 
+    rotateY:   0,
+    rotateZ:   0// Y ekseninde 90 derece,
+  });
+}
+setStadyum() {
+  this.stadyum = new Stadyum({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   Math.PI / 2,   // 
+    rotateY:   0,
+    rotateZ:   0 // Y ekseninde 90 derece,
+  });
+=======
     this.container.add(this.kelebekler.container) // Doğru nesne!
 }
 
+
 }
+setJaponparki() {
+  this.japonparki = new Japonparki({
+      scene: this.scene,
+      time: this.time,
+      physics: this.physics
+  });
+}
+setBasket() {
+  this.basket = new Basket({
+    scene:     this.scene,
+    resources: this.resources,
+    physics:   this.physics,
+    debug:     this.debugFolder,
+    rotateX:   Math.PI / 2,   // 
+    rotateY:   0,
+    rotateZ:   0 // Y ekseninde 90 derece,
+  });
+}
+}
+
