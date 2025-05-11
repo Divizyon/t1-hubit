@@ -641,7 +641,7 @@ export default class World {
     this.sesOdasi = this.objects.add({
       base: this.resources.items.sesOdasiModel.scene,
       collision: this.resources.items.brickCollision.scene, // Basit çarpışma modeli kullanıyoruz
-      offset: new THREE.Vector3(-62, 10, 0), // Y koordinatını 10 yaptım
+      offset: new THREE.Vector3(-65, -10, 0), // Y koordinatını 10 yaptım
       rotation: new THREE.Euler(0, 0, 0), // Düz duracak şekilde rotasyonu sıfırlıyorum
       shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
       mass: 0, // Statik bir bina olduğu için kütle 0

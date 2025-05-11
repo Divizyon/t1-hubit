@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-60, 0, 2); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-72.5, 0, 2); // Artık doğru yerde tanımlandı
 
 export default class DivizyonBina {
     constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -55,7 +55,7 @@ export default class DivizyonBina {
         } else {
             // Base modelini klonla ve Divizyon modeline ekle
             const baseModel = base.scene.clone(true);
-            baseModel.position.set(-60, 0, 0); // Base modelinin Divizyon altına yerleştirilmesi için pozisyon ayarı
+            baseModel.position.set(-72.5, 0, 0); // Base modelinin Divizyon altına yerleştirilmesi için pozisyon ayarı
             baseModel.scale.set(1.5, 1.5, 1.5); // Base modelinin ölçeği
             this.container.add(baseModel);
         }

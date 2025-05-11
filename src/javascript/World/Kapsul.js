@@ -47,7 +47,7 @@ export default class Kapsul {
     }
             
             this.model = gltf.scene;
-            this.model.position.set(29, -24, 5);// Model Pozisyonu - Etkileşim alanının yanında
+            this.model.position.set(36.5, -1, 4.5);// Model Pozisyonu - Etkileşim alanının yanında
             this.model.scale.set(1.5, 1.5, 1.5);
             
             // Modeli döndür
@@ -59,14 +59,14 @@ export default class Kapsul {
 
           // Base modelini klonla ve Kapsül modeline ekle
     const baseModel = base.scene.clone(true);
-    baseModel.position.set(29.5, -23.2, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
+    baseModel.position.set(38, -1, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
     baseModel.scale.set(2.5, 2.5, 1.5); // Base modelinin ölçeği
     this.container.add(baseModel);
 
             if (this.physics) {
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
-                    position: new CANNON.Vec3(32, -25, 0), // Collision Body Pozisyonu
+                    position: new CANNON.Vec3(36.5, -1, 0), // Collision Body Pozisyonu
                     material: this.physics.materials.items.floor
                 });
 
