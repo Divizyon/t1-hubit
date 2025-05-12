@@ -37,9 +37,6 @@ import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
 
-import KonyaGencKart from './KonyaGenckart.js';
-import PopUpModule from './PopUpModule.js'
-
 import KonyaGencKart from "./KonyaGencKart.js";
 import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
