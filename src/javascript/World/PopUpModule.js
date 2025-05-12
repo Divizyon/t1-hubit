@@ -44,13 +44,8 @@ export default class PopUpModule {
       })
     )
 
-    areaLabelMesh.position.set(-52, 0, 5) // GreenBox ile aynı hizaya getirildi
-    areaLabelMesh.matrixAutoUpdate = false
-    areaLabelMesh.updateMatrix()
-    this.container.add(areaLabelMesh)
-
     // GreenBox ile aynı konuma yerleştir - Y değeri 15 olarak güncellendi
-    areaLabelMesh.position.set(30, 15, 5)
+    areaLabelMesh.position.set(-50, -4, 5)
     areaLabelMesh.matrixAutoUpdate = false  // Performans için otomatik matris güncellemesini kapat
     areaLabelMesh.updateMatrix()            // Matris pozisyonunu manuel güncelle
     this.container.add(areaLabelMesh)       // Container'a ekle
@@ -91,11 +86,9 @@ export default class PopUpModule {
 
       // 2B etkileşim alanı oluştur - kullanıcı yaklaştığında Enter tuşunu kullanacak
       this.popUpArea = this.areas.add({
-        position: new THREE.Vector2(-52, 0), // GreenBox ile aynı hizaya getirildi
+        position: new THREE.Vector2(-50, -4), // GreenBox ile aynı hizaya getirildi
         halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
-        position: new THREE.Vector2(30, 15),     // Konum - GreenBox ile aynı (Y değeri 15 olarak güncellendi)
-        halfExtents: new THREE.Vector2(2, 2),    // Boyut - 4x4 birimlik alan (yarım genişlik x2)
-
+       
       })
 
       // Etkileşim olayları tanımla
