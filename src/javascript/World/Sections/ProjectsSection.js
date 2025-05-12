@@ -16,7 +16,9 @@ export default class ProjectsSection
         this.zones = _options.zones // Kamera bölgeleri yöneticisi
         this.tiles = _options.tiles // Projeler arasındaki bağlantı karoları
         this.debug = _options.debug // Hata ayıklama seçenekleri
-        this.x = _options.x // Bölümün X konumu
+        
+        // Çalışan Gençlik Merkezi modeline (x:60, y:-28) yakın olması için X konumunu ayarla
+        this.x = 37 // Bölümün X konumu - Çalışan Gençlik Merkezi'nin batısında
         this.y = _options.y // Bölümün Y konumu
 
         // Hata ayıklama etkinleştirilmişse klasörünü başlat
@@ -29,7 +31,7 @@ export default class ProjectsSection
         // Temel özellikleri ayarla
         this.items = [] // Proje örneklerini depolamak için dizi
 
-        this.interDistance = 24 // Projeler arasındaki mesafe
+        this.interDistance = 15 // Projeler arasındaki mesafe - daha yakın yerleşim için azaltıldı (24'ten 15'e)
         this.positionRandomess = 5 // Y konumundaki rastgele varyasyon
         this.projectHalfWidth = 9 // Bir projenin yarı genişliği
 
