@@ -68,7 +68,7 @@ export default class GreenBox
         // Model için konum ve boyut
         this.greenBox = {}
         this.greenBox.x = -57 // X konumu
-        this.greenBox.y = 0 // Y konumu
+        this.greenBox.y = -4 // Y konumu
         this.greenBox.z = 0  // Z konumu
         
         // Model için boyut (ölçek)
