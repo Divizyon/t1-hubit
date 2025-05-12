@@ -41,7 +41,9 @@ export default class Project
         this.boards.items = []
         this.boards.xStart = - 5
         this.boards.xInter = 5
-        this.boards.y = 5
+        // Çalışan Gençlik Merkezi modeline (x:60, y:-28) yakın olacak şekilde düzenlendi
+        // Yeni y pozisyonu, merkezin daha üstünde ve görünür olması için
+        this.boards.y = -56
         this.boards.color = '#8e7161'
         this.boards.threeColor = new THREE.Color(this.boards.color)
 
