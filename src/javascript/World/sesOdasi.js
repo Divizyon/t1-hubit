@@ -47,7 +47,7 @@ export default class sesOdasi {
             base: clonedScene,
             offset: new THREE.Vector3(-65, -15, 0.5), // Z coordinate above the plane
             rotation: new THREE.Euler(0, 0, 90),
-            shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+            shadow: { sizeX: 0, sizeY: 0, offsetZ: 0, alpha: 0.4 },
             mass: 0,
             sleep: true,
             preserveMaterials: true,
@@ -91,7 +91,7 @@ export default class sesOdasi {
             new THREE.Vector3(-67.5, -14, 0.5),
             new THREE.Euler(0, 0, 90),
             new CANNON.Vec3(2, 3.2, 2),
-            0xff0000  // Kırmızı
+            
         )
         
         // İkinci çarpışma kutusu
@@ -99,7 +99,7 @@ export default class sesOdasi {
             new THREE.Vector3(-68, -17, 0.5),  // Farklı konum
             new THREE.Euler(0, 0, 90),
             new CANNON.Vec3(3, 1, 1.5),  // Farklı boyut
-            0x00ff00  // Yeşil
+            
         )
     }
     
@@ -123,8 +123,7 @@ export default class sesOdasi {
 
         console.log("Ses odası için collision eklendi:", body)
         
-        // Çarpışma kutusunu görünür hale getirme
-        this.visualizeCollisionBox(position, rotation, halfExtents, color)
+        
     }
     
     visualizeCollisionBox(position, rotation, halfExtents, color) {
