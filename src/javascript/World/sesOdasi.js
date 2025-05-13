@@ -46,7 +46,7 @@ export default class sesOdasi {
             base: clonedScene,
             collision: this.resources.items.brickCollision.scene,
             offset: new THREE.Vector3(-65, -15, 0.5), // Z coordinate above the plane
-            rotation: new THREE.Euler(0, 0, 0),
+            rotation: new THREE.Euler(0, 0, 90),
             shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
             mass: 0,
             sleep: true,

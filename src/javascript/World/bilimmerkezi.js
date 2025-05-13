@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import CANNON from 'cannon'
 
 let posizyonX = 25  // Model konumları
-let posizyonY = 30
-let posizyonZ = 0
+let posizyonY = 25
+let posizyonZ = -3
 
 
 export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
@@ -62,16 +62,17 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         const scaleFactor = 1;
 
         // Create CANNON body (tek collision)
+        // Collision kutusu Y ekseninde daha ileriye alındı (+5 birim)
         const body = new CANNON.Body({
             mass: 0,
-            position: new CANNON.Vec3(posizyonX+2, posizyonY-2, posizyonZ),
+            position: new CANNON.Vec3(posizyonX, posizyonY+2, posizyonZ),
             material: this.physics.materials.items.floor
         })
 
         // Tek bir box collision (modelin tamamı için)
         const mainShape = new CANNON.Box(new CANNON.Vec3(
             Math.abs(size.x) * scaleFactor / 2,
-            Math.abs(size.y) * scaleFactor / 2,
+            Math.abs(size.y) * scaleFactor / 2.5,
             Math.abs(size.z) * scaleFactor / 2
         ))
         body.addShape(mainShape)
@@ -84,7 +85,7 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         this.model.base = this.objects.add({
             base: { children: baseChildren },
             offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ),
-            rotation: new THREE.Euler(Math.PI/20, Math.PI, Math.PI),
+            rotation: new THREE.Euler(0, 0, 0),
             mass: 0,
             preserveMaterials: true // Malzemeleri koru
         })
@@ -105,15 +106,15 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
           alphaMap: this.resources.items.areaEnterTexture,
         })
       );
-      // ENTER yazısını butonla aynı hizaya getir, sadece biraz yukarıda olsun (37.5, 23)
-      areaLabelMesh.position.set(27.6, 23, 0);
+
+      areaLabelMesh.position.set(posizyonX+1.3, posizyonY-8);
       areaLabelMesh.matrixAutoUpdate = false;
       areaLabelMesh.updateMatrix();
       this.container.add(areaLabelMesh);
   
       // Etkileşim alanı oluştur
       this.bilimMerkeziArea = this.areas.add({
-        position: new THREE.Vector2(27.3, 23),
+        position: new THREE.Vector2(posizyonX+1, posizyonY-8),
         halfExtents: new THREE.Vector2(2, 2),
       });
   
