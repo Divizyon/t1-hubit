@@ -18,26 +18,44 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
 
         this.container = new THREE.Object3D()
         this.container.matrixAutoUpdate = false
+        this.container.updateMatrix()
 
         this.setModel()
         this.setBilimMerkeziArea()
     }
 
     setModel() {
-
-        const baseScene = this.resources.items.bilimmerkezi?.scene; // kup yerine materialjs den gelen sahnenin ismi konulacak   
+        const baseScene = this.resources.items.bilimmerkezi?.scene;
         if (!baseScene) {
-            console.error('kup ajansı modeli yüklenemedi!'); //debug için isterseniz ismini değiştirebilirsiniz
+            console.error('Bilim Merkezi modeli yüklenemedi!');
             return;
         }
+
+        // Clone the model scene to avoid modifying the original
+        const clonedScene = baseScene.clone();
+        
+        // Make sure all materials are preserved
+        clonedScene.traverse((child) => {
+            if (child.isMesh) {
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material = child.material.map(mat => mat.clone());
+                    } else {
+                        child.material = child.material.clone();
+                    }
+                }
+            }
+        });
+        
         let baseChildren = [];
-        if (baseScene.children && baseScene.children.length > 0) {
-            baseChildren = baseScene.children;
+        if (clonedScene.children && clonedScene.children.length > 0) {
+            baseChildren = clonedScene.children;
         } else {
-            baseChildren = [baseScene];
+            baseChildren = [clonedScene];
         }
+        
         // Calculate precise model bounds
-        const bbox = new THREE.Box3().setFromObject(baseScene)
+        const bbox = new THREE.Box3().setFromObject(clonedScene)
         const size = bbox.getSize(new THREE.Vector3())
         
         // Scale factor to match model size
@@ -65,15 +83,16 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         this.model = {}
         this.model.base = this.objects.add({
             base: { children: baseChildren },
-            offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ-3),
+            offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ),
             rotation: new THREE.Euler(Math.PI/20, Math.PI, Math.PI),
-            mass: 0
+            mass: 0,
+            preserveMaterials: true // Malzemeleri koru
         })
 
         this.model.base.collision = { body }
 
         this.container.add(this.model.base.container)
-
+        console.log("Bilim Merkezi modeli başarıyla eklendi");
     }
     setBilimMerkeziArea() {
       // Etkileşim etiketi oluştur

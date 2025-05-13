@@ -189,7 +189,7 @@ export default class Resources extends EventEmitter {
             { name: 'renderModel', source: './models/render/base.glb' },
 
             // Sosyalino modeli 
-            { name: 'Sosyalino', source: './models/sosyalino.glb' },
+            { name: 'Sosyalino', source: './models/sosyalinovasyon/sosyalino.glb' },
 
             // Kapsul
             { name: 'kapsulModel', source: './models/kapsul/Kapsul_Bina.glb' },
@@ -201,13 +201,19 @@ export default class Resources extends EventEmitter {
             { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
 
             // Atmosfer Alanı modeli
-            { name: 'atmosferAlaniModel', source: './models/AtmosferAlani_with_road.glb' },
+            { name: 'atmosferAlaniModel', source: './models/atmosfer/AtmosferAlani_with_road.glb' },
+
+            // Newton Sarkaci
+            { name: 'newtonSarkaci', source: './models/newton/newton.glb' },
+
+            // Kademe
+            {name: 'kademe', source: './models/kademe/kademe.glb'},
 
             // Kelebekler Vadisi
             { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
 
             //CalisanGenclikMerkezi
-            { name: 'calisanGenclikMerkezi', source: './models/calisanGenclikMerkezi.glb' },
+            { name: 'calisanGenclikMerkezi', source: './models/calisangenclikmerkezi/calisanGenclikMerkezi.glb' },
 
             //Konya Genc Kart
             { name: 'konyaGencKartModel', source: './models/konyaGencKart/3D_Ekran_Bina.glb' },

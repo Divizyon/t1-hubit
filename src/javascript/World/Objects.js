@@ -266,6 +266,32 @@ export default class Objects {
 
                 // Add to container
                 container.add(mesh)
+            } else if (_child instanceof THREE.Object3D) {
+                // Handle nested objects (like groups containing the piano)
+                if (_options.preserveMaterials) {
+                    // Clone the entire object with its hierarchy
+                    const nestedObject = _child.clone();
+                    
+                    // Process all nested meshes to preserve materials
+                    nestedObject.traverse((child) => {
+                        if (child.isMesh && child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material = child.material.map(mat => mat.clone());
+                            } else {
+                                child.material = child.material.clone();
+                            }
+                        }
+                    });
+                    
+                    container.add(nestedObject);
+                } else {
+                    // For non-preserved materials, recursively process children
+                    const convertedChild = this.getConvertedMesh(_child.children, _options);
+                    convertedChild.position.copy(_child.position);
+                    convertedChild.rotation.copy(_child.rotation);
+                    convertedChild.scale.copy(_child.scale);
+                    container.add(convertedChild);
+                }
             }
         }
 

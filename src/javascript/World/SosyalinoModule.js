@@ -15,8 +15,9 @@ export default class Sosyalino {
     // Set up
     this.container = new THREE.Object3D()
     this.container.matrixAutoUpdate = false
+    this.container.updateMatrix()
     
-    this.setSosyalino()
+    this.setupModel()
     
     // Etkileşim alanını ayarla (areas parametresi varsa)
     if (this.areas) {
@@ -24,25 +25,49 @@ export default class Sosyalino {
     }
   }
   
-  setSosyalino() {
-    // Ana modeli oluştur, şimdilik collision yok
-    this.model = this.objects.add({
-      base: this.resources.items.Sosyalino.scene,
-      offset: new THREE.Vector3(62, 23, 1.5),
-      rotation: new THREE.Euler(Math.PI/2, Math.PI, 0),
-      shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: -0.6, alpha: 0.4 },
-      mass: 0, // Kütle sıfır olabilir çünkü modelin hareketi fizik nesnesi ile kontrol edilecek
-      soundName: 'brick',
-      sleep: false
-    })
-    
-    // Container'a ekle
-    if (this.model && this.model.container) {
-      this.container.add(this.model.container)
+  setupModel() {
+    try {
+      console.log("Sosyalino model yükleniyor...")
+      
+      // Clone the model scene to avoid modifying the original
+      const sosyalinoScene = this.resources.items.Sosyalino.scene.clone()
+      
+      // Make sure all materials are preserved
+      sosyalinoScene.traverse((child) => {
+        if (child.isMesh) {
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material = child.material.map(mat => mat.clone())
+            } else {
+              child.material = child.material.clone()
+            }
+          }
+        }
+      })
+      
+      // Add the model with preserved materials
+      this.sosyalinoModel = this.objects.add({
+        base: sosyalinoScene,
+        collision: this.resources.items.brickCollision.scene,
+        offset: new THREE.Vector3(15, 15, 0.5), // Z-değeri yerden biraz yukarıda
+        rotation: new THREE.Euler(0, 0, 0),
+        shadow: { sizeX: 6, sizeY: 6, offsetZ: -0.5, alpha: 0.5 },
+        mass: 0,
+        sleep: true,
+        preserveMaterials: true // Malzemeleri koru
+      })
+      
+      // Add to container
+      if (this.sosyalinoModel && this.sosyalinoModel.container) {
+        this.container.add(this.sosyalinoModel.container)
+        console.log("Sosyalino modeli başarıyla eklendi")
+      } else {
+        console.warn("Sosyalino modeli container bulunamadı!")
+      }
+      
+    } catch (error) {
+      console.error("Sosyalino modeli yüklenirken hata:", error)
     }
-    
-    // Sosyalino için 4x4x4'lük collision küpünü oluştur
-    this.createCollisionBox()
   }
   
   // Yeni bir metot: 4x4x4 boyutlarında bir collision küpü oluştur
@@ -81,9 +106,9 @@ export default class Sosyalino {
       
       // Fizik gövdesini modele bağla (model fizik gövdesini takip etsin)
       this.time.on('tick', () => {
-        if (this.model && this.model.container) {
-          this.model.container.position.copy(boxBody.position)
-          this.model.container.quaternion.copy(boxBody.quaternion)
+        if (this.sosyalinoModel && this.sosyalinoModel.container) {
+          this.sosyalinoModel.container.position.copy(boxBody.position)
+          this.sosyalinoModel.container.quaternion.copy(boxBody.quaternion)
         }
       })
       
@@ -114,7 +139,7 @@ export default class Sosyalino {
         
         this.collisionMesh = new THREE.Mesh(boxGeometry, boxMaterial)
         this.collisionMesh.position.copy(position)
-        this.collisionMesh.quaternion.copy(this.model.container.quaternion)
+        this.collisionMesh.quaternion.copy(this.sosyalinoModel.container.quaternion)
         
         // Debug görselinin görünürlüğünü fizik modelleriyle sync et
         this.physics.models.container.add(this.collisionMesh)

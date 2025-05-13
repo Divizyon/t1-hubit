@@ -6,7 +6,7 @@ export default class CalisanGenclikMerkezi {
         this.objects = objects
         this.shadows = shadows
         this.debug = debug
-        this.scene = scene
+        // We don't need the scene reference as the parent will handle adding to the scene
         
         // Debug
         if (this.debug) {
@@ -18,7 +18,6 @@ export default class CalisanGenclikMerkezi {
 
     setModel() {
         console.log('Loading CalisanGenclikMerkezi model...')
-        console.log('Resources:', this.resources.items)
 
         if (!this.resources.items) {
             console.error('Resources items not initialized')
@@ -31,10 +30,11 @@ export default class CalisanGenclikMerkezi {
             return
         }
        
-
+        // Create the model using objects.add() which returns a structured object
+        // with container, collision and other properties
         this.model = this.objects.add({
             base: this.resources.items.calisanGenclikMerkezi.scene,
-            collision: { children: [] }, // Boş collision nesnesi, içinden geçilebilir!
+            collision: { children: [] }, // Empty collision object, can be passed through
             offset: new THREE.Vector3(63, -32, 0),
             rotation: new THREE.Euler(0, 0, 0),
             shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
@@ -42,20 +42,11 @@ export default class CalisanGenclikMerkezi {
             sleep: true
         })
 
-      
-
-        if (this.model && this.model.container && this.model.container instanceof THREE.Object3D) {
-            this.scene.add(this.model.container)
-            console.log('Model added to scene at position:', this.model.container.position)
-        } else if (this.model instanceof THREE.Object3D) {
-            this.scene.add(this.model)
-            console.log('Model added to scene at position:', this.model.position)
-        } else {
-            console.error('Eklenebilecek bir THREE.Object3D bulunamadı:', this.model)
-        }
- ;
+        // We no longer need to add to scene here as the parent World class will handle that
+        console.log('CalisanGenclikMerkezi model created')
+ 
         // Debug
-        if (this.debug) {
+        if (this.debug && this.model && this.model.container) {
             this.debugFolder
                 .add(this.model.container.position, 'x')
                 .name('positionX')
