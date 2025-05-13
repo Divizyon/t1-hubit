@@ -37,7 +37,7 @@ import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
 
-import KonyaGencKart from "./KonyaGencKart.js";
+import KonyaGenckart from "./KonyaGenckart.js";
 import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
 
@@ -1126,7 +1126,8 @@ export default class World {
     this.alaadintepesi = new AladdinTepesi({
       scene: this.scene,
       time: this.time,
-      physics: this.physics
+      physics: this.physics,
+      areas: this.areas  // Add areas parameter
     });
     this.container.add(this.alaadintepesi.model);
     console.log("Alaaddin Tepesi modeli başarıyla eklendi");
@@ -1218,7 +1219,8 @@ export default class World {
       debug: this.debugFolder,
       rotateX: 0,
       rotateY: 0,
-      rotateZ: Math.PI / 2 // Z ekseninde 90 derece
+      rotateZ: Math.PI / 2,
+      areas: this.areas  // Add areas parameter
     });
     this.container.add(this.stadyum.container);
   }
@@ -1227,7 +1229,8 @@ export default class World {
     this.japonparki = new Japonparki({
       scene: this.scene,
       time: this.time,
-      physics: this.physics
+      physics: this.physics,
+      areas: this.areas  // Add areas parameter
     });
   }
   
@@ -1257,7 +1260,7 @@ export default class World {
 
   setKonyaGencKart() {
     try {
-      this.KonyaGencKart = new KonyaGencKart({
+      this.konyaGenckart = new KonyaGenckart({
         scene: this.scene,
         time: this.time,
         physics: this.physics,
@@ -1265,6 +1268,11 @@ export default class World {
         areas: this.areas,
         sounds: this.sounds
       });
+      
+      // Add the container to the world container
+      if (this.konyaGenckart && this.konyaGenckart.container) {
+        this.container.add(this.konyaGenckart.container);
+      }
       
       console.log("Konya Genç Kart modeli başarıyla eklendi");
     } catch (error) {
@@ -1382,7 +1390,8 @@ export default class World {
         debug: this.debugFolder,
         rotateX: 0,
         rotateY: 0,
-        rotateZ: Math.PI / 2
+        rotateZ: Math.PI / 2,
+        areas: this.areas  // Add areas parameter
       });
       console.log("Divizyon Bina modeli başarıyla eklendi");
     } catch (error) {
