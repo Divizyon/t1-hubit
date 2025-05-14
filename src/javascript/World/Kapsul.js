@@ -36,8 +36,8 @@ export default class Kapsul {
 
         // Kapsül konumu
         this.kapsul = {}
-        this.kapsul.x = 37
-        this.kapsul.y = -1
+        this.kapsul.x = 33
+        this.kapsul.y = -2
         this.kapsul.z = 2.6
 
         // Clone the original model to avoid modifying it
@@ -89,8 +89,8 @@ export default class Kapsul {
         // Add interaction area (from the previous setKapsulArea functionality)
         if (this.areas) {
             this.areas.add({
-                position: new THREE.Vector2(this.kapsul.x -7, this.kapsul.y),
-                halfExtents: new THREE.Vector2(3, 3),
+                position: new THREE.Vector2(this.kapsul.x -5, this.kapsul.y),
+                halfExtents: new THREE.Vector2(1.5, 1.5),
                 hasKey: false,
                 testCar: true,
                 active: true,
