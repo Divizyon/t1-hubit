@@ -8,10 +8,10 @@ export default class Kapsul {
         this.time = _options.time
         this.resources = _options.resources
         this.objects = _options.objects
-        this.physics = _options.physics
         this.debug = _options.debug
         this.areas = _options.areas
         this.sounds = _options.sounds
+        this.physics = _options.physics
 
         // Set up
         this.container = new THREE.Object3D()
@@ -33,6 +33,12 @@ export default class Kapsul {
             console.error('Kapsul model resource not found in resources')
             return
         }
+
+        // Kapsül konumu
+        this.kapsul = {}
+        this.kapsul.x = 37
+        this.kapsul.y = -1
+        this.kapsul.z = 2.6
 
         // Clone the original model to avoid modifying it
         const clonedModel = this.resources.items.kapsulModel.scene.clone()
@@ -57,53 +63,33 @@ export default class Kapsul {
         // Add the model to the scene using the objects system (like other models)
         this.model = this.objects.add({
             base: clonedModel,
-            collision: this.resources.items.brickCollision ? this.resources.items.brickCollision.scene : null,
-            offset: new THREE.Vector3(36.5, -1, 4.5), // Position from the original manual setting
+            offset: new THREE.Vector3(this.kapsul.x, this.kapsul.y, this.kapsul.z), // Position from the original manual setting
             rotation: new THREE.Euler(0, 0, 0),
             shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
-            mass: 0,
-            sleep: true,
             preserveMaterials: true,
         })
         
-        // Create a static body manually since addStaticBody isn't available
-        if (this.physics && this.physics.world) {
-            // Create a body for the physics
-            const kapsulBody = new CANNON.Body({
-                mass: 0, // Static body
-                position: new CANNON.Vec3(36.5, -1, 0),
-                material: this.physics.materials.items.dummy
-            })
-            
-            // Add a sphere shape
-            kapsulBody.addShape(new CANNON.Sphere(5))
-            
-            // Add to physics world
-            this.physics.world.addBody(kapsulBody)
-            
-            console.log("Kapsul physics body added")
-        } else {
-            console.warn("Physics system not available for Kapsul")
-        }
-
         // Add to container
         this.container.add(this.model.container)
         
         // Add base model if available (similar to other implementations)
         if (this.resources.items.baseModel && this.resources.items.baseModel.scene) {
             const baseModel = this.resources.items.baseModel.scene.clone()
-            baseModel.position.set(38, -1, 0)
-            baseModel.scale.set(2.5, 2.5, 1.5)
+            baseModel.position.set(this.kapsul.x + 1, this.kapsul.y, 0)
+            baseModel.scale.set(1.5, 1.5, 0.5)
             this.container.add(baseModel)
             console.log("Base model added to Kapsul")
         } else {
             console.warn("Base model not found for Kapsul")
         }
 
+        // Çarpışma kutusunu ekle 
+        this.addCollisions()
+
         // Add interaction area (from the previous setKapsulArea functionality)
         if (this.areas) {
             this.areas.add({
-                position: new THREE.Vector2(36.5, -1),
+                position: new THREE.Vector2(this.kapsul.x -7, this.kapsul.y),
                 halfExtents: new THREE.Vector2(3, 3),
                 hasKey: false,
                 testCar: true,
@@ -120,7 +106,7 @@ export default class Kapsul {
         // Add spatial sound if needed
         if (this.sounds) {
             this.sounds.play("kapsul", {
-                position: new THREE.Vector3(36.5, -1, 0),
+                position: new THREE.Vector3(this.kapsul.x , this.kapsul.y, 0),
                 maxDistance: 20,
                 refDistance: 5,
                 rolloffFactor: 1.2,
@@ -129,7 +115,60 @@ export default class Kapsul {
             })
         }
 
+        // Debug kontrollerini ekle
+        if (this.debug) {
+            const kapsulFolder = this.debug.addFolder('kapsul')
+            
+            // Kapsül pozisyon kontrolü
+            const modelFolder = kapsulFolder.addFolder('model position')
+            modelFolder.add(this.kapsul, 'x').step(0.1).name('modelX').onChange(() => {
+                this.updatePositions()
+            })
+            modelFolder.add(this.kapsul, 'y').step(0.1).name('modelY').onChange(() => {
+                this.updatePositions()
+            })
+            modelFolder.add(this.kapsul, 'z').step(0.1).name('modelZ').onChange(() => {
+                this.updatePositions()
+            })
+        }
+
         console.log("Kapsul model successfully added")
+    }
+
+    updatePositions() {
+        // Model pozisyonunu güncelle
+        if(this.model && this.model.container) {
+            this.model.container.position.x = this.kapsul.x
+            this.model.container.position.y = this.kapsul.y
+            this.model.container.position.z = this.kapsul.z
+            
+            // Eğer çarpışma kutusu varsa, onun da pozisyonunu güncelle
+            if(this.collisionBody) {
+                this.collisionBody.position.x = this.kapsul.x+1
+                this.collisionBody.position.y = this.kapsul.y
+                this.collisionBody.position.z = 0 // Z konumu sabit kalabilir
+            }
+        }
+    }
+
+    addCollisions() {
+        if(this.physics && this.physics.world) {
+            // Kapsül için çarpışma kutusu oluştur
+            const boxShape = new CANNON.Box(new CANNON.Vec3(4.3, 4, 2))
+            
+            this.collisionBody = new CANNON.Body({
+                mass: 0, // Statik çarpışma kutusu
+                position: new CANNON.Vec3(this.kapsul.x+1, this.kapsul.y, 0),
+                material: this.physics.materials ? this.physics.materials.items.floor : null
+            })
+            
+            this.collisionBody.addShape(boxShape)
+            this.physics.world.addBody(this.collisionBody)
+            
+            console.log("Kapsul için collision kutusu eklendi:", this.collisionBody)
+        } else {
+            console.warn("Physics system not available for Kapsul collision")
+        }
     }
 
     tick(delta) {

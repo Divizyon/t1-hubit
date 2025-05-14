@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import CANNON from 'cannon'
 
 export default class Sosyalino {
   constructor(_options) {
@@ -49,6 +48,7 @@ export default class Sosyalino {
       this.sosyalinoModel = this.objects.add({
         base: sosyalinoScene,
         collision: this.resources.items.brickCollision.scene,
+        offset: new THREE.Vector3(67.58, 29.55, 0.00), // Z-değeri yerden biraz yukarıda
         offset: new THREE.Vector3(15, 15, 0.5), // Z-değeri yerden biraz yukarıda
         rotation: new THREE.Euler(0, 0, 0),
         shadow: { sizeX: 6, sizeY: 6, offsetZ: -0.5, alpha: 0.5 },
@@ -69,98 +69,6 @@ export default class Sosyalino {
       console.error("Sosyalino modeli yüklenirken hata:", error)
     }
   }
-  
-  // Yeni bir metot: 4x4x4 boyutlarında bir collision küpü oluştur
-  createCollisionBox() {
-    // Modelin konumu
-    const position = new THREE.Vector3(62, 23, 0)
-    
-    // Collision için küp boyutları (4x4x4)
-    const halfExtents = new CANNON.Vec3(1.5, 1.5, 1.5) // halfExtents olduğu için boyutların yarısı
-    
-    // Küp için şekil oluştur
-    const boxShape = new CANNON.Box(halfExtents)
-    
-    // Fizik gövdesi oluştur
-    const boxBody = new CANNON.Body({
-      mass: 0, // Kütle 0 olarak ayarlandı - statik nesne olacak
-      position: new CANNON.Vec3(position.x, position.y, position.z),
-      shape: boxShape,
-      material: this.physics ? this.physics.materials.items.dummy : undefined
-    })
-    
-    // Modele uygun rotasyon uygula
-    const rotationQuaternion = new CANNON.Quaternion()
-    rotationQuaternion.setFromEuler(Math.PI/2, Math.PI, 0)
-    boxBody.quaternion = boxBody.quaternion.mult(rotationQuaternion)
-    
-    const base = this.resources.items.baseModel;
-    if (!base || !base.scene) {
-      console.error('Stadyum modeli bulunamadı');
-      return;
-    }
-
-    // Fizik motoruna ekle
-    if (this.physics && this.physics.world) {
-      this.physics.world.addBody(boxBody)
-      
-      // Fizik gövdesini modele bağla (model fizik gövdesini takip etsin)
-      this.time.on('tick', () => {
-        if (this.sosyalinoModel && this.sosyalinoModel.container) {
-          this.sosyalinoModel.container.position.copy(boxBody.position)
-          this.sosyalinoModel.container.quaternion.copy(boxBody.quaternion)
-        }
-      })
-      
-      // Collision gövdesini kaydet
-      this.collisionBody = boxBody
-      
-      // Collision gövdesi için ses olayı ekle
-      if (this.sounds) {
-        this.collisionBody.addEventListener('collide', (_event) => {
-          const relativeVelocity = _event.contact.getImpactVelocityAlongNormal()
-          this.sounds.play('brick', relativeVelocity)
-        })
-      }
-      // Base modelini klonla ve Kapsül modeline ekle
-    const baseModel = base.scene.clone(true);
-    baseModel.position.set(62, 23, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
-    baseModel.scale.set(1, 1, 1.5); // Base modelinin ölçeği
-    this.container.add(baseModel);
-      // Debug görsel (opsiyonel)
-      if (this.physics.models && this.physics.models.container) {
-        const boxGeometry = new THREE.BoxGeometry(4, 4, 4)
-        const boxMaterial = new THREE.MeshBasicMaterial({
-          color: 0xff0000,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.5
-        })
-        
-        this.collisionMesh = new THREE.Mesh(boxGeometry, boxMaterial)
-        this.collisionMesh.position.copy(position)
-        this.collisionMesh.quaternion.copy(this.sosyalinoModel.container.quaternion)
-        
-        // Debug görselinin görünürlüğünü fizik modelleriyle sync et
-        this.physics.models.container.add(this.collisionMesh)
-        
-        // Tick ile pozisyon güncelleme
-        this.time.on('tick', () => {
-          this.collisionMesh.position.copy(boxBody.position)
-          this.collisionMesh.quaternion.set(
-            boxBody.quaternion.x,
-            boxBody.quaternion.y,
-            boxBody.quaternion.z,
-            boxBody.quaternion.w
-          )
-        })
-      }
-    } else {
-      console.error("Fizik motoru bulunamadı, collision box oluşturulamadı!")
-    }
-  }
-  
-
 
   // Sosyalino için etkileşim butonu ve alanı oluştur
   setSosyalinoInteraction() {

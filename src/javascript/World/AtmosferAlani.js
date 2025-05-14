@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import CANNON from 'cannon'
+import CANNON from 'cannon';
 
 export default class AtmosferAlani {
     constructor(_options) {
@@ -165,58 +165,8 @@ export default class AtmosferAlani {
             new THREE.Euler(0, 0, 0),
             new CANNON.Vec3(0.3, 0.3, 2),
         );
-        //yol
-        this.addCollisionBox(
-            new THREE.Vector3(-14 ,0, 0),
-            new THREE.Euler(0, 0, 0),
-            new CANNON.Vec3(3, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(-10 ,-0.5, 0),
-            new THREE.Euler(0, 0, 0),
-            new CANNON.Vec3(2, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(-6 ,-1, 0),
-            new THREE.Euler(0, 0, 0),
-            new CANNON.Vec3(2, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(-2 ,-1.2, 0),
-            new THREE.Euler(0, 0, 0),
-            new CANNON.Vec3(2, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(2 ,-1.3, 0),
-            new THREE.Euler(0, 0, 0),
-            new CANNON.Vec3(2, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(6 ,-0.5, 0),
-            new THREE.Euler(0, 0, 0.1),
-            new CANNON.Vec3(2, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(10 ,0.5, 0),
-            new THREE.Euler(0, 0, 0.1),
-            new CANNON.Vec3(2, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(14 ,0.5, 0),
-            new THREE.Euler(0, 0, 0.1),
-            new CANNON.Vec3(2, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(18 ,-0.9, 0),
-            new THREE.Euler(0, 0, 0.1),
-            new CANNON.Vec3(2, 2.5, 0.1),
-        );
-        this.addCollisionBox(
-            new THREE.Vector3(21 ,-1.5, 0),
-            new THREE.Euler(0, 0, 0.1),
-            new CANNON.Vec3(2, 2.2, 0.1),
-        );
-
+        
+     
 
        
     }
@@ -241,8 +191,6 @@ export default class AtmosferAlani {
 
         console.log("Atmosfer alanı için collision eklendi:", body);
         
-        // Çarpışma kutusunu görselleştir
-        this.visualizeCollisionBox(position, rotation, halfExtents, color);
     }
     
     visualizeCollisionBox(position, rotation, halfExtents, color) {
