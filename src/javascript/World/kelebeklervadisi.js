@@ -369,8 +369,7 @@ export default class kelebeklervadisi {
             })
             
             console.log("Kelebekler Vadisi interaction area created successfully")
-        } catch (error) {
-            console.error("Error creating Kelebekler Vadisi interaction area:", error)
+        
         }
     }
 } 
