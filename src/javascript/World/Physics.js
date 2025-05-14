@@ -739,7 +739,7 @@ export default class Physics
                 }
                 else if(shape === 'box')
                 {
-                    const halfExtents = new CANNON.Vec3(mesh.scale.x * 0.5, mesh.scale.y * 0.5, mesh.scale.z * 0.5)
+                    const halfExtents = new CANNON.Vec3(mesh.scale.x * 1, mesh.scale.y * 1, mesh.scale.z * 1)
                     shapeGeometry = new CANNON.Box(halfExtents)
                 }
                 else if(shape === 'sphere')
