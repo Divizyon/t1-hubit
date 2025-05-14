@@ -50,7 +50,7 @@ export default class Camera {
         this.angle.value.copy(this.angle.items.default) // Varsayılan açıyı kopyala
 
         // Greenbox pozisyonu ve mesafe eşiği
-        this.greenboxPosition = new THREE.Vector3(30, 10, 0) // Greenbox'ın konumu
+        this.greenboxPosition = new THREE.Vector3(-55, -4, 0) // Greenbox'ın konumu
         this.distanceThreshold = 6.5 // Mesafe eşiği
         this.isNearGreenbox = false // Greenbox'a yakınlık durumu
 

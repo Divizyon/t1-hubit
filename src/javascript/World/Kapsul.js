@@ -4,131 +4,175 @@ import CANNON from 'cannon'
 
 export default class Kapsul {
     constructor(_options) {
-        this.time = _options.time;
-        this.scene = _options.scene;
-        this.physics = _options.physics;
-        this.resources = _options.resources;
-        this.objects = _options.objects;
-        this.debug = _options.debug;
-        this.mixer = null;
-        this.model = null;
-        this.collisionBody = null;
-        
-        // Create container
-        this.container = new THREE.Object3D();
-        this.container.matrixAutoUpdate = false;
-        
-        this.setModel();
+        // Options
+        this.time = _options.time
+        this.resources = _options.resources
+        this.objects = _options.objects
+        this.debug = _options.debug
+        this.areas = _options.areas
+        this.sounds = _options.sounds
+        this.physics = _options.physics
+
+        // Set up
+        this.container = new THREE.Object3D()
+        this.container.matrixAutoUpdate = false
+        this.container.updateMatrix()
+
+        this.setModel()
         
         if (this.time) {
             this.time.on('tick', () => {
-                this.tick(this.time.delta * 0.001);
-            });
-        } else {
-            console.warn('Kapsul: time parametresi verilmedi, animasyonlar çalışmayacak.');
+                this.tick(this.time.delta * 0.001)
+            })
         }
     }
 
     setModel() {
-        if (!this.scene) {
-            console.warn('Kapsul: scene parametresi verilmedi, model sahneye eklenmeyecek.');
-            return;
+        // Use the resource system instead of direct loading
+        if (!this.resources.items.kapsulModel) {
+            console.error('Kapsul model resource not found in resources')
+            return
         }
 
-        const loader = new GLTFLoader();
-        loader.load('./models/kapsul/Kapsul_Bina.glb', (gltf) => {
-            console.log('Kapsul modeli yüklendi:', gltf);
-            console.log('Animasyonlar:', gltf.animations);
+        // Kapsül konumu
+        this.kapsul = {}
+        this.kapsul.x = 37
+        this.kapsul.y = -1
+        this.kapsul.z = 2.6
 
-            const base = this.resources.items.baseModel;
-    if (!base || !base.scene) {
-      console.error('Stadyum modeli bulunamadı');
-      return;
-    }
-            
-            this.model = gltf.scene;
-            this.model.position.set(36.5, -1, 4.5);// Model Pozisyonu - Etkileşim alanının yanında
-            this.model.scale.set(1.5, 1.5, 1.5);
-            
-            // Modeli döndür
-            this.model.rotation.x = 0;
-            
-            // Model artık container'a ekleniyor, doğrudan scene'e değil
-            this.container.add(this.model);
-            this.container.updateMatrix();
-
-          // Base modelini klonla ve Kapsül modeline ekle
-    const baseModel = base.scene.clone(true);
-    baseModel.position.set(38, -1, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
-    baseModel.scale.set(2.5, 2.5, 1.5); // Base modelinin ölçeği
-    this.container.add(baseModel);
-
-            if (this.physics) {
-                this.collisionBody = new CANNON.Body({
-                    mass: 0,
-                    position: new CANNON.Vec3(36.5, -1, 0), // Collision Body Pozisyonu
-                    material: this.physics.materials.items.floor
-                });
-
-              
-                const radius = 5;
-                const sphereShape = new CANNON.Sphere(radius);
-                this.collisionBody.addShape(sphereShape);
-
-                
-                this.physics.world.addBody(this.collisionBody);
-            }
-
-            // Işık ekle (sadece bir kez)
-            if (!this.container.__kapsulLightAdded) {
-                const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-                const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-                dirLight.position.set(5, 10, 7.5);
-                this.container.add(ambientLight);
-                this.container.add(dirLight);
-                this.container.__kapsulLightAdded = true;
-            }
-
-            // Materyal ve mesh kontrolü
-            this.model.traverse((child) => {
-                if (child.isMesh) {
-                    console.log('Mesh bulundu:', child.name);
-                    if (child.isSkinnedMesh) {
-                        console.log('SkinnedMesh bulundu:', child.name);
+        // Clone the original model to avoid modifying it
+        const clonedModel = this.resources.items.kapsulModel.scene.clone()
+        
+        // Process all meshes in the model
+        clonedModel.traverse((child) => {
+            if (child.isMesh) {
+                // Ensure each mesh's material is cloned
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material = child.material.map(mat => mat.clone())
+                    } else {
+                        child.material = child.material.clone()
                     }
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    if (!child.material) {
-                        child.material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-                    }
-                    if (child.material && child.material.type === 'MeshBasicMaterial') {
-                        child.material = new THREE.MeshStandardMaterial({ color: child.material.color || 0xffffff });
-                    }
-                    child.material.transparent = false;
-                    child.material.opacity = 1;
                 }
-            });
-
-            // Animasyonları başlat
-            if (gltf.animations && gltf.animations.length > 0) {
-                console.log('Animasyonlar yükleniyor...');
-                this.mixer = new THREE.AnimationMixer(this.model);
-                gltf.animations.forEach((clip, index) => {
-                    console.log(`Animasyon ${index} yükleniyor:`, clip.name);
-                    const action = this.mixer.clipAction(clip);
-                    action.reset().play();
-                });
-                console.log('Mixer oluşturuldu:', this.mixer);
-            } else {
-                console.warn('Hiç animasyon bulunamadı!');
+                // Set shadow properties
+                child.castShadow = true
+                child.receiveShadow = true
             }
-        });
+        })
+
+        // Add the model to the scene using the objects system (like other models)
+        this.model = this.objects.add({
+            base: clonedModel,
+            offset: new THREE.Vector3(this.kapsul.x, this.kapsul.y, this.kapsul.z), // Position from the original manual setting
+            rotation: new THREE.Euler(0, 0, 0),
+            shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+            preserveMaterials: true,
+        })
+        
+        // Add to container
+        this.container.add(this.model.container)
+        
+        // Add base model if available (similar to other implementations)
+        if (this.resources.items.baseModel && this.resources.items.baseModel.scene) {
+            const baseModel = this.resources.items.baseModel.scene.clone()
+            baseModel.position.set(this.kapsul.x + 1, this.kapsul.y, 0)
+            baseModel.scale.set(1.5, 1.5, 0.5)
+            this.container.add(baseModel)
+            console.log("Base model added to Kapsul")
+        } else {
+            console.warn("Base model not found for Kapsul")
+        }
+
+        // Çarpışma kutusunu ekle 
+        this.addCollisions()
+
+        // Add interaction area (from the previous setKapsulArea functionality)
+        if (this.areas) {
+            this.areas.add({
+                position: new THREE.Vector2(this.kapsul.x -7, this.kapsul.y),
+                halfExtents: new THREE.Vector2(3, 3),
+                hasKey: false,
+                testCar: true,
+                active: true,
+                informations: {
+                    title: 'Kapsül Teknoloji Merkezi',
+                    description: 'Bu merkez, teknoloji ve inovasyonu teşvik etmek amacıyla kurulmuştur.',
+                    moreInformation: 'https://www.konya.bel.tr'
+                }
+            })
+            console.log("Kapsul interaction area added")
+        }
+        
+        // Add spatial sound if needed
+        if (this.sounds) {
+            this.sounds.play("kapsul", {
+                position: new THREE.Vector3(this.kapsul.x , this.kapsul.y, 0),
+                maxDistance: 20,
+                refDistance: 5,
+                rolloffFactor: 1.2,
+                volume: 0.7,
+                loop: true
+            })
+        }
+
+        // Debug kontrollerini ekle
+        if (this.debug) {
+            const kapsulFolder = this.debug.addFolder('kapsul')
+            
+            // Kapsül pozisyon kontrolü
+            const modelFolder = kapsulFolder.addFolder('model position')
+            modelFolder.add(this.kapsul, 'x').step(0.1).name('modelX').onChange(() => {
+                this.updatePositions()
+            })
+            modelFolder.add(this.kapsul, 'y').step(0.1).name('modelY').onChange(() => {
+                this.updatePositions()
+            })
+            modelFolder.add(this.kapsul, 'z').step(0.1).name('modelZ').onChange(() => {
+                this.updatePositions()
+            })
+        }
+
+        console.log("Kapsul model successfully added")
+    }
+
+    updatePositions() {
+        // Model pozisyonunu güncelle
+        if(this.model && this.model.container) {
+            this.model.container.position.x = this.kapsul.x
+            this.model.container.position.y = this.kapsul.y
+            this.model.container.position.z = this.kapsul.z
+            
+            // Eğer çarpışma kutusu varsa, onun da pozisyonunu güncelle
+            if(this.collisionBody) {
+                this.collisionBody.position.x = this.kapsul.x+1
+                this.collisionBody.position.y = this.kapsul.y
+                this.collisionBody.position.z = 0 // Z konumu sabit kalabilir
+            }
+        }
+    }
+
+    addCollisions() {
+        if(this.physics && this.physics.world) {
+            // Kapsül için çarpışma kutusu oluştur
+            const boxShape = new CANNON.Box(new CANNON.Vec3(4.3, 4, 2))
+            
+            this.collisionBody = new CANNON.Body({
+                mass: 0, // Statik çarpışma kutusu
+                position: new CANNON.Vec3(this.kapsul.x+1, this.kapsul.y, 0),
+                material: this.physics.materials ? this.physics.materials.items.floor : null
+            })
+            
+            this.collisionBody.addShape(boxShape)
+            this.physics.world.addBody(this.collisionBody)
+            
+            console.log("Kapsul için collision kutusu eklendi:", this.collisionBody)
+        } else {
+            console.warn("Physics system not available for Kapsul collision")
+        }
     }
 
     tick(delta) {
-        if (this.mixer) {
-            this.mixer.update(delta);
-        }
+        // Update model animations or other time-based behaviors if needed
     }
 }
 

@@ -7,6 +7,7 @@ import World from './World/index.js'
 import Resources from './Resources.js'
 import Camera from './Camera.js'
 import ThreejsJourney from './ThreejsJourney.js'
+import CoordinatesTracker from './Utils/CoordinatesTracker.js'
 
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
@@ -35,6 +36,7 @@ export default class Application {
         this.setWorld()
         this.setTitle()
         this.setThreejsJourney()
+        this.setCoordinatesTracker()
     }
 
     /**
@@ -260,6 +262,37 @@ export default class Application {
     }
 
     /**
+     * Set coordinates tracker
+     */
+    setCoordinatesTracker() {
+        // Only initialize if the world and physics are set up
+        if (this.world && this.scene) {
+            this.coordinatesTracker = new CoordinatesTracker({
+                camera: this.camera,
+                renderer: this.renderer,
+                scene: this.scene,
+                physics: this.world.physics,
+                time: this.time,
+                debug: this.debug
+            })
+        } else {
+            // If world or physics aren't ready yet, wait for world to be initialized
+            this.time.on('tick', () => {
+                if (this.world && this.world.physics && !this.coordinatesTracker) {
+                    this.coordinatesTracker = new CoordinatesTracker({
+                        camera: this.camera,
+                        renderer: this.renderer,
+                        scene: this.scene,
+                        physics: this.world.physics,
+                        time: this.time,
+                        debug: this.debug
+                    })
+                }
+            })
+        }
+    }
+
+    /**
      * Destructor
      */
     destructor() {
@@ -268,6 +301,9 @@ export default class Application {
 
         this.camera.orbitControls.dispose()
         this.renderer.dispose()
-        this.debug.destroy()
+
+        if (this.debug) {
+            this.debug.destroy()
+        }
     }
 }
