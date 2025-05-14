@@ -32,12 +32,12 @@ import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
 
-import KonyaGenckart from "./KonyaGencKart.js";
+import KonyaGenckart from "./KonyaGenckart.js";
 import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
 import sesOdasi from './sesOdasi.js'
 import rocket from './rocket.js'
-
+import ProjectsSection from "./Sections/ProjectsSection.js";
 
 
 
@@ -367,6 +367,8 @@ export default class World {
     });
   }
 
+  
+
   setSounds() {
     this.sounds = new Sounds({
       debug: this.debugFolder,
@@ -554,6 +556,17 @@ export default class World {
       y: 0,
     });
     this.container.add(this.sections.area.container);
+
+    // Projects
+    this.sections.projects = new ProjectsSection({
+      ...options,
+      x: -7,
+      y: 3.2
+
+      // x: 0,
+      // y: 0
+  })
+  this.container.add(this.sections.projects.container)
   }
 
   setEasterEggs() {
@@ -862,7 +875,8 @@ export default class World {
       scene: this.scene,
       time: this.time,
       physics: this.physics,
-      areas: this.areas  // Add areas parameter
+      areas: this.areas,  // Add areas parameter
+      resources: this.resources  // Add resources parameter
     });
     this.container.add(this.alaadintepesi.model);
     console.log("Alaaddin Tepesi modeli başarıyla eklendi");
