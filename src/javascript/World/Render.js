@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-69, 15, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-72, 18, 2.5); // Artık doğru yerde tanımlandı
 
 export default class Render {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 5 }) {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0.2, position = null }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -16,10 +16,33 @@ export default class Render {
     this.rotateZ = rotateZ;
 
     this.container = new THREE.Object3D();
-    this.position = DEFAULT_POSITION.clone();
+    this.position = position ? position.clone() : DEFAULT_POSITION.clone();
+    
+    if (this.debug) {
+      this.debugFolder = this.debug.addFolder('Render Pozisyonu');
+      this.debugFolder.add(this.position, 'x').name('X').onChange(() => this.updatePosition());
+      this.debugFolder.add(this.position, 'y').name('Y').onChange(() => this.updatePosition());
+      this.debugFolder.add(this.position, 'z').name('Z').onChange(() => this.updatePosition());
+    }
 
     this._buildModel();
     this.scene.add(this.container);
+  }
+
+  updatePosition() {
+    if (this.model) {
+      this.model.position.copy(this.position);
+      
+      // Fizik gövdesi varsa güncelleyelim
+      if (this.body) {
+        this.body.position.set(...this.position.toArray());
+      }
+    }
+  }
+
+  setPosition(x, y, z) {
+    this.position.set(x, y, z);
+    this.updatePosition();
   }
 
   _buildModel() {
@@ -31,6 +54,8 @@ export default class Render {
 
     // Modeli klonla ve malzemeleri kopyala
     const model = gltf.scene.clone(true);
+    this.model = model; // Referansı saklayalım
+    
     model.traverse(child => {
       if (child.isMesh) {
         const origMat = child.material;
@@ -48,6 +73,7 @@ export default class Render {
 
     // Model pozisyonu ve dönüşü
     model.position.copy(this.position);
+    // Dönüş açısını uygula - Modeli döndürmek için
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
 
@@ -65,6 +91,7 @@ export default class Render {
       position: new CANNON.Vec3(...this.position.toArray()),
       material: this.physics.materials.items.floor
     });
+    this.body = body; // Referansı saklayalım
 
     // Dönüşü quaternion olarak ayarla
     const quat = new CANNON.Quaternion();
@@ -107,6 +134,7 @@ this.setDivizyon()
     rotateX:   0,   // 
     rotateY:   0,
     rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+    position:  new THREE.Vector3(-50, 20, 10), // Manuel pozisyon belirleme
   });
 }
 

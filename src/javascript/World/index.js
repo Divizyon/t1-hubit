@@ -525,7 +525,7 @@ export default class World {
       debug:     this.debugFolder,
       rotateX:   0,   // 
       rotateY:   0,
-      rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+      rotateZ:   2 // Hafif sağa çevirme
     });
   }
 
@@ -1004,7 +1004,7 @@ export default class World {
       debug: this.debugFolder,
       rotateX: 0,
       rotateY: 0,
-      rotateZ: Math.PI / 2 // Z ekseninde 90 derece
+      rotateZ: 2
     });
   }
 
