@@ -42,11 +42,15 @@ export default class sesOdasi {
                 }
             }
         })
+
+        // Model pozisyon ve rotasyonu
+        const modelOffset = new THREE.Vector3(-62, -13, 0.2)
+        const modelRotation = new THREE.Euler(0, 0, 90)
         
         this.model = this.objects.add({
             base: clonedScene,
-            offset: new THREE.Vector3(-65, -15, 0.5), // Z coordinate above the plane
-            rotation: new THREE.Euler(0, 0, 90),
+            offset: modelOffset,
+            rotation: modelRotation,
             shadow: { sizeX: 0, sizeY: 0, offsetZ: 0, alpha: 0.4 },
             mass: 0,
             sleep: true,
@@ -56,16 +60,29 @@ export default class sesOdasi {
         // Add to container
         this.container.add(this.model.container)
 
+        // Bounding box hesapla
+        clonedScene.updateMatrixWorld(true)
+        const bbox = new THREE.Box3().setFromObject(clonedScene)
+        const size = bbox.getSize(new THREE.Vector3())
+        
         // Collision ekleme
-        this.addCollisions(clonedScene)
+        this.addCollisions(clonedScene, modelOffset, modelRotation, size)
 
         // Ses odası yanına uzamsal ses ekle
         if (this.sounds) {
             console.log("Ses odası için uzamsal ses ekleniyor...")
+            
+            // Uzamsal ses pozisyonunu modelin merkezine göre ayarla
+            const soundPosition = {
+                x: modelOffset.x + 3, // Model merkezinden biraz sağa
+                y: modelOffset.y,
+                z: modelOffset.z + 1, // Biraz yukarı
+            }
+            
             const sesOdasiSes = this.sounds.setSpatialSoundAtLocation({
-                x: -62,
-                y: -15,
-                z: 1.5,
+                x: soundPosition.x,
+                y: soundPosition.y,
+                z: soundPosition.z,
                 sound: "sesOdasi",
                 customSoundPath: "./sounds/car-horns/duman.mp3",
                 maxDistance: 30,
@@ -80,36 +97,49 @@ export default class sesOdasi {
         console.log("Ses odası başarıyla eklendi:", this.model)
     }
 
-    addCollisions(model) {
-        // Bounding box hesapla
-        model.updateMatrixWorld(true)
-        const bbox = new THREE.Box3().setFromObject(model)
-        const size = bbox.getSize(new THREE.Vector3())
+    addCollisions(model, modelOffset, modelRotation, modelSize) {
+        // Bounding box'a dayalı olarak collision kutuları oluştur
         
-        // İlk çarpışma kutusu
-        this.addCollisionBox(
-            new THREE.Vector3(-67.5, -14, 0.5),
-            new THREE.Euler(0, 0, 90),
-            new CANNON.Vec3(2, 3.2, 2),
-            
+        // Ana collision kutusu - modelin boyutuna göre ayarla
+        const mainBoxWidth = modelSize.x * 0.8
+        const mainBoxDepth = modelSize.y * 0.8
+        const mainBoxHeight = modelSize.z
+
+        // Modelin gerçek orta noktasını hesapla
+        const centerPos = new THREE.Vector3(
+            modelOffset.x,
+            modelOffset.y,
+            modelOffset.z + (mainBoxHeight / 2)
         )
         
-        // İkinci çarpışma kutusu
+        // Ana çarpışma kutusu
         this.addCollisionBox(
-            new THREE.Vector3(-68, -17, 0.5),  // Farklı konum
-            new THREE.Euler(0, 0, 90),
-            new CANNON.Vec3(3, 1, 1.5),  // Farklı boyut
-            
+            centerPos,
+            modelRotation,
+            new CANNON.Vec3(mainBoxWidth/2, mainBoxDepth/2, mainBoxHeight/2)
+        )
+        
+        // Modelin etrafında ek bir çarpışma kutusu (gerekiyorsa)
+        const secondaryBoxPos = new THREE.Vector3(
+            modelOffset.x - 3,
+            modelOffset.y - 2,
+            modelOffset.z + (mainBoxHeight / 2)
+        )
+        
+        this.addCollisionBox(
+            secondaryBoxPos,
+            modelRotation,
+            new CANNON.Vec3(2, 1, mainBoxHeight/2)
         )
     }
     
-    addCollisionBox(position, rotation, halfExtents, color) {
+    addCollisionBox(position, rotation, halfExtents) {
         // Fizik gövdesi oluştur
         const boxShape = new CANNON.Box(halfExtents)
 
         const body = new CANNON.Body({
             mass: 0,
-            position: new CANNON.Vec3(position.x, position.y-1, position.z),
+            position: new CANNON.Vec3(position.x, position.y, position.z),
             material: this.physics.materials.items.floor
         })
 
@@ -123,7 +153,10 @@ export default class sesOdasi {
 
         console.log("Ses odası için collision eklendi:", body)
         
-        
+        // Debug modda gösterim için
+        if (this.debug && this.debug.active) {
+            this.visualizeCollisionBox(position, rotation, halfExtents, 0x00ff00)
+        }
     }
     
     visualizeCollisionBox(position, rotation, halfExtents, color) {
@@ -136,10 +169,10 @@ export default class sesOdasi {
         
         // Yarı saydam malzeme 
         const material = new THREE.MeshBasicMaterial({ 
-            color: color,  // Parametre olarak gelen renk
+            color: color || 0x00ff00,
             transparent: true, 
-            opacity: 1,    
-            wireframe: true,  // Tel kafes görünümü
+            opacity: 0.3,    
+            wireframe: true,
             wireframeLinewidth: 2
         })
         

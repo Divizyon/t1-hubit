@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-70,-30, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-75,-22, 0.8); // Artık doğru yerde tanımlandı
 
 export default class Cowork {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0.5 }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -48,6 +48,7 @@ export default class Cowork {
 
     // Model pozisyonu ve dönüşü
     model.position.copy(this.position);
+    // Dönüş açısını uygula - Modeli döndürmek için buradaki değer önemli
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
 

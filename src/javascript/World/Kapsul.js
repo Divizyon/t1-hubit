@@ -176,16 +176,3 @@ export default class Kapsul {
     }
 }
 
-/* 
-Resource.js   { name: 'aladdinTepesi', source: './models/hubit/aladdinTepesi/base.glb' },
-İndex Js
-    setAladdinTepesi() {
-        this.aladdinTepesi = new AladdinTepesi({
-            scene: this.scene,
-            time: this.time,
-            physics: this.physics
-        });
-    }
-this.setAladdinTepesi()
-import AladdinTepesi from './Hubit/AlaaddinTepesi.js'
-*/

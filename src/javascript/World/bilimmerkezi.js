@@ -3,7 +3,7 @@ import CANNON from 'cannon'
 
 let posizyonX = 25  // Model konumları
 let posizyonY = 25
-let posizyonZ = -3
+let posizyonZ = -2.5
 
 
 export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
@@ -14,7 +14,6 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         this.objects = _options.objects
         this.physics = _options.physics
         this.debug = _options.debug
-        this.areas = _options.areas
         this.sounds = _options.sounds // Ses efektleri için ekledim
 
         this.container = new THREE.Object3D()
@@ -22,7 +21,6 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         this.container.updateMatrix()
 
         this.setModel()
-        this.setBilimMerkeziArea() // Etkileşim alanını ekliyoruz
     }
 
     setModel() {
@@ -73,7 +71,7 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         // Tek bir box collision (modelin tamamı için)
         const mainShape = new CANNON.Box(new CANNON.Vec3(
             Math.abs(size.x) * scaleFactor / 2,
-            Math.abs(size.y) * scaleFactor / 2.5,
+            Math.abs(size.y) * scaleFactor / 2,
             Math.abs(size.z) * scaleFactor / 2
         ))
         body.addShape(mainShape)
@@ -95,45 +93,6 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
 
         this.container.add(this.model.base.container)
         console.log("Bilim Merkezi modeli başarıyla eklendi");
-    }
-
-    // Sadece etkileşim alanı oluşturan metod, popup kodunu içermiyor
-    setBilimMerkeziArea() {
-      // Etkileşim için görsel işaret
-      const areaLabelMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(2, 0.5),
-        new THREE.MeshBasicMaterial({
-          transparent: true,
-          depthWrite: false,
-          color: 0xffffff,
-          alphaMap: this.resources.items.areaEnterTexture,
-        })
-      );
-
-      areaLabelMesh.position.set(posizyonX+1, posizyonY-8, 5);
-      areaLabelMesh.matrixAutoUpdate = false;
-      areaLabelMesh.updateMatrix();
-      this.container.add(areaLabelMesh);
-  
-      // Etkileşim alanı
-      if (this.areas) {
-        this.bilimMerkeziArea = this.areas.add({
-          position: new THREE.Vector2(posizyonX+1, posizyonY-8),
-          halfExtents: new THREE.Vector2(2, 2),
-        });
-    
-        // Etkileşim fonksiyonu - sadece log mesaj (popup işlemi PopUpModule tarafından yönetiliyor)
-        this.bilimMerkeziArea.on("interact", () => {
-          console.log("Bilim Merkezi etkileşimi: PopUpModule tarafından yönetilecek");
-          
-          // Ses efekti (isteğe bağlı)
-          if (this.sounds) {
-            this.sounds.play("click");
-          }
-        });
-        
-        console.log("Bilim Merkezi etkileşim alanı eklendi");
-      }
     }
 }
 

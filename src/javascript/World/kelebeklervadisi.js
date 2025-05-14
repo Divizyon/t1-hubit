@@ -3,7 +3,7 @@ import CANNON from 'cannon'
 
 let posizyonX = 52
 let posizyonY = 3
-let posizyonZ = 0
+let posizyonZ = 1
 
 export default class kelebeklervadisi {
     constructor(_options) {
@@ -20,10 +20,6 @@ export default class kelebeklervadisi {
         this.container.updateMatrix()
 
         this.setModel()
-        
-        if (this.areas) {
-            this.setKelebeklerVadisiArea()
-        }
     }
 
     setModel() {
@@ -93,30 +89,5 @@ export default class kelebeklervadisi {
         this.model.base.collision = { body }
         this.container.add(this.model.base.container)
         console.log("Kelebekler Vadisi modeli başarıyla eklendi")
-    }
-
-    setKelebeklerVadisiArea() {
-        try {
-            if (!this.areas) {
-                console.error("Kelebekler Vadisi etkileşim alanı eklenirken hata: areas objesi bulunamadı!");
-                return;
-            }
-
-            // Create interaction area 5 units to the right of the model
-            this.kelebeklerVadisiArea = this.areas.add({
-                position: new THREE.Vector2(posizyonX + 5, posizyonY),
-                halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
-            });
-
-            // Define interaction function
-            this.kelebeklerVadisiArea.on("interact", () => {
-                // PopupModule tarafından yönetileceği için buradaki popup kodu kaldırıldı
-                console.log("Kelebekler Vadisi etkileşimi: PopUpModule tarafından yönetilecek");
-            });
-            
-            console.log("Kelebekler Vadisi etkileşim alanı başarıyla eklendi");
-        } catch (error) {
-            console.error("Kelebekler Vadisi etkileşim alanı eklenirken hata oluştu:", error);
-        }
     }
 } 

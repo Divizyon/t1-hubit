@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import CANNON from 'cannon'
 
 export default class Sosyalino {
   constructor(_options) {
@@ -17,11 +18,6 @@ export default class Sosyalino {
     this.container.updateMatrix()
     
     this.setupModel()
-    
-    // Etkileşim alanını ayarla (areas parametresi varsa)
-    if (this.areas) {
-      this.setSosyalinoInteraction()
-    }
   }
   
   setupModel() {
@@ -30,6 +26,9 @@ export default class Sosyalino {
       
       // Clone the model scene to avoid modifying the original
       const sosyalinoScene = this.resources.items.Sosyalino.scene.clone()
+      
+      // Model pozisyonu
+      const position = new THREE.Vector3(64, 22, 0)
       
       // Make sure all materials are preserved
       sosyalinoScene.traverse((child) => {
@@ -40,22 +39,52 @@ export default class Sosyalino {
             } else {
               child.material = child.material.clone()
             }
+            child.castShadow = true
+            child.receiveShadow = true
           }
         }
       })
       
+      // Modeli container'a ekle
+      sosyalinoScene.position.copy(position)
+      sosyalinoScene.rotation.set(Math.PI/2, Math.PI, 0)
+      
+      // Bounding box hesapla
+      sosyalinoScene.updateMatrixWorld(true)
+      const bbox = new THREE.Box3().setFromObject(sosyalinoScene)
+      const size = bbox.getSize(new THREE.Vector3())
+      
+      // Fizik gövdesi oluştur
+      const halfExtents = new CANNON.Vec3(size.x / 2.5, size.y / 2.5, size.z / 2)
+      const boxShape = new CANNON.Box(halfExtents)
+      
+      const body = new CANNON.Body({
+        mass: 0,
+        position: new CANNON.Vec3(position.x, position.y, position.z),
+        material: this.physics.materials.items.floor
+      })
+      
+      // Dönüşü quaternion olarak ayarla
+      const quat = new CANNON.Quaternion()
+      quat.setFromEuler(Math.PI/2, Math.PI, 0, 'XYZ')
+      body.quaternion.copy(quat)
+      
+      body.addShape(boxShape)
+      this.physics.world.addBody(body)
+      
       // Add the model with preserved materials
       this.sosyalinoModel = this.objects.add({
         base: sosyalinoScene,
-        collision: this.resources.items.brickCollision.scene,
-        offset: new THREE.Vector3(67.58, 29.55, 0.00), // Z-değeri yerden biraz yukarıda
-        offset: new THREE.Vector3(15, 15, 0.5), // Z-değeri yerden biraz yukarıda
+        offset: position,
         rotation: new THREE.Euler(Math.PI/2, Math.PI, 0),
         shadow: { sizeX: 6, sizeY: 6, offsetZ: -0.5, alpha: 0.5 },
         mass: 0,
         sleep: true,
         preserveMaterials: true // Malzemeleri koru
       })
+      
+      // Fizik gövdesini ekle
+      this.sosyalinoModel.collision = { body }
       
       // Add to container
       if (this.sosyalinoModel && this.sosyalinoModel.container) {
@@ -69,35 +98,4 @@ export default class Sosyalino {
       console.error("Sosyalino modeli yüklenirken hata:", error)
     }
   }
-
-  // Sosyalino için etkileşim butonu ve alanı oluştur
-  setSosyalinoInteraction() {
-    try {
-      if (!this.areas) {
-        console.error("Sosyalino etkileşim alanı eklenirken hata: areas objesi bulunamadı!");
-        return;
-      }
-
-      // Etkileşim alanı oluştur
-      this.sosyalinoArea = this.areas.add({
-        position: new THREE.Vector2(68, 23), // Sosyalino konumu
-        halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
-      });
-
-      // Etkileşim fonksiyonunu tanımla - PopupModule tarafından yönetilecek
-      this.sosyalinoArea.on("interact", () => {
-        // PopupModule tarafından yönetileceği için buradaki popup kodu kaldırıldı
-        console.log("Sosyalino etkileşimi: PopUpModule tarafından yönetilecek");
-        
-        // Ses efekti çal
-        if (this.sounds) {
-          this.sounds.play("click");
-        }
-      });
-      
-      console.log("Sosyalino etkileşim alanı başarıyla eklendi");
-    } catch (error) {
-      console.error("Sosyalino etkileşim alanı eklenirken hata oluştu:", error);
-    }
-  }
-} 
+}

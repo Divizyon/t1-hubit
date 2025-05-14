@@ -4,7 +4,7 @@ import CANNON from 'cannon';
 const DEFAULT_POSITION = new THREE.Vector3(30.7, -45, -1.5); // Artık doğru yerde tanımlandı
 
 export default class Stadyum {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0, areas }) {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -13,18 +13,12 @@ export default class Stadyum {
     this.rotateX = rotateX;
     this.rotateY = rotateY;
     this.rotateZ = rotateZ;
-    this.areas = areas;
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
 
     this._buildModel();
     this.scene.add(this.container);
-
-    // Add interaction area if areas parameter exists
-    if (this.areas) {
-      this.setStadyumInteraction();
-    }
   }
 
   _buildModel() {
@@ -104,31 +98,6 @@ export default class Stadyum {
       if (objectEntry.container) {
         this.container.add(objectEntry.container);
       }
-    }
-  }
-
-  setStadyumInteraction() {
-    try {
-      if (!this.areas) {
-        console.error("Stadyum etkileşim alanı eklenirken hata: areas objesi bulunamadı!");
-        return;
-      }
-
-      // Create interaction area 5 units to the right of the model
-      this.stadyumArea = this.areas.add({
-        position: new THREE.Vector2(42, -45), // 
-        halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
-      });
-
-      // Define interaction function
-      this.stadyumArea.on("interact", () => {
-        // PopupModule tarafından yönetileceği için buradaki popup kodu kaldırıldı
-        console.log("Stadyum etkileşimi: PopUpModule tarafından yönetilecek");
-      });
-      
-      console.log("Stadyum etkileşim alanı başarıyla eklendi");
-    } catch (error) {
-      console.error("Stadyum etkileşim alanı eklenirken hata oluştu:", error);
     }
   }
 }

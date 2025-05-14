@@ -1,16 +1,15 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-72.5, 0, 2); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-69, -3, 2); // Artık doğru yerde tanımlandı
 
 export default class DivizyonBina {
-    constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0, areas }) {
+    constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
         this.scene = scene;
         this.resources = resources;
         this.objects = objects;
         this.physics = physics;
         this.debug = debug;
-        this.areas = areas;
 
         this.rotateX = rotateX;
         this.rotateY = rotateY;
@@ -21,36 +20,6 @@ export default class DivizyonBina {
 
         this._buildModel();
         this.scene.add(this.container);
-
-        // Add interaction area if areas parameter exists
-        if (this.areas) {
-            this.setDivizyonInteraction();
-        }
-    }
-
-    setDivizyonInteraction() {
-        try {
-            if (!this.areas) {
-                console.error("Divizyon etkileşim alanı eklenirken hata: areas objesi bulunamadı!");
-                return;
-            }
-
-            // Create interaction area 6 units to the right of the model
-            this.divizyonArea = this.areas.add({
-                position: new THREE.Vector2(-66.5, 0), // 6 units to the right of the model's position (-72.5, 0)
-                halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
-            });
-
-            // Define interaction function
-            this.divizyonArea.on("interact", () => {
-                // PopupModule tarafından yönetileceği için buradaki popup kodu kaldırıldı
-                console.log("Divizyon Bina etkileşimi: PopUpModule tarafından yönetilecek");
-            });
-            
-            console.log("Divizyon etkileşim alanı başarıyla eklendi");
-        } catch (error) {
-            console.error("Divizyon etkileşim alanı eklenirken hata oluştu:", error);
-        }
     }
 
     _buildModel() {
@@ -86,7 +55,7 @@ export default class DivizyonBina {
         } else {
             // Base modelini klonla ve Divizyon modeline ekle
             const baseModel = base.scene.clone(true);
-            baseModel.position.set(-72.5, 0, 0); // Base modelinin Divizyon altına yerleştirilmesi için pozisyon ayarı
+            baseModel.position.set(-69, -3, 0); // Base modelinin Divizyon altına yerleştirilmesi için pozisyon ayarı
             baseModel.scale.set(1.5, 1.5, 1.5); // Base modelinin ölçeği
             this.container.add(baseModel);
         }

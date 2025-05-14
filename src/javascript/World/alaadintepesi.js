@@ -8,6 +8,7 @@ export default class AlaaddinTepesi {
         this.scene = _options.scene;
         this.physics = _options.physics;
         this.areas = _options.areas;
+        this.resources = _options.resources;
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
@@ -20,10 +21,6 @@ export default class AlaaddinTepesi {
         } else {
             console.warn('AlaaddinTepesi: time parametresi verilmedi, animasyonlar çalışmayacak.');
         }
-
-        if (this.areas) {
-            this.setAlaaddinInteraction();
-        }
     }
 
     setModel() {
@@ -32,69 +29,50 @@ export default class AlaaddinTepesi {
             return;
         }
 
+        if (this.resources && this.resources.items.aladdinTepesi) {
+            console.log('Alaaddin Tepesi modeli resources.items\'dan yükleniyor');
+            
+            // Clone the model - don't modify the original resource
+            this.model = this.resources.items.aladdinTepesi.scene.clone();
+            
+            // Set up the model (position, scale, etc.)
+            this.setupModel();
+            
+            // Handle animations from resources
+            if (this.resources.items.aladdinTepesi.animations && 
+                this.resources.items.aladdinTepesi.animations.length > 0) {
+                
+                console.log('Resources animasyonları yükleniyor...');
+                console.log('Animasyon sayısı:', this.resources.items.aladdinTepesi.animations.length);
+                
+                this.mixer = new THREE.AnimationMixer(this.model);
+                
+                this.resources.items.aladdinTepesi.animations.forEach((clip, index) => {
+                    console.log(`Animasyon ${index} yükleniyor:`, clip.name);
+                    const action = this.mixer.clipAction(clip);
+                    action.reset().play();
+                });
+                
+                console.log('Mixer oluşturuldu:', this.mixer);
+            } else {
+                console.warn('Resources içinde hiç animasyon bulunamadı!');
+                this.loadExternalModel();
+            }
+        } else {
+            console.log('Resources bulunamadı, Alaaddin Tepesi modeli doğrudan yükleniyor...');
+            this.loadExternalModel();
+        }
+    }
+    
+    loadExternalModel() {
         const loader = new GLTFLoader();
         loader.load('./models/alladintepesi/AlaaddinTepesi.glb', (gltf) => {
-            console.log('Balık modeli yüklendi:', gltf);
+            console.log('Alaaddin Tepesi modeli dışarıdan yüklendi:', gltf);
             console.log('Animasyonlar:', gltf.animations);
             
             this.model = gltf.scene;
-
+            this.setupModel();
             
-            this.model.position.set(15,-15, .7)
-            this.model.scale.set(.5, .5, .5);
-            
-            // Modeli döndür
-            this.model.rotation.x = Math.PI / 2;
-            
-            this.scene.add(this.model);
-
-          
-            if (this.physics) {
-                this.collisionBody = new CANNON.Body({
-                    mass: 0,
-                    position: new CANNON.Vec3(15, -15, .7),
-                    material: this.physics.materials.items.floor
-                });
-
-              
-                const radius = 5;
-                const sphereShape = new CANNON.Sphere(radius);
-                this.collisionBody.addShape(sphereShape);
-
-                
-                this.physics.world.addBody(this.collisionBody);
-            }
-
-            // Işık ekle (sadece bir kez)
-            if (!this.scene.__balikLightAdded) {
-                this.scene.add(new THREE.AmbientLight(0xffffff, 2));
-                const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-                dirLight.position.set(5, 10, 7.5);
-                this.scene.add(dirLight);
-                this.scene.__balikLightAdded = true;
-            }
-
-            // Materyal ve mesh kontrolü
-            this.model.traverse((child) => {
-                if (child.isMesh) {
-                    console.log('Mesh bulundu:', child.name);
-                    if (child.isSkinnedMesh) {
-                        console.log('SkinnedMesh bulundu:', child.name);
-                    }
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    if (!child.material) {
-                        child.material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-                    }
-                    if (child.material && child.material.type === 'MeshBasicMaterial') {
-                        child.material = new THREE.MeshStandardMaterial({ color: child.material.color || 0xffffff });
-                    }
-                    child.material.transparent = false;
-                    child.material.opacity = 1;
-                }
-            });
-
-            // Animasyonları başlat
             if (gltf.animations && gltf.animations.length > 0) {
                 console.log('Animasyonlar yükleniyor...');
                 this.mixer = new THREE.AnimationMixer(this.model);
@@ -110,34 +88,58 @@ export default class AlaaddinTepesi {
         });
     }
 
+    setupModel() {
+        this.model.position.set(14, -14, 0);
+        this.model.scale.set(0.5, 0.5, 0.5);
+        this.model.rotation.x = Math.PI / 2;
+        
+        this.scene.add(this.model);
+
+        if (this.physics) {
+            this.collisionBody = new CANNON.Body({
+                mass: 0,
+                position: new CANNON.Vec3(14, -14, 0),
+                material: this.physics.materials.items.floor
+            });
+
+            const radius = 5;
+            const sphereShape = new CANNON.Sphere(radius);
+            this.collisionBody.addShape(sphereShape);
+            
+            this.physics.world.addBody(this.collisionBody);
+        }
+
+        if (!this.scene.__balikLightAdded) {
+            this.scene.add(new THREE.AmbientLight(0xffffff, 2));
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+            dirLight.position.set(5, 10, 7.5);
+            this.scene.add(dirLight);
+            this.scene.__balikLightAdded = true;
+        }
+
+        this.model.traverse((child) => {
+            if (child.isMesh) {
+                console.log('Mesh bulundu:', child.name);
+                if (child.isSkinnedMesh) {
+                    console.log('SkinnedMesh bulundu:', child.name);
+                }
+                child.castShadow = true;
+                child.receiveShadow = true;
+                if (!child.material) {
+                    child.material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+                }
+                if (child.material && child.material.type === 'MeshBasicMaterial') {
+                    child.material = new THREE.MeshStandardMaterial({ color: child.material.color || 0xffffff });
+                }
+                child.material.transparent = false;
+                child.material.opacity = 1;
+            }
+        });
+    }
+
     tick(delta) {
         if (this.mixer) {
             this.mixer.update(delta);
-        }
-    }
-
-    setAlaaddinInteraction() {
-        try {
-            if (!this.areas) {
-                console.error("Alaaddin Tepesi etkileşim alanı eklenirken hata: areas objesi bulunamadı!");
-                return;
-            }
-
-            // Create interaction area 6 units below the model
-            this.alaaddinArea = this.areas.add({
-                position: new THREE.Vector2(15, -21), // 6 units below the model's position (15, -15)
-                halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
-            });
-
-            // Define interaction function
-            this.alaaddinArea.on("interact", () => {
-                // PopupModule tarafından yönetileceği için buradaki popup kodu kaldırıldı
-                console.log("Alaaddin Tepesi etkileşimi: PopUpModule tarafından yönetilecek");
-            });
-            
-            console.log("Alaaddin Tepesi etkileşim alanı başarıyla eklendi");
-        } catch (error) {
-            console.error("Alaaddin Tepesi etkileşim alanı eklenirken hata oluştu:", error);
         }
     }
 }

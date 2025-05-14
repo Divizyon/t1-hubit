@@ -32,11 +32,12 @@ import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
 
-import KonyaGenckart from "./KonyaGencKart.js";
+import KonyaGencKart from "./KonyaGencKart.js";
 import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
 import sesOdasi from './sesOdasi.js'
 import rocket from './rocket.js'
+import ProjectsSection from "./Sections/ProjectsSection.js";
 
 
 
@@ -367,6 +368,8 @@ export default class World {
     });
   }
 
+  
+
   setSounds() {
     this.sounds = new Sounds({
       debug: this.debugFolder,
@@ -525,7 +528,7 @@ export default class World {
       debug:     this.debugFolder,
       rotateX:   0,   // 
       rotateY:   0,
-      rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
+      rotateZ:   2 // Hafif sağa çevirme
     });
   }
 
@@ -554,6 +557,17 @@ export default class World {
       y: 0,
     });
     this.container.add(this.sections.area.container);
+
+    // Projects
+    this.sections.projects = new ProjectsSection({
+      ...options,
+      x: -7,
+      y: 3.2
+
+      // x: 0,
+      // y: 0
+  })
+  this.container.add(this.sections.projects.container)
   }
 
   setEasterEggs() {
@@ -862,7 +876,8 @@ export default class World {
       scene: this.scene,
       time: this.time,
       physics: this.physics,
-      areas: this.areas  // Add areas parameter
+      areas: this.areas,  // Add areas parameter
+      resources: this.resources  // Add resources parameter
     });
     this.container.add(this.alaadintepesi.model);
     console.log("Alaaddin Tepesi modeli başarıyla eklendi");
@@ -1006,13 +1021,13 @@ export default class World {
       debug: this.debugFolder,
       rotateX: 0,
       rotateY: 0,
-      rotateZ: Math.PI / 2 // Z ekseninde 90 derece
+      rotateZ: 2
     });
   }
 
   setKonyaGencKart() {
     try {
-      this.konyaGenckart = new KonyaGenckart({
+      this.konyaGencKart = new KonyaGencKart({
         scene: this.scene,
         time: this.time,
         physics: this.physics,
@@ -1022,8 +1037,8 @@ export default class World {
       });
       
       // Add the container to the world container
-      if (this.konyaGenckart && this.konyaGenckart.container) {
-        this.container.add(this.konyaGenckart.container);
+      if (this.konyaGencKart && this.konyaGencKart.container) {
+        this.container.add(this.konyaGencKart.container);
       }
       
       console.log("Konya Genç Kart modeli başarıyla eklendi");
@@ -1105,7 +1120,7 @@ export default class World {
     debug:     this.debugFolder,
     rotateX:   0,   
     rotateY:   0, 
-    rotateZ:   Math.PI / 2// Y ekseninde 90 derece,
+    rotateZ:   6
   });
 }
 

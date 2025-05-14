@@ -7,7 +7,6 @@ export default class Japonparki {
         this.time = _options.time;
         this.scene = _options.scene;
         this.physics = _options.physics;
-        this.areas = _options.areas;
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
@@ -19,10 +18,6 @@ export default class Japonparki {
             });
         } else {
             console.warn('Japonparki: time parametresi verilmedi, animasyonlar çalışmayacak.');
-        }
-
-        if (this.areas) {
-            this.setJaponparkiInteraction();
         }
     }
 
@@ -42,7 +37,7 @@ export default class Japonparki {
             
             this.model = gltf.scene;
             this.model.position.set(-8, -30, .7);
-            this.model.scale.set(.3, .3, .3);
+            //this.model.scale.set(.3, .3, .3);
             
             // Modeli döndür
             this.model.rotation.x = Math.PI / 2;
@@ -117,31 +112,6 @@ export default class Japonparki {
     tick(delta) {
         if (this.mixer) {
             this.mixer.update(delta);
-        }
-    }
-
-    setJaponparkiInteraction() {
-        try {
-            if (!this.areas) {
-                console.error("Japon Parkı etkileşim alanı eklenirken hata: areas objesi bulunamadı!");
-                return;
-            }
-
-            // Create interaction area 5 units to the right of the model
-            this.japonparkiArea = this.areas.add({
-                position: new THREE.Vector2(2, -25), // 5 units up and 5 units more to the right from previous position (-3, -30)
-                halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
-            });
-
-            // Define interaction function
-            this.japonparkiArea.on("interact", () => {
-                // PopupModule tarafından yönetileceği için buradaki popup kodu kaldırıldı
-                console.log("Japon Parkı etkileşimi: PopUpModule tarafından yönetilecek");
-            });
-            
-            console.log("Japon Parkı etkileşim alanı başarıyla eklendi");
-        } catch (error) {
-            console.error("Japon Parkı etkileşim alanı eklenirken hata oluştu:", error);
         }
     }
 }
