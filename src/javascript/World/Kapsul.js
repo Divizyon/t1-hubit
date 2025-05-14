@@ -87,7 +87,7 @@ export default class Kapsul {
         this.addCollisions()
 
         // Add interaction area (from the previous setKapsulArea functionality)
-        if (this.areas) {
+       /* if (this.areas) {
             this.areas.add({
                 position: new THREE.Vector2(this.kapsul.x -7, this.kapsul.y),
                 halfExtents: new THREE.Vector2(3, 3),
@@ -101,7 +101,7 @@ export default class Kapsul {
                 }
             })
             console.log("Kapsul interaction area added")
-        }
+        }*/
         
         // Add spatial sound if needed
         if (this.sounds) {

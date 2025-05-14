@@ -15,13 +15,14 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         this.physics = _options.physics
         this.debug = _options.debug
         this.areas = _options.areas
+        this.sounds = _options.sounds // Ses efektleri için ekledim
 
         this.container = new THREE.Object3D()
         this.container.matrixAutoUpdate = false
         this.container.updateMatrix()
 
         this.setModel()
-        this.setBilimMerkeziArea()
+        this.setBilimMerkeziArea() // Etkileşim alanını ekliyoruz
     }
 
     setModel() {
@@ -95,8 +96,10 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         this.container.add(this.model.base.container)
         console.log("Bilim Merkezi modeli başarıyla eklendi");
     }
+
+    // Sadece etkileşim alanı oluşturan metod, popup kodunu içermiyor
     setBilimMerkeziArea() {
-      // Etkileşim etiketi oluştur
+      // Etkileşim için görsel işaret
       const areaLabelMesh = new THREE.Mesh(
         new THREE.PlaneGeometry(2, 0.5),
         new THREE.MeshBasicMaterial({
@@ -107,111 +110,31 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         })
       );
 
-      areaLabelMesh.position.set(posizyonX+1.3, posizyonY-8);
+      areaLabelMesh.position.set(posizyonX+1, posizyonY-8, 5);
       areaLabelMesh.matrixAutoUpdate = false;
       areaLabelMesh.updateMatrix();
       this.container.add(areaLabelMesh);
   
-      // Etkileşim alanı oluştur
-      this.bilimMerkeziArea = this.areas.add({
-        position: new THREE.Vector2(posizyonX+1, posizyonY-8),
-        halfExtents: new THREE.Vector2(2, 2),
-      });
-  
-      // Etkileşim fonksiyonu
-      this.bilimMerkeziArea.on("interact", () => {
-        // Popup oluştur
-        const popupContainer = document.createElement("div");
-        popupContainer.style.position = "fixed";
-        popupContainer.style.top = "0";
-        popupContainer.style.left = "0";
-        popupContainer.style.width = "100%";
-        popupContainer.style.height = "100%";
-        popupContainer.style.display = "flex";
-        popupContainer.style.justifyContent = "center";
-        popupContainer.style.alignItems = "center";
-        popupContainer.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-        popupContainer.style.zIndex = "9999";
-  
-        // Popup içeriği
-        const popupBox = document.createElement("div");
-        popupBox.style.backgroundColor = "white";
-        popupBox.style.color = "black";
-        popupBox.style.padding = "30px 40px";
-        popupBox.style.borderRadius = "8px";
-        popupBox.style.minWidth = "350px";
-        popupBox.style.maxWidth = "90%";
-        popupBox.style.textAlign = "center";
-        popupBox.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
-  
-        // Başlık
-        const titleEl = document.createElement("h2");
-        titleEl.style.margin = "0 0 25px 0";
-        titleEl.style.fontSize = "24px";
-        titleEl.style.fontWeight = "bold";
-        titleEl.textContent = "Bilim Merkezi";
-  
-        // Açıklama metni
-        const descriptionEl = document.createElement("p");
-        descriptionEl.textContent = "Bilim Merkezi hakkında daha fazla bilgi almak için tıklayın.";
-        descriptionEl.style.margin = "0 0 20px 0";
-  
-        // Link oluştur
-        const linkEl = document.createElement("a");
-        linkEl.href = "https://www.bilimmerkezi.org.tr/";
-        linkEl.textContent = "www.bilimmerkezi.org.tr";
-        linkEl.target = "_blank";
-        linkEl.style.display = "inline-block";
-        linkEl.style.padding = "12px 25px";
-        linkEl.style.backgroundColor = "#3498db";
-        linkEl.style.color = "white";
-        linkEl.style.textDecoration = "none";
-        linkEl.style.borderRadius = "5px";
-        linkEl.style.fontWeight = "bold";
-        linkEl.style.margin = "15px 0";
-        linkEl.style.transition = "background-color 0.3s";
-        linkEl.addEventListener("mouseover", () => {
-          linkEl.style.backgroundColor = "#2980b9";
+      // Etkileşim alanı
+      if (this.areas) {
+        this.bilimMerkeziArea = this.areas.add({
+          position: new THREE.Vector2(posizyonX+1, posizyonY-8),
+          halfExtents: new THREE.Vector2(2, 2),
         });
-        linkEl.addEventListener("mouseout", () => {
-          linkEl.style.backgroundColor = "#3498db";
-        });
-  
-        // Kapatma butonu
-        const closeButton = document.createElement("button");
-        closeButton.textContent = "Kapat";
-        closeButton.style.padding = "10px 20px";
-        closeButton.style.border = "none";
-        closeButton.style.backgroundColor = "#e0e0e0";
-        closeButton.style.color = "#333";
-        closeButton.style.cursor = "pointer";
-        closeButton.style.borderRadius = "5px";
-        closeButton.style.fontSize = "14px";
-        closeButton.style.marginTop = "20px";
-        closeButton.addEventListener("click", () => {
-          document.body.removeChild(popupContainer);
-        });
-        popupContainer.addEventListener("click", (event) => {
-          if (event.target === popupContainer) {
-            document.body.removeChild(popupContainer);
+    
+        // Etkileşim fonksiyonu - sadece log mesaj (popup işlemi PopUpModule tarafından yönetiliyor)
+        this.bilimMerkeziArea.on("interact", () => {
+          console.log("Bilim Merkezi etkileşimi: PopUpModule tarafından yönetilecek");
+          
+          // Ses efekti (isteğe bağlı)
+          if (this.sounds) {
+            this.sounds.play("click");
           }
         });
-  
-        // Elementleri popupa ekle
-        popupBox.appendChild(titleEl);
-        popupBox.appendChild(descriptionEl);
-        popupBox.appendChild(linkEl);
-        popupBox.appendChild(closeButton);
-        popupContainer.appendChild(popupBox);
-        document.body.appendChild(popupContainer);
-  
-        // Ses efekti çal
-        if (this.sounds) {
-          this.sounds.play("click");
-        }
-      });
+        
+        console.log("Bilim Merkezi etkileşim alanı eklendi");
+      }
     }
-
 }
 
 

@@ -1,19 +1,29 @@
 import * as THREE from 'three'
 
 export default class CalisanGenclikMerkezi {
-    constructor(resources, objects, shadows, debug, scene) {
-        this.resources = resources
-        this.objects = objects
-        this.shadows = shadows
-        this.debug = debug
-        // We don't need the scene reference as the parent will handle adding to the scene
+    constructor(_options) {
+        this.resources = _options.resources
+        this.objects = _options.objects
+        this.shadows = _options.shadows
+        this.debug = _options.debug
+        this.areas = _options.areas // Alanlar için erişim ekle
+        this.scene = _options.scene // Sahne referansı ekle
         
         // Debug
         if (this.debug) {
             this.debugFolder = this.debug.addFolder('calisanGenclikMerkezi')
         }
 
+        this.container = new THREE.Object3D()
+        this.container.matrixAutoUpdate = false
+        this.container.updateMatrix()
+
         this.setModel()
+        
+        // Etkileşim alanını ekle
+        if (this.areas) {
+            this.setCalisanGenclikInteraction()
+        }
     }
 
     setModel() {
@@ -42,7 +52,7 @@ export default class CalisanGenclikMerkezi {
             sleep: true
         })
 
-        // We no longer need to add to scene here as the parent World class will handle that
+        this.container.add(this.model.container)
         console.log('CalisanGenclikMerkezi model created')
  
         // Debug
@@ -67,6 +77,32 @@ export default class CalisanGenclikMerkezi {
                 .min(-50)
                 .max(50)
                 .step(0.1)
+        }
+    }
+    
+    // Etkileşim alanı oluşturma
+    setCalisanGenclikInteraction() {
+        try {
+            if (!this.areas) {
+                console.error("Çalışan Gençlik Merkezi etkileşim alanı eklenirken hata: areas objesi bulunamadı!")
+                return
+            }
+
+            // Etkileşim alanı oluştur
+            this.calisanGenclikArea = this.areas.add({
+                position: new THREE.Vector2(68, -32), // Model pozisyonunun yakınında
+                halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
+            })
+
+            // Etkileşim fonksiyonunu tanımla
+            this.calisanGenclikArea.on("interact", () => {
+                // PopUpModule tarafından yönetileceği için sadece log mesajı
+                console.log("Çalışan Gençlik Merkezi etkileşimi: PopUpModule tarafından yönetilecek")
+            })
+            
+            console.log("Çalışan Gençlik Merkezi etkileşim alanı başarıyla eklendi")
+        } catch (error) {
+            console.error("Çalışan Gençlik Merkezi etkileşim alanı eklenirken hata oluştu:", error)
         }
     }
 } 

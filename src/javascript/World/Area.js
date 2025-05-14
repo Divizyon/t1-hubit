@@ -268,34 +268,49 @@ export default class Area extends EventEmitter
 
     setInteractions()
     {
-        this.mouseMesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(this.halfExtents.x * 2, this.halfExtents.y * 2, 1, 1),
-            new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })
-        )
-        this.mouseMesh.position.z = - 0.01
-        this.mouseMesh.matrixAutoUpdate = false
-        this.mouseMesh.updateMatrix()
-        this.container.add(this.mouseMesh)
-
-        this.time.on('tick', () =>
+        // Test car
+        if(this.testCar && this.car)
         {
-            if(this.testCar)
+            // Time tick
+            this.time.on('tick', () =>
             {
-                const isIn = Math.abs(this.car.position.x - this.position.x) < Math.abs(this.halfExtents.x) && Math.abs(this.car.position.y - this.position.y) < Math.abs(this.halfExtents.y)
+                // Check if car in area
+                const carPosition = this.car.chassis.object.position
+                const relativePosition = new THREE.Vector2(carPosition.x, carPosition.y)
+                relativePosition.x -= this.position.x
+                relativePosition.y -= this.position.y
 
-                if(isIn !== this.isIn)
+                if(relativePosition.x < this.halfExtents.x && relativePosition.x > - this.halfExtents.x && relativePosition.y < this.halfExtents.y && relativePosition.y > - this.halfExtents.y)
                 {
-                    if(isIn)
+                    if(!this.isIn)
                     {
-                        this.in(!this.config.touch)
+                        if(this.active)
+                        {
+                            // On white floor check
+                            if(this.isOnWhiteFloor())
+                            {
+                                this.in()
+                            }
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    if(this.isIn)
                     {
                         this.out()
                     }
                 }
-            }
-        })
+            })
+        }
+
+        // Create mouse mesh (invisible mesh to handle the mouse events)
+        const geometry = new THREE.PlaneGeometry(this.halfExtents.x * 2, this.halfExtents.y * 2, 1, 1)
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true, transparent: true, opacity: 0 })
+        
+        this.mouseMesh = new THREE.Mesh(geometry, material)
+        this.mouseMesh.matrixAutoUpdate = false
+        this.container.add(this.mouseMesh)
 
         window.addEventListener('keydown', (_event) =>
         {
@@ -304,5 +319,13 @@ export default class Area extends EventEmitter
                 this.interact()
             }
         })
+    }
+
+    // Beyaz zemin kontrolü - araç/kullanıcı beyaz zemin üzerindeyse true, değilse false
+    isOnWhiteFloor()
+    {
+        // Varsayılan olarak true dön - eğer özel bir beyaz zemin kontrolü yapmak istiyorsanız
+        // burayı daha karmaşık bir algoritma ile değiştirebilirsiniz
+        return true
     }
 }
