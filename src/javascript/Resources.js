@@ -15,10 +15,7 @@ export default class Resources extends EventEmitter {
             // Complete Scene
             { name: 'completeScene', source: './models/complete_scene_test/complete_scene.glb' },
             
-            // Trafik lambası ve yön tabelaları
-            { name: 'trafikLambasiModel', source: './models/cevre/traficlamba.glb' },
-            { name: 'yonTabelasi1Model', source: './models/cevre/yontabelasi1.glb' },
-            { name: 'yonTabelasi2Model', source: './models/cevre/yontabelasi2.glb' },
+
             // Matcaps
             { name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
             { name: 'matcapBlack', source: './models/matcaps/black.png', type: 'texture' },
@@ -35,25 +32,6 @@ export default class Resources extends EventEmitter {
             { name: 'matcapMetal', source: './models/matcaps/metal.png', type: 'texture' },
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
-            // Aladin Tepesi
-            { name: 'aladdinTepesi', source: './models/alladintepesi/AlaaddinTepesi.glb' },
-            // Ses Odası
-            { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
-                // Stadyum
-            { name: 'stadyumModel', source: './models/stadyum/stadyum.glb' },
-
-            // Konseralani
-            { name: 'konseralaniModel', source: './models/konseralani/konser_alani.glb' },
-            // Intro    
-           
-            // Japonparki
-            { name: 'japonparkiModel', source: './models/japonparki/japonparki.glb' },
-           
-            // Basket
-            { name: 'basketModel', source: './models/basket/basket.glb' },
-            
-            // Cowork
-            { name: 'coworkModel', source: './models/cowork/cowork.glb' },
         
 
 
@@ -169,9 +147,6 @@ export default class Resources extends EventEmitter {
             { name: 'playgroundStaticCollision', source: './models/playground/static/collision.glb' },
             { name: 'playgroundStaticFloorShadow', source: './models/playground/static/floorShadow.png', type: 'texture' },
 
-            // Greenbox
-            { name: 'greenBoxBase', source: './models/greenBox/base.glb' },
-            { name: 'greenBoxCollision', source: './models/greenBox/base.glb' },
 
             // Brick
             { name: 'brickBase', source: './models/balya/balya.glb' },
@@ -190,36 +165,6 @@ export default class Resources extends EventEmitter {
 
             // Render
             { name: 'renderModel', source: './models/render/base.glb' },
-
-            // Sosyalino modeli 
-            { name: 'Sosyalino', source: './models/sosyalinovasyon/sosyalino.glb' },
-
-            // Kapsul
-            { name: 'kapsulModel', source: './models/kapsul/Kapsul_Bina.glb' },
-
-            // DivizyonBina modeli
-            { name: 'divizyonBinaModel', source: './models/divizyonBina/DivizyonBina.glb' },
-
-            // Bilim Merkezi modeli
-            { name: 'bilimmerkezi', source: './models/bilimmerkezi/BilimMerkezi_BlockOut.glb' },
-
-            // Atmosfer Alanı modeli
-            { name: 'atmosferAlaniModel', source: './models/atmosfer/AtmosferAlani_with_road.glb' },
-
-            // Newton Sarkaci
-            { name: 'newtonSarkaci', source: './models/newton/newton.glb' },
-
-            // Kademe
-            {name: 'kademe', source: './models/kademe/kademe.glb'},
-
-            // Kelebekler Vadisi
-            { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
-
-            //CalisanGenclikMerkezi
-            { name: 'calisanGenclikMerkezi', source: './models/calisangenclikmerkezi/calisanGenclikMerkezi.glb' },
-
-            //Konya Genc Kart
-            { name: 'konyaGencKartModel', source: './models/konyaGencKart/3D_Ekran_Bina.glb' },
 
             // Webby trophy
             { name: 'webbyTrophyBase', source: './models/webbyTrophy/base.glb' },

@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import * as CANNON from 'cannon'
 
 export default class Road {
     constructor(options) {
@@ -14,7 +13,7 @@ export default class Road {
         this.container = new THREE.Object3D()
         this.container.matrixAutoUpdate = false
 
-            this.setModel()
+        this.setModel()
     }
 
     setModel() {
@@ -41,15 +40,5 @@ export default class Road {
         this.model.mesh.position.set(30, 0, 0.002)
 
         this.container.add(this.model.mesh)
-
-        // Physics
-        const shape = new CANNON.Box(new CANNON.Vec3(30, 0.1, 15))
-        this.model.body = new CANNON.Body({
-            mass: 0,
-            position: new CANNON.Vec3(30, 0, 0.002),
-            shape
-        })
-
-        this.physics.world.addBody(this.model.body)
     }
 } 

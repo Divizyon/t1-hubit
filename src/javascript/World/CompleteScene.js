@@ -25,12 +25,40 @@ export default class CompleteScene extends EventEmitter {
 
         // Model registry to access individual parts
         this.modelRegistry = {}
+        
+        // Animation components
+        this.mixer = null
+        this.animations = {}
+
+        // Building block following car
+        this.buildingBlockModel = null
+        this.buildingBlockOffset = new THREE.Vector3(0, 0, 0)
+        this.isFollowingCar = false
 
         // Set up scene lighting first (previously in AladdinTepesi)
         this.setLights()
         
         // Set up the model
         this.setModel()
+        
+        // Setup animations from the model
+        this.setupAnimations()
+        
+        // Setup building block to follow car if needed
+        this.setupCarFollowing()
+        
+        // Time tick
+        this.time.on('tick', () => {
+            // Update animations
+            if(this.mixer) {
+                this.mixer.update(this.time.delta * 0.001)
+            }
+            
+            // Update building block position to follow car if enabled
+            if (this.isFollowingCar) {
+                this.updateBuildingBlockPosition()
+            }
+        })
     }
 
     setLights() {
@@ -85,6 +113,42 @@ export default class CompleteScene extends EventEmitter {
             this.debugFolder.add(this.model.container.position, 'z').name('position z').min(-100).max(100).step(0.1)
         }
     }
+    
+    setupAnimations() {
+        // Check if the model has animations
+        const animations = this.model.resource.animations
+        
+        if (!animations || animations.length === 0) {
+            console.warn('No animations found in model')
+            return
+        }
+        
+        console.log(`Found ${animations.length} animations in model`)
+        
+        // Create animation mixer
+        this.mixer = new THREE.AnimationMixer(this.model.scene)
+        
+        // Create and play all animations automatically
+        animations.forEach((clip, index) => {
+            const name = clip.name || `animation_${index}`
+            
+            // Create action for this animation
+            const action = this.mixer.clipAction(clip)
+            
+            // Configure for looping
+            action.reset()
+            action.setLoop(THREE.LoopRepeat)
+            action.clampWhenFinished = false
+            
+            // Play animation
+            action.play()
+            
+            // Save for reference
+            this.animations[name] = action
+            
+            console.log(`Started looping animation: ${name}`)
+        })
+    }
 
     registerModels(object, prefix = '') {
         // Register this object in the registry if it has a name
@@ -118,6 +182,90 @@ export default class CompleteScene extends EventEmitter {
         if(model) {
             transformFn(model)
             this.model.container.updateMatrix()
+        }
+    }
+
+    setupCarFollowing() {
+        // Find the building block model by name in the registry
+        // Note: You may need to adjust the name based on your model structure
+        const possibleNames = ['greenbox', 'buildingBlock', 'carPlatform', 'Scene.greenbox', 'Scene.BuildingBlock'];
+        
+        // Try to find the building block using different possible names
+        for (const name of possibleNames) {
+            const model = this.getModel(name);
+            if (model) {
+                this.buildingBlockModel = model;
+                console.log(`Found building block model: ${name}`);
+                break;
+            }
+        }
+        
+        // If we couldn't find it by common names, try to find it by position or structure
+        if (!this.buildingBlockModel) {
+            // Log all model names to help identify the building block
+            console.log("Couldn't find building block by name. Available models:");
+            Object.keys(this.modelRegistry).forEach(key => {
+                console.log(`- ${key}`);
+            });
+            
+            // Don't enable following if building block wasn't found
+            return;
+        }
+        
+        // Disable car following by default (enable manually when needed)
+        this.isFollowingCar = false;
+        console.log("Building block car following is disabled by default");
+    }
+    
+    enableCarFollowing() {
+        if (this.buildingBlockModel) {
+            // Store the initial offset between car and block only once when enabling
+            if (this.physics && this.physics.car && this.physics.car.chassis && this.physics.car.chassis.body) {
+                const carPosition = this.physics.car.chassis.body.position;
+                this.buildingBlockOffset.set(
+                    this.buildingBlockModel.position.x - carPosition.x,
+                    this.buildingBlockModel.position.y - carPosition.y,
+                    this.buildingBlockModel.position.z - carPosition.z
+                );
+                console.log("Initial offset between car and building block:", this.buildingBlockOffset);
+            }
+            
+            this.isFollowingCar = true;
+            console.log("Building block will now follow the car");
+        } else {
+            console.warn("Cannot enable car following - building block model not found");
+        }
+    }
+    
+    disableCarFollowing() {
+        this.isFollowingCar = false;
+        console.log("Building block will no longer follow the car");
+    }
+    
+    updateBuildingBlockPosition() {
+        if (!this.isFollowingCar || !this.buildingBlockModel) return;
+        
+        // Get the car position from physics
+        if (this.physics && this.physics.car && this.physics.car.chassis && this.physics.car.chassis.body) {
+            const carPosition = this.physics.car.chassis.body.position;
+            
+            // Update building block position based on car position and stored offset
+            this.buildingBlockModel.position.set(
+                carPosition.x + this.buildingBlockOffset.x,
+                carPosition.y + this.buildingBlockOffset.y,
+                carPosition.z + this.buildingBlockOffset.z
+            );
+            
+            // Create a copy of the car's quaternion instead of directly referring to it
+            // This prevents any issues with the car's physics body
+            if (this.physics.car.chassis.body.quaternion) {
+                const carQuat = this.physics.car.chassis.body.quaternion;
+                const quaternionCopy = new THREE.Quaternion(carQuat.x, carQuat.y, carQuat.z, carQuat.w);
+                this.buildingBlockModel.quaternion.copy(quaternionCopy);
+            }
+            
+            // Update this specific model's matrix
+            this.buildingBlockModel.updateMatrix();
         }
     }
 } 

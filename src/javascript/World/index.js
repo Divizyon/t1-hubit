@@ -56,6 +56,12 @@ export default class World {
     this.setAreas();
     this.setStartingScreen();
     this.setCoordinateShower();
+
+    // Wait for resources
+    this.resources.on("ready", () => {
+      // Setup
+      this.start()
+    });
   }
 
   start() {
@@ -83,44 +89,37 @@ export default class World {
     this.setMaterials();
     this.setShadows();
     this.setRoad();
+    
+    // Set physics first to ensure car is ready
     this.setPhysics();
+    
+    // Set zones and objects before car
     this.setZones();
     this.setObjects();
+    
+    // Set car AFTER physics and objects are ready
     this.setCar();
-    this.areas.car = this.car;
+    
+    // Then add the complete scene
+    this.setCompleteScene();
+    
+    // Make sure the car is properly referenced and active
+    if (this.car && this.physics && this.physics.car) {
+      // Make sure the car is awake
+      if (this.physics.car.chassis && this.physics.car.chassis.body) {
+        this.physics.car.chassis.body.wakeUp();
+        console.log('Car physics activated during initialization');
+      }
+      
+      // Link car to areas
+      this.areas.car = this.car;
+    }
+    
     this.setTiles();
     this.setWalls();
     this.setSections();
     this.setEasterEggs();
-
-    // Add this line to initialize the complete scene
-    this.setCompleteScene();
-
-    this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
-    // this.setRender(); // Render modelini ekler
-    // this.setSesOdasi(); // Ses odası modelini ekler
-    // this.setGreenBox(); // Yeşil kutu modelini ekler
-    // this.setAladdinTepesi(); // Aladdin Tepesi modelini ekler - lighting now in CompleteScene
-    // this.setKapsul(); // Kapsul modelini ekler
-    // Removing this line since we consolidated the functionality into Kapsul.js
-    // this.setKapsulArea(); // Kapsul etkileşim alanını ekler
-    // this.setSosyalino(); // Sosyalino modelini ekler
-    // this.setCalisanGenclikMerkezi(); // CalisanGenclikMerkezi modelini ekler
-    // this.setKelebekler(); // Kelebekler Vadisi modelini ekler
-    // this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
-    // this.setroketplatformu(); // Roket Platformu modelini ekler
-    // this.setDivizyonBina(); // Divizyon Bina modelini ekler
-
-    // this.setAtmosferAlani(); // Atmosfer Alanı modelini ekler
-
-    // this.setStadyum(); // Stadyum modelini ekler
-    // this.setKonseralani(); // Konseralani modelini ekler
-    // this.setJaponparki(); // Japonparki modelini ekler
-    // this.setBasket(); // Basket modelini ekler
-    // this.setCowork(); // Cowork modelini ekler
-
-    // this.setKonyaGencKart(); // Yeni eklenen model
-    // this.setPopUp();
+    this.setRocket();
   }
 
   setReveal() {
@@ -148,13 +147,32 @@ export default class World {
         { alpha: 0.5, duration: 3, delay: 0.5 }
       );
 
-      // Car
-      this.physics.car.chassis.body.sleep();
-      this.physics.car.chassis.body.position.set(0, 0, 12);
-
-      window.setTimeout(() => {
+      // Car - Force wake up and reset position
+      if (this.physics && this.physics.car && this.physics.car.chassis) {
+        console.log('Setting up car position and physics state...');
+        
+        // Force wake up the chassis
         this.physics.car.chassis.body.wakeUp();
-      }, 300);
+        
+        // Reset position and velocity
+        this.physics.car.chassis.body.position.set(0, 0, 12);
+        this.physics.car.chassis.body.velocity.set(0, 0, 0);
+        this.physics.car.chassis.body.angularVelocity.set(0, 0, 0);
+        
+        // Set a new timeout to ensure the car wakes up properly after reveal
+        window.setTimeout(() => {
+          console.log('Forcing car physics to wake up...');
+          this.physics.car.chassis.body.wakeUp();
+          
+          // Apply a tiny impulse to ensure it's active
+          this.physics.car.chassis.body.applyImpulse(
+            new CANNON.Vec3(0, 0, 0.1),
+            this.physics.car.chassis.body.position
+          );
+        }, 1000);
+      } else {
+        console.warn('Car physics not initialized properly');
+      }
 
       // Sound
       gsap.fromTo(
@@ -404,6 +422,12 @@ export default class World {
   }
 
   setPhysics() {
+    // Don't recreate physics if already exists
+    if (this.physics) {
+      console.log('Physics already initialized, skipping');
+      return;
+    }
+    
     this.physics = new Physics({
       config: this.config,
       debug: this.debug,
@@ -890,13 +914,13 @@ export default class World {
       physics: this.physics,
       areas: this.areas,
       objects: this.objects,
-      scene: this.scene  // Add this parameter
+      scene: this.scene
     });
     
     // Add to scene
     this.scene.add(this.completeScene.container);
     
-    // Set position for testing
+    // Set position for testing - placed slightly away from the origin
     this.completeScene.model.container.position.set(0, 0, 0);
     
     // Initialize the model test utility
@@ -908,9 +932,21 @@ export default class World {
     
     // Debug
     if(this.debug) {
-      this.debugFolder.add(this.completeScene.model.container.position, 'x').name('completeScene x').min(-100).max(100).step(0.1);
-      this.debugFolder.add(this.completeScene.model.container.position, 'y').name('completeScene y').min(-100).max(100).step(0.1);
-      this.debugFolder.add(this.completeScene.model.container.position, 'z').name('completeScene z').min(-100).max(100).step(0.1);
+      const completeSceneFolder = this.debugFolder.addFolder('completeScene');
+      completeSceneFolder.add(this.completeScene.model.container.position, 'x').name('position x').min(-100).max(100).step(0.1);
+      completeSceneFolder.add(this.completeScene.model.container.position, 'y').name('position y').min(-100).max(100).step(0.1);
+      completeSceneFolder.add(this.completeScene.model.container.position, 'z').name('position z').min(-100).max(100).step(0.1);
+      
+      // Add buttons to enable/disable car following
+      completeSceneFolder.add(
+        {enableFollowing: () => this.completeScene.enableCarFollowing()}, 
+        'enableFollowing'
+      ).name('Enable Car Following');
+      
+      completeSceneFolder.add(
+        {disableFollowing: () => this.completeScene.disableCarFollowing()}, 
+        'disableFollowing'
+      ).name('Disable Car Following');
     }
   }
 
