@@ -2,6 +2,10 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as CANNON from 'cannon'
 
+// Varsayılan konum ve ölçek için sabitler
+const DEFAULT_POSITION = new THREE.Vector3(17, -30, 0);
+const DEFAULT_SCALE = new THREE.Vector3(0.7, 0.7, 0.7);
+
 export default class AlaaddinTepesi {
     constructor(_options) {
         this.time = _options.time;
@@ -12,6 +16,11 @@ export default class AlaaddinTepesi {
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
+        
+        // Model pozisyonu ve ölçeği
+        this.position = _options.position ? _options.position.clone() : DEFAULT_POSITION.clone();
+        this.scale = _options.scale ? _options.scale.clone() : DEFAULT_SCALE.clone();
+        
         this.setModel();
         
         if (this.time) {
@@ -93,8 +102,9 @@ export default class AlaaddinTepesi {
     }
 
     setupModel() {
-        this.model.position.set(14, -14, 0);
-        this.model.scale.set(0.5, 0.5, 0.5);
+        // Model konumunu ve ölçeğini kullan
+        this.model.position.copy(this.position);
+        this.model.scale.copy(this.scale);
         this.model.rotation.x = Math.PI / 2;
         
         this.scene.add(this.model);
@@ -102,11 +112,16 @@ export default class AlaaddinTepesi {
         if (this.physics) {
             this.collisionBody = new CANNON.Body({
                 mass: 0,
-                position: new CANNON.Vec3(14, -14, 0),
+                // Fizik gövdesi konumunu model konumundan al
+                position: new CANNON.Vec3(this.position.x, this.position.y, this.position.z),
                 material: this.physics.materials.items.floor
             });
 
-            const radius = 5;
+            // Çarpışma küresinin boyutunu model ölçeğine göre ayarla
+            const baseRadius = 7; // Temel yarıçap
+            const scaleFactor = Math.max(this.scale.x, this.scale.y, this.scale.z); // En büyük ölçek faktörünü al
+            const radius = baseRadius * scaleFactor;
+            
             const sphereShape = new CANNON.Sphere(radius);
             this.collisionBody.addShape(sphereShape);
             
@@ -154,10 +169,18 @@ export default class AlaaddinTepesi {
                 return;
             }
 
-            // Create interaction area below the model (14, -14, 0)
+            // Etkileşim alanının konumunu model konumuna göre hesapla
+            // Model konumunun biraz aşağısında olacak şekilde
+            const interactionOffset = new THREE.Vector2(0, 8); // Y ekseninde 8 birim aşağıda
+            const interactionPosition = new THREE.Vector2(
+                this.position.x,
+                this.position.y - interactionOffset.y
+            );
+
+            // Create interaction area relative to the model position
             this.alaaddinArea = this.areas.add({
-                position: new THREE.Vector2(14, -22), // 6 units below the model's position
-                halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
+                position: interactionPosition, 
+                halfExtents: new THREE.Vector2(1.5, 1.5), // 3x3 birim alan
             });
 
             // Create ENTER label using canvas
@@ -205,8 +228,8 @@ export default class AlaaddinTepesi {
                 labelMaterial
             );
             
-            // Position the label
-            labelMesh.position.set(14, -22, 0);
+            // Etiketi etkileşim alanıyla aynı konuma yerleştir
+            labelMesh.position.set(interactionPosition.x, interactionPosition.y, 0);
             labelMesh.matrixAutoUpdate = false;
             labelMesh.updateMatrix();
             labelMesh.renderOrder = 999;

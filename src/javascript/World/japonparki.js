@@ -2,6 +2,9 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import CANNON from 'cannon'
 
+const DEFAULT_POSITION = new THREE.Vector3(-5, -26, .7); // Varsayılan pozisyon
+const DEFAULT_SCALE = new THREE.Vector3(1.7, 1.7, 1.7); // Varsayılan ölçek
+
 export default class Japonparki {
     constructor(_options) {
         this.time = _options.time;
@@ -11,6 +14,14 @@ export default class Japonparki {
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
+        
+        // Pozisyon ve rotasyon parametrelerini al veya varsayılanları kullan
+        this.position = _options.position ? _options.position.clone() : DEFAULT_POSITION.clone();
+        this.scale = _options.scale ? _options.scale.clone() : DEFAULT_SCALE.clone();
+        this.rotationX = _options.rotationX !== undefined ? _options.rotationX : Math.PI / 2;
+        this.rotationY = _options.rotationY !== undefined ? _options.rotationY : 2.7;
+        this.rotationZ = _options.rotationZ !== undefined ? _options.rotationZ : 0;
+        
         this.setModel();
         
         if (this.time) {
@@ -41,11 +52,15 @@ export default class Japonparki {
             
             
             this.model = gltf.scene;
-            this.model.position.set(-8, -30, .7);
-            //this.model.scale.set(.3, .3, .3);
+            // Modelin pozisyonunu parametre olarak alınan değerle ayarla
+            this.model.position.copy(this.position);
+            // Modelin ölçeğini parametre olarak alınan değerle ayarla
+            this.model.scale.copy(this.scale);
             
             // Modeli döndür
-            this.model.rotation.x = Math.PI / 2;
+            this.model.rotation.x = this.rotationX;
+            this.model.rotation.y = this.rotationY;
+            this.model.rotation.z = this.rotationZ;
             
     
             this.scene.add(this.model);
@@ -54,15 +69,17 @@ export default class Japonparki {
             if (this.physics) {
                 this.collisionBody = new CANNON.Body({
                     mass: 0,
-                    position: new CANNON.Vec3(-8, -30, .7),
+                    position: new CANNON.Vec3(this.position.x, this.position.y, this.position.z + 0.2), // Pozisyonu modelden al, z değerini biraz yükselt
                     material: this.physics.materials.items.floor
                 });
 
+                // Çarpışma küresinin boyutunu model ölçeğine göre ayarla
+                const baseRadius = 5; // Temel yarıçap
+                const scaleFactor = Math.max(this.scale.x, this.scale.y, this.scale.z); // En büyük ölçek faktörünü al
+                const radius = baseRadius * scaleFactor;
               
-                const radius = 5;
                 const sphereShape = new CANNON.Sphere(radius);
                 this.collisionBody.addShape(sphereShape);
-
                 
                 this.physics.world.addBody(this.collisionBody);
             }
@@ -71,7 +88,7 @@ export default class Japonparki {
             if (!this.scene.__balikLightAdded) {
                 this.scene.add(new THREE.AmbientLight(0xffffff, 2));
                 const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-                dirLight.position.set(5, 10, 7.5);
+                dirLight.position.set(10, 4, 7.5);
                 this.scene.add(dirLight);
                 this.scene.__balikLightAdded = true;
             }
@@ -127,10 +144,11 @@ export default class Japonparki {
                 return;
             }
 
-            // Create interaction area 5 units to the right of the model
+            // Create interaction area near the model
             this.japonparkiArea = this.areas.add({
-                position: new THREE.Vector2(2, -25), // 5 units up and 5 units more to the right from previous position (-3, -30)
-                halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
+                // Etkileşim alanını modelin pozisyonuna göre ayarla
+                position: new THREE.Vector2(this.position.x -2, this.position.y+10), 
+                halfExtents: new THREE.Vector2(1.5, 1.5), // 2x2 unit area
             });
 
             // Create ENTER label using canvas
@@ -178,8 +196,8 @@ export default class Japonparki {
                 labelMaterial
             );
             
-            // Position the label
-            labelMesh.position.set(2, -25, 0.1);
+            // Position the label near the model
+            labelMesh.position.set(this.position.x -2, this.position.y+10, 0);
             labelMesh.matrixAutoUpdate = false;
             labelMesh.updateMatrix();
             labelMesh.renderOrder = 999;
@@ -288,16 +306,3 @@ export default class Japonparki {
     }
 }
 
-/* 
-Resource.js   { name: 'aladdinTepesi', source: './models/hubit/aladdinTepesi/base.glb' },
-İndex Js
-    setAladdinTepesi() {
-        this.aladdinTepesi = new AladdinTepesi({
-            scene: this.scene,
-            time: this.time,
-            physics: this.physics
-        });
-    }
-this.setAladdinTepesi()
-import AladdinTepesi from './Hubit/AlaaddinTepesi.js'
-*/

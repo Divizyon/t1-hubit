@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(30.7, -45, -1.5); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(38, -45, -2.5); // Varsayılan pozisyon
+const DEFAULT_SCALE = new THREE.Vector3(1, 1, 1); // Varsayılan ölçek
 
 export default class Stadyum {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0, areas }) {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0, areas, position, scale }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -16,7 +17,10 @@ export default class Stadyum {
     this.areas = areas;
 
     this.container = new THREE.Object3D();
-    this.position = DEFAULT_POSITION.clone();
+    
+    // Pozisyon ve ölçeği parametrelerden al veya varsayılanları kullan
+    this.position = position ? position.clone() : DEFAULT_POSITION.clone();
+    this.scale = scale ? scale.clone() : DEFAULT_SCALE.clone();
 
     this._buildModel();
     this.scene.add(this.container);
@@ -59,13 +63,29 @@ export default class Stadyum {
 
     // Model pozisyonu ve dönüşü
     model.position.copy(this.position);
+    model.scale.copy(this.scale);
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
 
-    // Base modelini klonla ve Kapsül modeline ekle
+    // Base modelini klonla ve container'a ekle
     const baseModel = base.scene.clone(true);
-    baseModel.position.set(30, -45, 0); // Base modelinin Kapsül altına yerleştirilmesi için pozisyon ayarı
-    baseModel.scale.set(3, 2.3, 1.5); // Base modelinin ölçeği
+    // Base modelinin ana modele göre göreceli konumu
+    const baseOffsetX = 0; // Ana model pozisyonuna göre X-offset
+    const baseOffsetY = 0; // Ana model pozisyonuna göre Y-offset
+    const baseOffsetZ = 2.5; // Ana model pozisyonuna göre Z-offset
+    
+    baseModel.position.set(
+      this.position.x + baseOffsetX, 
+      this.position.y + baseOffsetY, 
+      this.position.z + baseOffsetZ
+    );
+    
+    // Base modelinin ölçeğini, ana modelin ölçeğine uyarla
+    const baseScaleX = 3 * this.scale.x;
+    const baseScaleY = 2.3 * this.scale.y;
+    const baseScaleZ = 0.5 * this.scale.z;
+    
+    baseModel.scale.set(baseScaleX, baseScaleY, baseScaleZ);
     this.container.add(baseModel);
 
     // Bounding box hesapla
@@ -74,7 +94,19 @@ export default class Stadyum {
     const size = bbox.getSize(new THREE.Vector3());
 
     // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 3, size.y / 3, size.z / 2);
+    // Çarpışma kutusunun boyutunu model ölçeğine göre ayarla
+    const baseHalfExtentX = size.x / 3;
+    const baseHalfExtentY = size.y / 3;
+    const baseHalfExtentZ = size.z / 2;
+    
+    const scaleFactor = Math.max(this.scale.x, this.scale.y, this.scale.z);
+    
+    const halfExtents = new CANNON.Vec3(
+      baseHalfExtentX * scaleFactor, 
+      baseHalfExtentY * scaleFactor, 
+      baseHalfExtentZ * scaleFactor
+    );
+    
     const boxShape = new CANNON.Box(halfExtents);
 
     const body = new CANNON.Body({
@@ -114,10 +146,17 @@ export default class Stadyum {
         return;
       }
 
-      // Create interaction area 5 units to the right of the model
+      // Etkileşim alanının modele göre göreceli konumu
+      const interactionOffsetX = 13; // Modelin 13 birim sağında
+      const interactionOffsetY = 0;  // Modelle aynı Y
+
+      // Etkileşim alanını modele göre konumlandır
       this.stadyumArea = this.areas.add({
-        position: new THREE.Vector2(42, -45), // 
-        halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
+        position: new THREE.Vector2(
+          this.position.x + interactionOffsetX, 
+          this.position.y + interactionOffsetY
+        ),
+        halfExtents: new THREE.Vector2(1.5, 1.5), // 3x3 birim alan
       });
 
       // Create ENTER label using canvas
@@ -165,14 +204,18 @@ export default class Stadyum {
           labelMaterial
       );
       
-      // Position the label
-      labelMesh.position.set(42, -45, 0.1);
+      // Position the label - etkileşim alanıyla aynı konumda
+      labelMesh.position.set(
+        this.position.x + interactionOffsetX,
+        this.position.y + interactionOffsetY,
+        0.1
+      );
       labelMesh.matrixAutoUpdate = false;
       labelMesh.updateMatrix();
       labelMesh.renderOrder = 999;
       
       // Add label to scene
-      this.container.add(labelMesh);
+      this.scene.add(labelMesh);
 
       // Define interaction function
       this.stadyumArea.on("interact", () => {
@@ -275,25 +318,3 @@ export default class Stadyum {
   }
 }
 
-/* 
-
-İndex.js dosyasında Divizyon'u oluşturmak için:
-import Divizyon from './Divizyon';
-
-this.setDivizyon()
-
-  setDivizyon() {
-  this.divizyon = new Divizyon({
-    scene:     this.scene,
-    resources: this.resources,
-    physics:   this.physics,
-    debug:     this.debugFolder,
-    rotateX:   0,   // 
-    rotateY:   0,
-    rotateZ:   Math.PI / 2 // Y ekseninde 90 derece,
-  });
-}
-
-
-
-*/
