@@ -1,27 +1,37 @@
 import * as THREE from 'three'
-
+import EventEmitter from '../Utils/EventEmitter.js'
 import Area from './Area.js'
 
-export default class Areas
+export default class Areas extends EventEmitter
 {
     constructor(_options)
     {
+        super()
+
         // Options
         this.config = _options.config
         this.resources = _options.resources
+        this.renderer = _options.renderer
         this.car = _options.car
         this.sounds = _options.sounds
-        this.renderer = _options.renderer
-        this.camera = _options.camera
         this.time = _options.time
-        this.debug = _options.debug
+        this.camera = _options.camera
+        
+        if(_options.debug)
+        {
+            this.debug = _options.debug.addFolder('areas')
+            this.debugFolder = this.debug
+            // this.debug.open()
+        }
 
         // Set up
         this.items = []
+        this.interactionDistance = 1.5
         this.container = new THREE.Object3D()
         this.container.matrixAutoUpdate = false
 
-        this.setMouse()
+        this.setTesting()
+        this.setInteraction()
     }
 
     setMouse()
@@ -111,22 +121,118 @@ export default class Areas
     add(_options)
     {
         const area = new Area({
+            ..._options,
             config: this.config,
-            renderer: this.renderer,
             resources: this.resources,
-            car: this.car,
-            sounds: this.sounds,
-            time: this.time,
-            hasKey: true,
-            testCar: true,
-            active: true,
-            ..._options
+            renderer: this.renderer,
+            debug: this.debugFolder,
+            time: this.time
         })
-
+        
         this.container.add(area.container)
-
         this.items.push(area)
-
+        
         return area
+    }
+
+    setTesting()
+    {
+        if(this.debug)
+        {
+            this.testing = {}
+
+            this.testing.active = true
+            this.testing.position = {}
+            this.testing.position.x = 0
+            this.testing.position.y = 0
+            this.testing.position.z = 0
+            
+            // this.testing.helper = new THREE.Mesh(new THREE.BoxBufferGeometry(1, 1, 1), new THREE.MeshNormalMaterial())
+            this.testing.helper = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshNormalMaterial())
+            this.testing.helper.position.x = this.testing.position.x
+            this.testing.helper.position.y = this.testing.position.y
+            this.testing.helper.position.z = this.testing.position.z
+            this.testing.helper.visible = this.testing.active
+            this.container.add(this.testing.helper)
+
+            this.debug.add(this.testing, 'active').name('testing active').onChange(() =>
+            {
+                this.testing.helper.visible = this.testing.active
+            })
+
+            this.debug.add(this.testing.position, 'x').step(0.1).min(- 20).max(20).name('testing x').onChange(() =>
+            {
+                this.testing.helper.position.x = this.testing.position.x
+            })
+
+            this.debug.add(this.testing.position, 'y').step(0.1).min(- 20).max(20).name('testing y').onChange(() =>
+            {
+                this.testing.helper.position.y = this.testing.position.y
+            })
+
+            this.debug.add(this.testing.position, 'z').step(0.1).min(- 20).max(20).name('testing z').onChange(() =>
+            {
+                this.testing.helper.position.z = this.testing.position.z
+            })
+        }
+    }
+
+    setInteraction()
+    {
+        this.time.on('tick', () =>
+        {
+            if(!this.car)
+                return
+                
+            // Test each area
+            for(const _area of this.items)
+            {
+                if(!_area.interactable)
+                    continue
+
+                if(!_area.active)
+                    continue
+                
+                const distance = Math.hypot(_area.position.x - this.car.chassis.object.position.x, _area.position.y - this.car.chassis.object.position.y)
+                
+                // In
+                if(distance < this.interactionDistance)
+                {
+                    // If wasn't in before
+                    if(!_area.isIn)
+                    {
+                        // console.log('in')
+                        _area.isIn = true
+                        _area.trigger('in')
+                        this.sounds && this.sounds.play('areaIn')
+                        this.trigger('in', [_area])
+                    }
+
+                    // Didn't interact before and has key
+                    if(!_area.didInteract && (this.car.controls.actions.up || this.car.controls.actions.down || this.car.controls.actions.interact))
+                    {
+                        // console.log('interact')
+                        _area.didInteract = true
+                        _area.trigger('interact')
+                        this.sounds && this.sounds.play('areaInteract')
+                        this.trigger('interact', [_area])
+                    }
+                }
+                
+                // Out
+                else if(distance >= this.interactionDistance)
+                {
+                    // If was in before
+                    if(_area.isIn)
+                    {
+                        // console.log('out')
+                        _area.isIn = false
+                        _area.didInteract = false
+                        _area.trigger('out')
+                        this.trigger('out', [_area])
+                    }
+                }
+            }
+        })
     }
 }

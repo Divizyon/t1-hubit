@@ -28,7 +28,7 @@ export default class IntroSection {
     this.floor = new THREE.Mesh(
       new THREE.PlaneGeometry(192, 128),
       new THREE.MeshBasicMaterial({
-        color: 0x000000,
+        color: 0x00000f,
         transparent: true,
         opacity: 0.5,
         depthWrite: false,
