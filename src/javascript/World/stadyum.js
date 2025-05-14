@@ -5,11 +5,7 @@ const DEFAULT_POSITION = new THREE.Vector3(38, -45, -2.5); // Varsayılan pozisy
 const DEFAULT_SCALE = new THREE.Vector3(1, 1, 1); // Varsayılan ölçek
 
 export default class Stadyum {
-
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0, areas, position, scale }) {
-
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
-
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -18,6 +14,7 @@ export default class Stadyum {
     this.rotateX = rotateX;
     this.rotateY = rotateY;
     this.rotateZ = rotateZ;
+    this.areas = areas;
 
     this.container = new THREE.Object3D();
     
@@ -27,6 +24,11 @@ export default class Stadyum {
 
     this._buildModel();
     this.scene.add(this.container);
+
+    // Add interaction area if areas parameter exists
+    if (this.areas) {
+      this.setStadyumInteraction();
+    }
   }
 
   _buildModel() {
@@ -136,7 +138,6 @@ export default class Stadyum {
       }
     }
   }
-
 
   setStadyumInteraction() {
     try {
@@ -315,5 +316,6 @@ export default class Stadyum {
       console.error("Stadyum etkileşim alanı eklenirken hata oluştu:", error);
     }
   }
-
-
+}
+  
+  
