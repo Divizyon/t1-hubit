@@ -33,8 +33,8 @@ export default class GreenBox
     {
         // Model için konum ve boyut
         this.greenBox = {}
-        this.greenBox.x = -57 // X konumu
-        this.greenBox.y = -4 // Y konumu
+        this.greenBox.x = -60 // X konumu
+        this.greenBox.y = 6 // Y konumu
         this.greenBox.z = 0  // Z konumu
         
         // Model için boyut (ölçek)
@@ -61,7 +61,7 @@ export default class GreenBox
                 base: this.resources.items.greenBoxBase.scene,
                 collision: null,
                 offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ), // Model pozisyonu
-                rotation: new THREE.Euler(0, 0, 0),
+                rotation: new THREE.Euler(0, 0, 0.5),
                 duplicated: true,
                 shadow: { 
                     sizeX: 0, 
@@ -161,7 +161,7 @@ export default class GreenBox
         // GreenBox'un pozisyonuna göre çarpışma kutuları
         // İlk çarpışma kutusu
         this.addCollisionBox(
-            new THREE.Vector3(this.greenBox.x-3, this.greenBox.y+1.9, 1 ),
+            new THREE.Vector3(this.greenBox.x-3, this.greenBox.y+1.9, this.greenBox.z),
             new THREE.Euler(0, 0, 0),
             new CANNON.Vec3(0.5, 2.5, 2),
            
@@ -169,19 +169,19 @@ export default class GreenBox
         
         // İkinci çarpışma kutusu
         this.addCollisionBox(
-            new THREE.Vector3(this.greenBox.x-0.7 , this.greenBox.y+5 , 1 ),
+            new THREE.Vector3(this.greenBox.x-0.7 , this.greenBox.y+5 , this.greenBox.z),
             new THREE.Euler(0, 0, 0),
             new CANNON.Vec3(3, 0.5, 1.5),
            
         )
         this.addCollisionBox(
-            new THREE.Vector3(this.greenBox.x-1.2 , this.greenBox.y-2.5 , 1 ),
+            new THREE.Vector3(this.greenBox.x-1.2 , this.greenBox.y-2.5 , this.greenBox.z),
             new THREE.Euler(0, 0, 0),
             new CANNON.Vec3(0.8, 0.6, 1.5),
               
         )
         this.addCollisionBox(
-            new THREE.Vector3(this.greenBox.x+3.2 , this.greenBox.y-1.6 , 1 ),
+            new THREE.Vector3(this.greenBox.x+3.2 , this.greenBox.y-1.6 , this.greenBox.z),
             new THREE.Euler(0, 0, 0),
             new CANNON.Vec3(0.7, 0.7, 1.5),
         )

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-72.5, 0, 2); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-69, -3, 2); // Artık doğru yerde tanımlandı
 
 export default class DivizyonBina {
     constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0, areas }) {
@@ -35,9 +35,16 @@ export default class DivizyonBina {
                 return;
             }
 
-            // Create interaction area 6 units to the right of the model
+            // Bina pozisyonuna göreceli olarak etkileşim alanını yerleştir
+            // Modelin sağ tarafından 2.5 birim uzağa yerleştir
+            const interactionPosition = new THREE.Vector2(
+                this.position.x +7, // X pozisyonu (model sağında)
+                this.position.z  -5      // Z pozisyonu (model ile aynı)
+            );
+
+            // Create interaction area relative to model position
             this.divizyonArea = this.areas.add({
-                position: new THREE.Vector2(-66.5, 0), // 6 units to the right of the model's position (-72.5, 0)
+                position: interactionPosition,
                 halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
             });
 
@@ -86,8 +93,13 @@ export default class DivizyonBina {
                 labelMaterial
             );
             
-            // Position the label
-            labelMesh.position.set(-66.5, 0, 0.1);
+            // Position the label relative to model position
+            labelMesh.position.set(
+                interactionPosition.x, // Etkileşim alanı ile aynı X
+                0,                     // Y pozisyonu (yükseklik)
+                interactionPosition.y + 0.1  // Z pozisyonu (etkileşim alanı ile aynı, hafif öne)
+            );
+            
             labelMesh.matrixAutoUpdate = false;
             labelMesh.updateMatrix();
             labelMesh.renderOrder = 999;
@@ -153,7 +165,7 @@ export default class DivizyonBina {
 
                 // Description text
                 const descriptionEl = document.createElement("p");
-                descriptionEl.textContent = "Divizyon Bina, Konya'nın önemli kültür ve sanat merkezlerinden biridir. Çeşitli etkinlikler ve sergiler için kullanılmaktadır.";
+                descriptionEl.textContent = "Birlikte Neler Yapabliriz?";
                 descriptionEl.style.margin = "0 0 20px 0";
 
                 // Close button
@@ -228,7 +240,7 @@ export default class DivizyonBina {
         } else {
             // Base modelini klonla ve Divizyon modeline ekle
             const baseModel = base.scene.clone(true);
-            baseModel.position.set(-72.5, 0, 0); // Base modelinin Divizyon altına yerleştirilmesi için pozisyon ayarı
+            baseModel.position.set(-69, -3, 0); // Base modelinin Divizyon altına yerleştirilmesi için pozisyon ayarı
             baseModel.scale.set(1.5, 1.5, 1.5); // Base modelinin ölçeği
             this.container.add(baseModel);
         }

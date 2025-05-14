@@ -44,8 +44,10 @@ export default class PopUpModule {
       })
     )
 
-    // GreenBox ile aynı konuma yerleştir - Y değeri 15 olarak güncellendi
-    areaLabelMesh.position.set(-50, -4, 5)
+    // GreenBox'ın tam önünde ve Divizyon'a yakın bir konuma yerleştir
+    // GreenBox: x:-60, y:6, z:0 ve Divizyon: x:-69, y:-3, z:2
+    areaLabelMesh.position.set(-60, 6, 2) // GreenBox'ın önünde
+    areaLabelMesh.rotation.y = 0.5 // Y ekseni etrafında 0.5 radyan döndür
     areaLabelMesh.matrixAutoUpdate = false  // Performans için otomatik matris güncellemesini kapat
     areaLabelMesh.updateMatrix()            // Matris pozisyonunu manuel güncelle
     this.container.add(areaLabelMesh)       // Container'a ekle
@@ -84,34 +86,74 @@ export default class PopUpModule {
         return
       }
 
-      // 2B etkileşim alanı oluştur - kullanıcı yaklaştığında Enter tuşunu kullanacak
+      // GreenBox'ın önündeki alanda, Divizyon konumlarını referans alarak etkileşim alanı oluştur
+      // GreenBox: x:-60, y:6, z:0
+      // Divizyon: x:-69, y:-3, z:2
       this.popUpArea = this.areas.add({
-        position: new THREE.Vector2(-50, -4), // GreenBox ile aynı hizaya getirildi
-        halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
-       
+        position: new THREE.Vector2(-54, 5), // GreenBox'ın tam önü
+        halfExtents: new THREE.Vector2(1.5, 1.5), // Daha büyük bir alan (3x3 birim) - kolay etkileşim için
       })
 
       // Etkileşim olayları tanımla
       
       // Yaklaşma olayı - kullanıcı alana yaklaştığında
       this.popUpArea.on("in", () => {
-        console.log("Etkileşim alanına girildi")
+        console.log("GreenBox etkileşim alanına girildi")
         
         // Etkileşim durumunu güncelle
         this.isNearInteractionArea = true
+        
+        // Ekranda bir kullanım ipucu göster
+        this.showInteractionHint()
       })
       
       // Uzaklaşma olayı - kullanıcı alandan uzaklaştığında
       this.popUpArea.on("out", () => {
-        console.log("Etkileşim alanından çıkıldı")
+        console.log("GreenBox etkileşim alanından çıkıldı")
         
         // Etkileşim durumunu güncelle
         this.isNearInteractionArea = false
+        
+        // Kullanım ipucunu kaldır
+        this.hideInteractionHint()
       })
       
-      console.log("Pop-up etkileşim alanı başarıyla eklendi")
+      console.log("GreenBox etkileşim alanı başarıyla eklendi")
     } catch (error) {
-      console.error("Pop-up etkileşim alanı eklenirken hata oluştu:", error)
+      console.error("GreenBox etkileşim alanı eklenirken hata oluştu:", error)
+    }
+  }
+  
+  // Kullanıcıya etkileşim ipucu göster
+  showInteractionHint() {
+    // Eğer ipucu zaten gösteriliyorsa tekrar oluşturma
+    if (document.getElementById('interaction-hint')) return;
+    
+    // Etkileşim ipucu div'i oluştur
+    const hintDiv = document.createElement('div');
+    hintDiv.id = 'interaction-hint';
+    hintDiv.style.position = 'fixed';
+    hintDiv.style.bottom = '20px';
+    hintDiv.style.left = '50%';
+    hintDiv.style.transform = 'translateX(-50%)';
+    hintDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    hintDiv.style.color = 'white';
+    hintDiv.style.padding = '10px 20px';
+    hintDiv.style.borderRadius = '5px';
+    hintDiv.style.fontFamily = 'Arial, sans-serif';
+    hintDiv.style.zIndex = '1000';
+    hintDiv.style.pointerEvents = 'none';
+    hintDiv.textContent = 'GreenBox ile etkileşim için ENTER tuşuna basın';
+    
+    // Sayfaya ekle
+    document.body.appendChild(hintDiv);
+  }
+  
+  // Etkileşim ipucunu kaldır
+  hideInteractionHint() {
+    const hintDiv = document.getElementById('interaction-hint');
+    if (hintDiv) {
+      document.body.removeChild(hintDiv);
     }
   }
   
