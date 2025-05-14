@@ -18,6 +18,7 @@ export default class AtmosferAlani {
         this.container.scale.set(1.5, 1.5, 1.5);
 
         this.setAtmosferAlani();
+        this.addCollisions(this.model.container);
     }
 
     setAtmosferAlani() {
@@ -26,7 +27,7 @@ export default class AtmosferAlani {
             // collision: null, // Gerekirse collision ekleyebilirsin
             offset: new THREE.Vector3(-25, 0, 0.03), // Eski koordinatlara geri alındı
             rotation: new THREE.Euler(Math.PI / 2, 0, 0), // X ekseninde +90 derece döndürdüm
-            shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+            shadow: { sizeX: 0, sizeY: 0, offsetZ: 0, alpha: 0.4 },
             mass: 0,
             sleep: true,
             name: "Atmosfer Alanı",
