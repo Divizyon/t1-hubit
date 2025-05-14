@@ -42,7 +42,7 @@ export default class Japonparki {
             
             this.model = gltf.scene;
             this.model.position.set(-8, -30, .7);
-            this.model.scale.set(.3, .3, .3);
+            //this.model.scale.set(.3, .3, .3);
             
             // Modeli döndür
             this.model.rotation.x = Math.PI / 2;
