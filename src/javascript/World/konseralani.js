@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-45, 30, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-55, 38, 0); // Artık doğru yerde tanımlandı
 
 export default class Konseralani {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0.5, scale = 1.0 }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -14,6 +14,7 @@ export default class Konseralani {
     this.rotateX = rotateX;
     this.rotateY = rotateY;
     this.rotateZ = rotateZ;
+    this.scale = scale; // Ölçek parametresi
 
     this.container = new THREE.Object3D();
     this.position = DEFAULT_POSITION.clone();
@@ -46,9 +47,10 @@ export default class Konseralani {
       }
     });
 
-    // Model pozisyonu ve dönüşü
+    // Model pozisyonu, dönüşü ve ölçeği
     model.position.copy(this.position);
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
+    model.scale.set(this.scale, this.scale, this.scale); // Modeli ölçeklendir
     this.container.add(model);
 
     // Bounding box hesapla
@@ -56,8 +58,12 @@ export default class Konseralani {
     const bbox = new THREE.Box3().setFromObject(model);
     const size = bbox.getSize(new THREE.Vector3());
 
-    // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 3, size.y / 3, size.z / 2);
+    // Fizik gövdesi oluştur - model ölçeğini dikkate alarak boyutlandır
+    const halfExtents = new CANNON.Vec3(
+      (size.x / 3) * this.scale, 
+      (size.y / 3) * this.scale, 
+      (size.z / 2) * this.scale
+    );
     const boxShape = new CANNON.Box(halfExtents);
 
     const body = new CANNON.Body({
