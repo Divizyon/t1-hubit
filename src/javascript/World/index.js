@@ -32,12 +32,13 @@ import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
 
-import KonyaGenckart from "./KonyaGencKart.js";
+import KonyaGencKart from "./KonyaGencKart.js";
 import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
 import sesOdasi from './sesOdasi.js'
 import rocket from './rocket.js'
 import ProjectsSection from "./Sections/ProjectsSection.js";
+
 
 
 
@@ -567,6 +568,17 @@ export default class World {
       // y: 0
   })
   this.container.add(this.sections.projects.container)
+
+    // Projects
+    this.sections.projects = new ProjectsSection({
+      ...options,
+      x: -7,
+      y: 3.2
+
+      // x: 0,
+      // y: 0
+  })
+  this.container.add(this.sections.projects.container)
   }
 
   setEasterEggs() {
@@ -696,20 +708,22 @@ export default class World {
 
   setCalisanGenclikMerkezi() {
     try {
-      this.calisanGenclikMerkezi = new CalisanGenclikMerkezi(
-        this.resources,
-        this.objects,
-        this.shadows,
-        this.debug,
-        this.scene
-      );
-      // The model property is actually the return value from objects.add(),
-      // so we need to add its container property instead
-      if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.model && this.calisanGenclikMerkezi.model.container) {
-        this.container.add(this.calisanGenclikMerkezi.model.container);
+      this.calisanGenclikMerkezi = new CalisanGenclikMerkezi({
+        resources: this.resources,
+        objects: this.objects,
+        shadows: this.shadows,
+        debug: this.debug,
+        scene: this.scene,
+        areas: this.areas, // Etkileşim alanları için
+        sounds: this.sounds // Ses efektleri için
+      });
+      
+      // Container'ı ekle
+      if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.container) {
+        this.container.add(this.calisanGenclikMerkezi.container);
         console.log("CalisanGenclikMerkezi modeli başarıyla eklendi");
       } else {
-        console.warn("CalisanGenclikMerkezi modeli bulunamadı veya yüklenemedi!");
+        console.warn("CalisanGenclikMerkezi container nesnesi bulunamadı!");
       }
     } catch (error) {
       console.error("CalisanGenclikMerkezi eklenirken hata oluştu:", error);
@@ -800,7 +814,7 @@ export default class World {
 
   setKonyaGencKart() {
     try {
-      this.konyaGenckart = new KonyaGenckart({
+      this.konyaGencKart = new KonyaGencKart({
         scene: this.scene,
         time: this.time,
         physics: this.physics,
@@ -810,8 +824,8 @@ export default class World {
       });
       
       // Add the container to the world container
-      if (this.konyaGenckart && this.konyaGenckart.container) {
-        this.container.add(this.konyaGenckart.container);
+      if (this.konyaGencKart && this.konyaGencKart.container) {
+        this.container.add(this.konyaGencKart.container);
       }
       
       console.log("Konya Genç Kart modeli başarıyla eklendi");
@@ -904,7 +918,8 @@ export default class World {
       objects: this.objects,
       physics: this.physics,
       debug: this.debugFolder,
-      areas: this.areas
+      areas: this.areas,
+      sounds: this.sounds // Ses efektleri için ekledim
     });
     this.container.add(this.bilimmerkezi.container);
   }

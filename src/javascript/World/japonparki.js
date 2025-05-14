@@ -10,7 +10,6 @@ export default class Japonparki {
         this.time = _options.time;
         this.scene = _options.scene;
         this.physics = _options.physics;
-        this.areas = _options.areas;
         this.mixer = null;
         this.model = null;
         this.collisionBody = null;
@@ -30,10 +29,6 @@ export default class Japonparki {
             });
         } else {
             console.warn('Japonparki: time parametresi verilmedi, animasyonlar çalışmayacak.');
-        }
-
-        if (this.areas) {
-            this.setJaponparkiInteraction();
         }
     }
 
@@ -304,5 +299,6 @@ export default class Japonparki {
             console.error("Japon Parkı etkileşim alanı eklenirken hata oluştu:", error);
         }
     }
+
 }
 

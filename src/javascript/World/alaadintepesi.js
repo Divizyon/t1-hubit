@@ -30,10 +30,6 @@ export default class AlaaddinTepesi {
         } else {
             console.warn('AlaaddinTepesi: time parametresi verilmedi, animasyonlar çalışmayacak.');
         }
-
-        if (this.areas) {
-            this.setAlaaddinInteraction();
-        }
     }
 
     setModel() {
@@ -161,6 +157,7 @@ export default class AlaaddinTepesi {
             this.mixer.update(delta);
         }
     }
+
 
     setAlaaddinInteraction() {
         try {
