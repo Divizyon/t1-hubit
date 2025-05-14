@@ -3,7 +3,7 @@ import CANNON from 'cannon'
 
 let posizyonX = 52
 let posizyonY = 3
-let posizyonZ = 0
+let posizyonZ = 0.5
 
 export default class kelebeklervadisi {
     constructor(_options) {
@@ -83,7 +83,7 @@ export default class kelebeklervadisi {
         this.model = {}
         this.model.base = this.objects.add({
             base: { children: baseChildren },
-            offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ + 0.5),
+            offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ ),
             rotation: new THREE.Euler(0, 0, 0),
             shadow: { sizeX: 4, sizeY: 4, offsetZ: -0.6, alpha: 0.4 },
             mass: 0,
@@ -104,8 +104,8 @@ export default class kelebeklervadisi {
 
             // Create interaction area 5 units to the right of the model
             this.kelebeklerVadisiArea = this.areas.add({
-                position: new THREE.Vector2(posizyonX + 5, posizyonY),
-                halfExtents: new THREE.Vector2(2, 2), // 2x2 unit area
+                position: new THREE.Vector2(posizyonX + 7.5, posizyonY-1),
+                halfExtents: new THREE.Vector2(1.5, 1.5), // 2x2 unit area
             });
 
             // Create ENTER label using canvas
@@ -154,7 +154,7 @@ export default class kelebeklervadisi {
             );
             
             // Position the label
-            labelMesh.position.set(posizyonX + 5, posizyonY, 0.1);
+            labelMesh.position.set(posizyonX + 7.5, posizyonY-1, 0)
             labelMesh.matrixAutoUpdate = false;
             labelMesh.updateMatrix();
             labelMesh.renderOrder = 999;
@@ -274,14 +274,14 @@ export default class kelebeklervadisi {
                     alphaMap: this.resources.items.areaEnterTexture,
                 })
             )
-            areaLabelMesh.position.set(posizyonX + 6, posizyonY, 0.5)
+            areaLabelMesh.position.set(posizyonX + 8, posizyonY, 0)
             areaLabelMesh.matrixAutoUpdate = false
             areaLabelMesh.updateMatrix()
             this.container.add(areaLabelMesh)
 
             this.kelebeklerVadisiArea = this.areas.add({
-                position: new THREE.Vector2(posizyonX + 6, posizyonY),
-                halfExtents: new THREE.Vector2(2, 2),
+                position: new THREE.Vector2(posizyonX + 8, posizyonY),
+                halfExtents: new THREE.Vector2(1.5, 1.5),
             })
 
             this.kelebeklerVadisiArea.on("interact", () => {
