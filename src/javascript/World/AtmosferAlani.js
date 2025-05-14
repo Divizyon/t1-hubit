@@ -111,7 +111,7 @@ export default class AtmosferAlani {
             new CANNON.Vec3(0.3, 0.3, 2),
         );
         this.addCollisionBox(
-            new THREE.Vector3(-25, -33, 2),
+            new THREE.Vector3(-26, -32, 2),
             new THREE.Euler(0, 0, 0),
             new CANNON.Vec3(0.3, 0.3, 2),
         );
