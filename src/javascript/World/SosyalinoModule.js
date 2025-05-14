@@ -49,7 +49,7 @@ export default class Sosyalino {
       this.sosyalinoModel = this.objects.add({
         base: sosyalinoScene,
         collision: this.resources.items.brickCollision.scene,
-        offset: new THREE.Vector3(15, 15, 0.5), // Z-değeri yerden biraz yukarıda
+        offset: new THREE.Vector3(67.58, 29.55, 0.00), // Z-değeri yerden biraz yukarıda
         rotation: new THREE.Euler(0, 0, 0),
         shadow: { sizeX: 6, sizeY: 6, offsetZ: -0.5, alpha: 0.5 },
         mass: 0,
