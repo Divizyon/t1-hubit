@@ -48,9 +48,8 @@ export default class Sosyalino {
       this.sosyalinoModel = this.objects.add({
         base: sosyalinoScene,
         collision: this.resources.items.brickCollision.scene,
-        offset: new THREE.Vector3(67.58, 29.55, 0.00), // Z-değeri yerden biraz yukarıda
-        offset: new THREE.Vector3(15, 15, 0.5), // Z-değeri yerden biraz yukarıda
-        rotation: new THREE.Euler(0, 0, 0),
+        offset: new THREE.Vector3(64, 22, 0), // Z-değeri yerden biraz yukarıda
+        rotation: new THREE.Euler(-Math.PI * 1.5, Math.PI * 1.5 + (Math.PI * 1.5), 0), // Y ekseninde 270 derece (3π/2) döndürme ekledim
         shadow: { sizeX: 6, sizeY: 6, offsetZ: -0.5, alpha: 0.5 },
         mass: 0,
         sleep: true,
@@ -80,8 +79,8 @@ export default class Sosyalino {
 
       // Etkileşim alanı oluştur
       this.sosyalinoArea = this.areas.add({
-        position: new THREE.Vector2(68, 23), // Aynı koordinatlar
-        halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
+        position: new THREE.Vector2(60, 22), // Aynı koordinatlar
+        halfExtents: new THREE.Vector2(1.5, 1.5), // 2x2 birimlik alan
       });
 
       // Etkileşim fonksiyonunu tanımla

@@ -32,7 +32,7 @@ import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
 
-import KonyaGenckart from "./KonyaGenckart.js";
+import KonyaGenckart from "./KonyaGencKart.js";
 import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
 import sesOdasi from './sesOdasi.js'
