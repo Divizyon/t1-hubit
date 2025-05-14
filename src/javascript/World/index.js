@@ -10,12 +10,7 @@ import Areas from "./Areas.js";
 import Tiles from "./Tiles.js";
 import Walls from "./Walls.js";
 import Road from "./Road.js";
-import AladdinTepesi from './alaadintepesi.js'
-import Kapsul from "./Kapsul.js";
-import DivizyonBina from "./DivizyonBina.js";
-import Sosyalino from "./SosyalinoModule.js";
 import AreaSection from "./Sections/AreaSection.js";
-import kelebeklervadisi from "./kelebeklervadisi.js";
 import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
 import CoordinateShower from "./CoordinateShower.js";
@@ -23,22 +18,8 @@ import CompleteScene from "./CompleteScene.js";
 import SceneModelTest from "./SceneModelTest.js";
 import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
-import bilimmerkezi from "./bilimmerkezi.js";
-import roketplatformu from "./roketplatformu.js";
-import GreenBox from "./GreenBox.js";
 import Render from "./Render.js";
-import Stadyum from "./stadyum.js";
-import Konseralani from "./konseralani.js";
-import Japonparki from "./japonparki.js";
-import Basket from "./basket.js";
-import Cowork from "./cowork.js";
-import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
-import AtmosferAlani from "./AtmosferAlani.js";
-
-import KonyaGencKart from "./KonyaGencKart.js";
-import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
-import sesOdasi from './sesOdasi.js'
 import rocket from './rocket.js'
 
 
