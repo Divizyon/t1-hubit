@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-10, 25, 0);
+const DEFAULT_POSITION = new THREE.Vector3(36, -25, 0);
 
 export default class KonyaGenckart {
   constructor(_options) {
@@ -42,7 +42,7 @@ export default class KonyaGenckart {
       console.log('Animasyonlar:', gltf.animations);
       
       this.model = gltf.scene;
-      this.model.position.set(-10, 25, 0);
+      this.model.position.set(37, -21, 0);
       this.model.scale.set(1, 1, 1);
       
       // Modeli döndür
@@ -134,15 +134,15 @@ export default class KonyaGenckart {
           alphaMap: this.resources.items.areaResetTexture,
         })
       );
-      areaLabelMesh.position.set(-5, 25, 5); // Modelin yanına konumlandır
+      areaLabelMesh.position.set(31, -23, 0); // Modelin yanına konumlandır
       areaLabelMesh.matrixAutoUpdate = false;
       areaLabelMesh.updateMatrix();
       this.container.add(areaLabelMesh);
 
       // Etkileşim alanı oluştur
       this.konyaGenckartArea = this.areas.add({
-        position: new THREE.Vector2(-5, 25), // Aynı koordinatlar
-        halfExtents: new THREE.Vector2(2, 2), // 2x2 birimlik alan
+        position: new THREE.Vector2(31, -23), // Aynı koordinatlar
+        halfExtents: new THREE.Vector2(1.5, 1.5), // 2x2 birimlik alan
       });
 
       // Etkileşim fonksiyonunu tanımla
