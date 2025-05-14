@@ -568,6 +568,17 @@ export default class World {
       // y: 0
   })
   this.container.add(this.sections.projects.container)
+
+    // Projects
+    this.sections.projects = new ProjectsSection({
+      ...options,
+      x: -7,
+      y: 3.2
+
+      // x: 0,
+      // y: 0
+  })
+  this.container.add(this.sections.projects.container)
   }
 
   setEasterEggs() {

@@ -79,7 +79,7 @@ export default class kelebeklervadisi {
         this.model = {}
         this.model.base = this.objects.add({
             base: { children: baseChildren },
-            offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ + 0.5),
+            offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ ),
             rotation: new THREE.Euler(0, 0, 0),
             shadow: { sizeX: 4, sizeY: 4, offsetZ: -0.6, alpha: 0.4 },
             mass: 0,

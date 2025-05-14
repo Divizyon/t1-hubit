@@ -37,7 +37,7 @@ export default class PopUpModule {
         description: "Konya Bilim Merkezi, bilim ve teknolojiyi halka sevdiren ve anlaşılır kılan, deneysel ve uygulamalı bir eğitim ortamıdır. Ziyaretçilerin bilimi yaşayarak ve eğlenerek öğrenmelerine imkân sağlar."
       },
       kapsul: {
-        position: new THREE.Vector2(38, -7),
+        position: new THREE.Vector2(40, -3),
         title: "Kapsül",
         type: "info", // bilgi tipi popup
         url: "www.kapsul.org.tr",
@@ -65,7 +65,7 @@ export default class PopUpModule {
         description: "Konya Genç Kart hakkında daha fazla bilgi almak için web sitemizi ziyaret edin."
       },
       japonparki: {
-        position: new THREE.Vector2(2, -25),
+        position: new THREE.Vector2(2, -32),
         title: "Japon Parkı",
         type: "info", // bilgi tipi popup
         url: "www.konya.bel.tr/hizmet-binalari-ve-sosyal-tesisler/japon-parki",
@@ -87,7 +87,7 @@ export default class PopUpModule {
       },
 
       calisanGenclikMerkezi: {
-        position: new THREE.Vector2(68, -32),
+        position: new THREE.Vector2(60, -32),
         title: "Çalışan Gençlik Merkezi",
         type: "info", // bilgi tipi popup
         url: "konya.bel.tr/calisan-genclik",
