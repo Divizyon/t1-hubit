@@ -266,3 +266,40 @@ html
     transform-origin: 100% 0;
     opacity: 0.2;
 }
+
+/* Debug GUI Styles */
+.dg.ac {
+  z-index: 10000 !important; /* Ensure GUI is above everything */
+}
+
+/* Make sure dat.gui stays visible */
+.dg.main {
+  z-index: 10000 !important;
+  position: fixed !important;
+}
+
+/* For debugging purposes, show borders around elements when in debug mode */
+body.debug * {
+  /* outline: 1px solid rgba(255, 0, 0, 0.2); */
+}
+
+/* Custom debug panel */
+#debug-console {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-family: monospace;
+  padding: 10px;
+  border-radius: 5px;
+  max-width: 400px;
+  max-height: 200px;
+  overflow: auto;
+  z-index: 10001;
+  display: none;
+}
+
+body.debug #debug-console {
+  display: block;
+}

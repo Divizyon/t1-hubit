@@ -1,9 +1,20 @@
 import * as THREE from 'three'
 import CANNON from 'cannon'
 
-let posizyonX = 25  // Model konumları
-let posizyonY = 30
-let posizyonZ = 0
+// Corrected values calculated from the discrepancy
+let posizyonX = 24.79 // Original calculated value
+let posizyonY = 31.07 // Original calculated value
+let posizyonZ = 5.93 // Original calculated value
+
+// For debug comparison
+let actualX = 89.17 // Where it actually appeared
+let actualY = 43.88 // Where it actually appeared
+let actualZ = 0 // Where it actually appeared
+
+// Use direct hard-coded values for exact positioning
+let correctedX = 24.79 // Try the original calculated value
+let correctedY = 31.07 // Try the original calculated value
+let correctedZ = 5.93 // Try the original calculated value
 
 
 export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
@@ -64,7 +75,7 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         // Create CANNON body (tek collision)
         const body = new CANNON.Body({
             mass: 0,
-            position: new CANNON.Vec3(posizyonX+2, posizyonY-2, posizyonZ),
+            position: new CANNON.Vec3(correctedX, correctedY, correctedZ),
             material: this.physics.materials.items.floor
         })
 
@@ -79,12 +90,16 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         // Collision Eklemek İçin
         this.physics.world.addBody(body)
 
+        // Create visual debug markers to help with positioning
+        this.addDebugMarker(correctedX, correctedY, correctedZ, 0xff0000); // Red marker at our target position
+        this.addDebugMarker(actualX, actualY, actualZ, 0x00ff00); // Green marker at where it actually appeared
+        
         // Modeli Ekliyoruz
         this.model = {}
         this.model.base = this.objects.add({
             base: { children: baseChildren },
-            offset: new THREE.Vector3(posizyonX, posizyonY, posizyonZ),
-            rotation: new THREE.Euler(Math.PI/20, Math.PI, Math.PI),
+            offset: new THREE.Vector3(correctedX, correctedY, correctedZ),
+            rotation: new THREE.Euler(0.409, 0, 0.431), // Convert degrees to radians
             mass: 0,
             preserveMaterials: true // Malzemeleri koru
         })
@@ -94,6 +109,17 @@ export default class bilimmerkezi  { // Kup modelini temsil eden sınıf
         this.container.add(this.model.base.container)
         console.log("Bilim Merkezi modeli başarıyla eklendi");
     }
+    
+    // Helper method to add visual markers for debugging
+    addDebugMarker(x, y, z, color) {
+        const marker = new THREE.Mesh(
+            new THREE.SphereGeometry(0.5, 8, 8),
+            new THREE.MeshBasicMaterial({ color: color })
+        );
+        marker.position.set(x, y, z);
+        this.container.add(marker);
+    }
+
     setBilimMerkeziArea() {
       // Etkileşim etiketi oluştur
       const areaLabelMesh = new THREE.Mesh(

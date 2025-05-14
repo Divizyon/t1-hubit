@@ -18,6 +18,9 @@ import AreaSection from "./Sections/AreaSection.js";
 import kelebeklervadisi from "./kelebeklervadisi.js";
 import Controls from "./Controls.js";
 import Sounds from "./Sounds.js";
+import CoordinateShower from "./CoordinateShower.js";
+import CompleteScene from "./CompleteScene.js";
+import SceneModelTest from "./SceneModelTest.js";
 import gsap from "gsap";
 import EasterEggs from "./EasterEggs.js";
 import bilimmerkezi from "./bilimmerkezi.js";
@@ -71,6 +74,7 @@ export default class World {
     this.setFloor();
     this.setAreas();
     this.setStartingScreen();
+    this.setCoordinateShower();
   }
 
   start() {
@@ -83,6 +87,7 @@ export default class World {
     this.setFloor();
     this.setAreas();
     this.setStartingScreen();
+    this.setCoordinateShower();
 
     // Now we can hide the starting screen if it exists since it's been initialized
     if (this.startingScreen && this.startingScreen.hide) {
@@ -107,31 +112,34 @@ export default class World {
     this.setSections();
     this.setEasterEggs();
 
+    // Add this line to initialize the complete scene
+    this.setCompleteScene();
+
     this.setRocket(); // Roket modelini ve fırlatma etkileşimini ekler
-    this.setRender(); // Render modelini ekler
-    this.setSesOdasi(); // Ses odası modelini ekler
-    this.setGreenBox(); // Yeşil kutu modelini ekler
-    this.setAladdinTepesi(); // Aladdin Tepesi modelini ekler
-    this.setKapsul(); // Kapsul modelini ekler
+    // this.setRender(); // Render modelini ekler
+    // this.setSesOdasi(); // Ses odası modelini ekler
+    // this.setGreenBox(); // Yeşil kutu modelini ekler
+    // this.setAladdinTepesi(); // Aladdin Tepesi modelini ekler - lighting now in CompleteScene
+    // this.setKapsul(); // Kapsul modelini ekler
     // Removing this line since we consolidated the functionality into Kapsul.js
     // this.setKapsulArea(); // Kapsul etkileşim alanını ekler
-    this.setSosyalino(); // Sosyalino modelini ekler
-    this.setCalisanGenclikMerkezi(); // CalisanGenclikMerkezi modelini ekler
-    this.setKelebekler(); // Kelebekler Vadisi modelini ekler
-    this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
-    this.setroketplatformu(); // Roket Platformu modelini ekler
-    this.setDivizyonBina(); // Divizyon Bina modelini ekler
+    // this.setSosyalino(); // Sosyalino modelini ekler
+    // this.setCalisanGenclikMerkezi(); // CalisanGenclikMerkezi modelini ekler
+    // this.setKelebekler(); // Kelebekler Vadisi modelini ekler
+    // this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
+    // this.setroketplatformu(); // Roket Platformu modelini ekler
+    // this.setDivizyonBina(); // Divizyon Bina modelini ekler
 
-    this.setAtmosferAlani(); // Atmosfer Alanı modelini ekler
+    // this.setAtmosferAlani(); // Atmosfer Alanı modelini ekler
 
-    this.setStadyum(); // Stadyum modelini ekler
-    this.setKonseralani(); // Konseralani modelini ekler
-    this.setJaponparki(); // Japonparki modelini ekler
-    this.setBasket(); // Basket modelini ekler
-    this.setCowork(); // Cowork modelini ekler
+    // this.setStadyum(); // Stadyum modelini ekler
+    // this.setKonseralani(); // Konseralani modelini ekler
+    // this.setJaponparki(); // Japonparki modelini ekler
+    // this.setBasket(); // Basket modelini ekler
+    // this.setCowork(); // Cowork modelini ekler
 
-    this.setKonyaGencKart(); // Yeni eklenen model
-    this.setPopUp();
+    // this.setKonyaGencKart(); // Yeni eklenen model
+    // this.setPopUp();
   }
 
   setReveal() {
@@ -570,16 +578,7 @@ export default class World {
     this.container.add(this.easterEggs.container);
   }
 
-  setSesOdasi() {
-    this.sesOdasi = new sesOdasi({
-      resources: this.resources,
-      objects: this.objects,
-      sounds: this.sounds,
-      physics: this.physics,
-      debug: this.debugFolder
-    });
-    this.container.add(this.sesOdasi.container);
-  }
+
 
   setRocket() {
     this.rocket = new rocket({
@@ -592,21 +591,7 @@ export default class World {
     this.container.add(this.rocket.container);
   }
 
-  setGreenBox() {
-    this.greenBox = new GreenBox({
-      resources: this.resources,
-      objects: this.objects,
-      debug: this.debug,
-      time: this.time,
-      physics: this.physics,
-      shadows: this.shadows,
-      materials: this.materials,
-      camera: this.camera
-    });
-
-    // Greenbox container'ını World container'ına ekle
-    this.container.add(this.greenBox.container);
-  }
+ 
 
   setResetButton() {
     // Set up
@@ -857,170 +842,19 @@ export default class World {
     }
   }
 
-  setAladdinTepesi() {
-    this.alaadintepesi = new AladdinTepesi({
-      scene: this.scene,
-      time: this.time,
-      physics: this.physics
-    });
-    this.container.add(this.alaadintepesi.model);
-    console.log("Alaaddin Tepesi modeli başarıyla eklendi");
-  }
 
-  setKapsul() {
-    this.kapsul = new Kapsul({
-      time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder,
-      areas: this.areas,
-      sounds: this.sounds
-    });
-    this.container.add(this.kapsul.container);
-    console.log("Kapsül modeli başarıyla eklendi");
-  }
-
-  setSosyalino() {
-    try {
-      this.sosyalino = new Sosyalino({
-        resources: this.resources,
-        objects: this.objects,
-        shadows: this.shadows,
-        sounds: this.sounds,
-        areas: this.areas,
-        physics: this.physics,
-        time: this.time
-      });
-      if (this.sosyalino && this.sosyalino.container) {
-        this.container.add(this.sosyalino.container);
-        console.log("Sosyalino modeli başarıyla eklendi");
-      } else {
-        console.warn("Sosyalino container nesnesi bulunamadı!");
-      }
-    } catch (error) {
-      console.error("Sosyalino eklenirken hata oluştu:", error);
-    }
-  }
-
-  setCalisanGenclikMerkezi() {
-    try {
-      this.calisanGenclikMerkezi = new CalisanGenclikMerkezi(
-        this.resources,
-        this.objects,
-        this.shadows,
-        this.debug,
-        this.scene
-      );
-      // The model property is actually the return value from objects.add(),
-      // so we need to add its container property instead
-      if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.model && this.calisanGenclikMerkezi.model.container) {
-        this.container.add(this.calisanGenclikMerkezi.model.container);
-        console.log("CalisanGenclikMerkezi modeli başarıyla eklendi");
-      } else {
-        console.warn("CalisanGenclikMerkezi modeli bulunamadı veya yüklenemedi!");
-      }
-    } catch (error) {
-      console.error("CalisanGenclikMerkezi eklenirken hata oluştu:", error);
-    }
-  }
-
-  setKelebekler() {
-    // Check if we're not attaching Kelebekler Vadisi twice
-    if (this.kelebekler) {
-      console.warn("Kelebekler Vadisi already initialized, skipping duplicate initialization");
-      return;
-    }
-    
-    console.log("Initializing Kelebekler Vadisi model...");
-    
-    this.kelebekler = new kelebeklervadisi({
-      time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder,
-      areas: this.areas, // Add areas for interaction
-      sounds: this.sounds // Add sounds for interaction
-    });
-    
-    this.container.add(this.kelebekler.container);
-    console.log("Kelebekler Vadisi container added to world");
-  }
-
-  setKonseralani() {
-    this.konseralani = new Konseralani({
-      scene:     this.scene,
-      resources: this.resources,
-      physics:   this.physics,
-      debug:     this.debugFolder,
-      rotateX:   0,   
-      rotateY:   0, 
-      rotateZ:   Math.PI / 2// Y ekseninde 90 derece,
-    });
-  }
   
-  setStadyum() {
-    this.stadyum = new Stadyum({
-      scene: this.scene,
-      resources: this.resources,
-      physics: this.physics,
-      debug: this.debugFolder,
-      rotateX: 0,
-      rotateY: 0,
-      rotateZ: Math.PI / 2 // Z ekseninde 90 derece
-    });
-    this.container.add(this.stadyum.container);
-  }
-  
-  setJaponparki() {
-    this.japonparki = new Japonparki({
-      scene: this.scene,
-      time: this.time,
-      physics: this.physics
-    });
-  }
-  
-  setBasket() {
-    this.basket = new Basket({
-      scene: this.scene,
-      resources: this.resources,
-      physics: this.physics,
-      debug: this.debugFolder,
-      rotateX: Math.PI / 2,
-      rotateY: 0,
-      rotateZ: 0
-    });
-  }
-  
-  setCowork() {
-    this.cowork = new Cowork({
-      scene: this.scene,
-      resources: this.resources,
-      physics: this.physics,
-      debug: this.debugFolder,
-      rotateX: 0,
-      rotateY: 0,
-      rotateZ: Math.PI / 2 // Z ekseninde 90 derece
-    });
-  }
 
-  setKonyaGencKart() {
-    try {
-      this.KonyaGencKart = new KonyaGencKart({
-        scene: this.scene,
-        time: this.time,
-        physics: this.physics,
-        resources: this.resources,
-        areas: this.areas,
-        sounds: this.sounds
-      });
-      
-      console.log("Konya Genç Kart modeli başarıyla eklendi");
-    } catch (error) {
-      console.error("Konya Genç Kart eklenirken hata oluştu:", error);
-    }
-  }
+ 
+
+
+  
+
+
+ 
+
+
+
 
   setPopUp() {
     try {
@@ -1041,111 +875,61 @@ export default class World {
     }
   }
 
-  setAtmosferAlani() {
-    try {
-      this.atmosferAlani = new AtmosferAlani({
-        resources: this.resources,
-        objects: this.objects,
-        debug: this.debug,
-        time: this.time,
-        physics: this.physics,
-        shadows: this.shadows,
-        materials: this.materials,
-        areas: this.areas,
-        sounds: this.sounds
-      });
-      if (this.atmosferAlani && this.atmosferAlani.container) {
-        this.container.add(this.atmosferAlani.container);
-        console.log("Atmosfer Alanı başarıyla eklendi");
-      } else {
-        console.warn("Atmosfer Alanı container nesnesi bulunamadı!");
-      }
-    } catch (error) {
-      console.error("Atmosfer Alanı eklenirken hata oluştu:", error);
-    }
-  }
+  
 
-  setroketplatformu() {
-    this.roketplatformu = new roketplatformu({
+
+ 
+
+ 
+
+
+
+
+  setCoordinateShower() {
+    this.coordinateShower = new CoordinateShower({
+      debug: this.debug,
       time: this.time,
-      resources: this.resources,
-      objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder
+      sizes: this.sizes,
+      camera: this.camera,
+      renderer: this.renderer,
+      container: this.container,
+      scene: this.scene
     });
-    this.container.add(this.roketplatformu.container);
   }
 
-  setaStadyum() {
-    this.stadyum = new Stadyum({
+  setCompleteScene() {
+    this.completeScene = new CompleteScene({
+      debug: this.debug,
+      resources: this.resources,
       time: this.time,
-      resources: this.resources,
-      objects: this.objects,
+      sizes: this.sizes,
+      camera: this.camera,
+      renderer: this.renderer,
+      container: this.container,
       physics: this.physics,
-      debug: this.debugFolder
-    });
-    this.container.add(this.stadyum.container); // Küçük harfle yazılmalı
-  }
-
-  setKonseralani() {
-  this.konseralani = new Konseralani({
-    scene:     this.scene,
-    resources: this.resources,
-    physics:   this.physics,
-    debug:     this.debugFolder,
-    rotateX:   0,   
-    rotateY:   0, 
-    rotateZ:   Math.PI / 2// Y ekseninde 90 derece,
-  });
-}
-
-  setbilimmerkezi() {
-    this.bilimmerkezi = new bilimmerkezi({
-      time: this.time,
-      resources: this.resources,
+      areas: this.areas,
       objects: this.objects,
-      physics: this.physics,
-      debug: this.debugFolder,
-      areas: this.areas
+      scene: this.scene  // Add this parameter
     });
-    this.container.add(this.bilimmerkezi.container);
-  }
-
-  setDivizyonBina() {
-    try {
-      this.divizyonBina = new DivizyonBina({
-        scene: this.scene,
-        resources: this.resources,
-        physics: this.physics,
-        debug: this.debugFolder,
-        rotateX: 0,
-        rotateY: 0,
-        rotateZ: Math.PI / 2
-      });
-      console.log("Divizyon Bina modeli başarıyla eklendi");
-    } catch (error) {
-      console.error("DivizyonBina eklenirken hata oluştu:", error);
-    }
-  }
-
-  setCevre() {
-    try {
-      this.cevre = new Cevre({
-        scene: this.scene,
-        resources: this.resources,
-        physics: this.physics,
-        debug: this.debugFolder,
-        time: this.time
-      });
-      
-      if (this.cevre && this.cevre.container) {
-        this.container.add(this.cevre.container);
-        console.log("Çevre modelleri başarıyla eklendi");
-      } else {
-        console.warn("Çevre container nesnesi bulunamadı!");
-      }
-    } catch (error) {
-      console.error("Çevre modelleri eklenirken hata oluştu:", error);
+    
+    // Add to scene
+    this.scene.add(this.completeScene.container);
+    
+    // Set position for testing
+    this.completeScene.model.container.position.set(0, 0, 0);
+    
+    // Initialize the model test utility
+    this.sceneModelTest = new SceneModelTest({
+      completeScene: this.completeScene,
+      debug: this.debug,
+      time: this.time
+    });
+    
+    // Debug
+    if(this.debug) {
+      this.debugFolder.add(this.completeScene.model.container.position, 'x').name('completeScene x').min(-100).max(100).step(0.1);
+      this.debugFolder.add(this.completeScene.model.container.position, 'y').name('completeScene y').min(-100).max(100).step(0.1);
+      this.debugFolder.add(this.completeScene.model.container.position, 'z').name('completeScene z').min(-100).max(100).step(0.1);
     }
   }
 

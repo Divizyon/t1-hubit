@@ -15,19 +15,37 @@ export default class Physics
         // Set up
         if(this.debug)
         {
+            console.log("Setting up physics debug");
             this.debugFolder = this.debug.addFolder('physics')
-            // this.debugFolder.open()
+            // Ensure the folder is open in debug mode
+            this.debugFolder.open()
         }
 
-        this.setWorld()
-        this.setModels()
-        this.setMaterials()
-        this.setFloor()
-        this.setCar()
+        try {
+            console.log("Initializing physics world...");
+            this.setWorld()
+            console.log("Setting up physics models...");
+            this.setModels()
+            console.log("Setting up physics materials...");
+            this.setMaterials()
+            console.log("Setting up physics floor...");
+            this.setFloor()
+            console.log("Setting up physics car...");
+            this.setCar()
+            console.log("Physics initialization complete");
+        } catch (error) {
+            console.error("Error during physics initialization:", error);
+            throw error; // Re-throw to make it visible in main initialization
+        }
 
+        // Add physics update to time tick
         this.time.on('tick', () =>
         {
-            this.world.step(this.time.delta / 1000)
+            try {
+                this.world.step(this.time.delta / 1000)
+            } catch (error) {
+                console.error("Error during physics update:", error);
+            }
         })
     }
 
@@ -51,7 +69,8 @@ export default class Physics
     {
         this.models = {}
         this.models.container = new THREE.Object3D()
-        this.models.container.visible = false
+        // Make physics models always visible in debug mode
+        this.models.container.visible = this.debug ? true : false;
         this.models.materials = {}
         this.models.materials.static = new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true })
         this.models.materials.dynamic = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
@@ -60,7 +79,14 @@ export default class Physics
         // Debug
         if(this.debug)
         {
-            this.debugFolder.add(this.models.container, 'visible').name('modelsVisible')
+            console.log("Setting up physics model debug controls");
+            this.debugFolder.add(this.models.container, 'visible').name('modelsVisible');
+            
+            // Add color controllers for the materials
+            const materialsFolder = this.debugFolder.addFolder('Materials');
+            materialsFolder.addColor(this.models.materials.static, 'color').name('Static Color');
+            materialsFolder.addColor(this.models.materials.dynamic, 'color').name('Dynamic Color');
+            materialsFolder.addColor(this.models.materials.dynamicSleeping, 'color').name('Sleeping Color');
         }
     }
 

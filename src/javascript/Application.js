@@ -266,6 +266,11 @@ export default class Application {
         this.time.off('tick')
         this.sizes.off('resize')
 
+        // Call world destructor if it exists
+        if (this.world && typeof this.world.destructor === 'function') {
+            this.world.destructor()
+        }
+
         this.camera.orbitControls.dispose()
         this.renderer.dispose()
         this.debug.destroy()

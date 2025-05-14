@@ -14,6 +14,7 @@ export default class Resources extends EventEmitter {
 
         this.toLoad = 0
         this.loaded = 0
+        this.loadErrors = 0
         this.items = {}
     }
 
@@ -34,7 +35,8 @@ export default class Resources extends EventEmitter {
                 })
 
                 image.addEventListener('error', () => {
-                    this.fileLoadEnd(_resource, image)
+                    console.error(`Error loading image: ${_resource.source}`)
+                    this.fileLoadEnd(_resource, image, true)
                 })
 
                 image.src = _resource.source
@@ -49,11 +51,18 @@ export default class Resources extends EventEmitter {
         this.loaders.push({
             extensions: ['drc'],
             action: (_resource) => {
-                dracoLoader.load(_resource.source, (_data) => {
-                    this.fileLoadEnd(_resource, _data)
-
-                    DRACOLoader.releaseDecoderModule()
-                })
+                dracoLoader.load(
+                    _resource.source, 
+                    (_data) => {
+                        this.fileLoadEnd(_resource, _data)
+                        DRACOLoader.releaseDecoderModule()
+                    },
+                    undefined,
+                    (error) => {
+                        console.error(`Error loading Draco model ${_resource.source}:`, error)
+                        this.fileLoadEnd(_resource, null, true)
+                    }
+                )
             }
         })
 
@@ -65,10 +74,21 @@ export default class Resources extends EventEmitter {
             extensions: ['glb', 'gltf'],
             action: (_resource) => {
                 console.log(`Loading GLTF model: ${_resource.source}`)
+                
+                // Add a timeout for loading in debug mode
+                let loadTimeout = null
+                if (window.location.hash === '#debug') {
+                    loadTimeout = setTimeout(() => {
+                        console.warn(`Loading timeout for ${_resource.source} - continuing anyway`)
+                        this.fileLoadEnd(_resource, null, true)
+                    }, 5000) // 5s timeout for model loading in debug mode
+                }
+                
                 gltfLoader.load(
                     _resource.source,
                     (_data) => {
                         console.log(`Successfully loaded GLTF model: ${_resource.source}`)
+                        if (loadTimeout) clearTimeout(loadTimeout)
                         this.fileLoadEnd(_resource, _data)
                     },
                     (progress) => {
@@ -76,7 +96,8 @@ export default class Resources extends EventEmitter {
                     },
                     (error) => {
                         console.error(`Error loading GLTF model ${_resource.source}:`, error)
-                        this.fileLoadEnd(_resource, null)
+                        if (loadTimeout) clearTimeout(loadTimeout)
+                        this.fileLoadEnd(_resource, null, true)
                     }
                 )
             }
@@ -88,9 +109,17 @@ export default class Resources extends EventEmitter {
         this.loaders.push({
             extensions: ['fbx'],
             action: (_resource) => {
-                fbxLoader.load(_resource.source, (_data) => {
-                    this.fileLoadEnd(_resource, _data)
-                })
+                fbxLoader.load(
+                    _resource.source, 
+                    (_data) => {
+                        this.fileLoadEnd(_resource, _data)
+                    },
+                    undefined,
+                    (error) => {
+                        console.error(`Error loading FBX model ${_resource.source}:`, error)
+                        this.fileLoadEnd(_resource, null, true)
+                    }
+                )
             }
         })
     }
@@ -103,19 +132,26 @@ export default class Resources extends EventEmitter {
             this.toLoad++
             const extensionMatch = _resource.source.match(/\.([a-z]+)$/)
 
-            if (typeof extensionMatch[1] !== 'undefined') {
+            if (typeof extensionMatch?.[1] !== 'undefined') {
                 const extension = extensionMatch[1]
                 const loader = this.loaders.find((_loader) => _loader.extensions.find((_extension) => _extension === extension))
 
                 if (loader) {
-                    loader.action(_resource)
+                    try {
+                        loader.action(_resource)
+                    } catch (error) {
+                        console.error(`Exception loading ${_resource.source}:`, error)
+                        this.fileLoadEnd(_resource, null, true)
+                    }
                 }
                 else {
-                    console.warn(`Cannot found loader for ${_resource}`)
+                    console.warn(`Cannot find loader for ${_resource.source}`)
+                    this.fileLoadEnd(_resource, null, true)
                 }
             }
             else {
-                console.warn(`Cannot found extension of ${_resource}`)
+                console.warn(`Cannot find extension of ${_resource.source}`)
+                this.fileLoadEnd(_resource, null, true)
             }
         }
     }
@@ -123,13 +159,23 @@ export default class Resources extends EventEmitter {
     /**
      * File load end
      */
-    fileLoadEnd(_resource, _data) {
+    fileLoadEnd(_resource, _data, isError = false) {
         this.loaded++
+        
+        if (isError) {
+            this.loadErrors++
+            console.warn(`Resource ${_resource.name} failed to load (${this.loadErrors} total errors)`)
+        }
+        
+        // Store data even if null to keep track of it
         this.items[_resource.name] = _data
 
         this.trigger('fileEnd', [_resource, _data])
 
         if (this.loaded === this.toLoad) {
+            if (this.loadErrors > 0) {
+                console.warn(`Completed loading with ${this.loadErrors} errors`)
+            }
             this.trigger('end')
         }
     }

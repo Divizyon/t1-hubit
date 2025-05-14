@@ -12,6 +12,9 @@ export default class Resources extends EventEmitter {
         this.items = {}
 
         this.loader.load([
+            // Complete Scene
+            { name: 'completeScene', source: './models/complete_scene_test/complete_scene.glb' },
+            
             // Trafik lambası ve yön tabelaları
             { name: 'trafikLambasiModel', source: './models/cevre/traficlamba.glb' },
             { name: 'yonTabelasi1Model', source: './models/cevre/yontabelasi1.glb' },

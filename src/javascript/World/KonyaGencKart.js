@@ -42,7 +42,7 @@ export default class KonyaGenckart {
       console.log('Animasyonlar:', gltf.animations);
       
       this.model = gltf.scene;
-      this.model.position.set(-10, 25, 0);
+      this.model.position.set(23.87, -22.04, 1.47);
       this.model.scale.set(1, 1, 1);
       
       // Modeli döndür
