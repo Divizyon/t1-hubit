@@ -27,7 +27,7 @@ export default class AtmosferAlani {
             // collision: null, // Gerekirse collision ekleyebilirsin
             offset: new THREE.Vector3(-25, 0, 0.03), // Eski koordinatlara geri alındı
             rotation: new THREE.Euler(Math.PI / 2, 0, 0), // X ekseninde +90 derece döndürdüm
-            shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
+            shadow: { sizeX: 0, sizeY: 0, offsetZ: 0, alpha: 0.4 },
             mass: 0,
             sleep: true,
             name: "Atmosfer Alanı",
@@ -115,6 +115,109 @@ export default class AtmosferAlani {
             new THREE.Euler(0, 0, 0),
             new CANNON.Vec3(0.3, 0.3, 2),
         );
+        this.addCollisionBox(
+            new THREE.Vector3(-46.5, -44.5, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-71, -39.5, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-90 ,-24.5, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-95 ,-0.5, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-88.5 ,23.9, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-80 ,47.5, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-58 ,57, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-34 ,53, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-21.5 ,32, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-16.7 ,7.5, 2),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(0.3, 0.3, 2),
+        );
+        //yol
+        this.addCollisionBox(
+            new THREE.Vector3(-14 ,0, 0),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(3, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-10 ,-0.5, 0),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(2, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-6 ,-1, 0),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(2, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(-2 ,-1.2, 0),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(2, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(2 ,-1.3, 0),
+            new THREE.Euler(0, 0, 0),
+            new CANNON.Vec3(2, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(6 ,-0.5, 0),
+            new THREE.Euler(0, 0, 0.1),
+            new CANNON.Vec3(2, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(10 ,0.5, 0),
+            new THREE.Euler(0, 0, 0.1),
+            new CANNON.Vec3(2, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(14 ,0.5, 0),
+            new THREE.Euler(0, 0, 0.1),
+            new CANNON.Vec3(2, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(18 ,-0.9, 0),
+            new THREE.Euler(0, 0, 0.1),
+            new CANNON.Vec3(2, 2.5, 0.1),
+        );
+        this.addCollisionBox(
+            new THREE.Vector3(21 ,-1.5, 0),
+            new THREE.Euler(0, 0, 0.1),
+            new CANNON.Vec3(2, 2.2, 0.1),
+        );
+
+
        
     }
     
