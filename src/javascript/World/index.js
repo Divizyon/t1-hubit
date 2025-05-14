@@ -936,17 +936,6 @@ export default class World {
       completeSceneFolder.add(this.completeScene.model.container.position, 'x').name('position x').min(-100).max(100).step(0.1);
       completeSceneFolder.add(this.completeScene.model.container.position, 'y').name('position y').min(-100).max(100).step(0.1);
       completeSceneFolder.add(this.completeScene.model.container.position, 'z').name('position z').min(-100).max(100).step(0.1);
-      
-      // Add buttons to enable/disable car following
-      completeSceneFolder.add(
-        {enableFollowing: () => this.completeScene.enableCarFollowing()}, 
-        'enableFollowing'
-      ).name('Enable Car Following');
-      
-      completeSceneFolder.add(
-        {disableFollowing: () => this.completeScene.disableCarFollowing()}, 
-        'disableFollowing'
-      ).name('Disable Car Following');
     }
   }
 

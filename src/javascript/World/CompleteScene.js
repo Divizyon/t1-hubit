@@ -35,6 +35,9 @@ export default class CompleteScene extends EventEmitter {
         this.buildingBlockOffset = new THREE.Vector3(0, 0, 0)
         this.isFollowingCar = false
 
+        // Collision objects
+        this.collisionBodies = []
+
         // Set up scene lighting first (previously in AladdinTepesi)
         this.setLights()
         
@@ -102,6 +105,9 @@ export default class CompleteScene extends EventEmitter {
         // Register all models in the hierarchy
         this.registerModels(this.model.scene)
 
+        // Set up collisions for the model
+        this.setupCollisions()
+
         // Update the matrix after rotation
         this.model.container.updateMatrix()
 
@@ -114,6 +120,169 @@ export default class CompleteScene extends EventEmitter {
         }
     }
     
+    setupCollisions() {
+        // Skip if physics is not available
+        if (!this.physics) {
+            console.warn('Physics not available, skipping collision setup');
+            return;
+        }
+        
+        console.log('Setting up collisions for complete scene model...');
+        
+        // Find all collision meshes
+        const boxColliders = [];
+        const sphereColliders = [];
+        const cylinderColliders = [];
+        
+        // Traverse the model to find collision objects
+        this.model.scene.traverse((child) => {
+            if (child.isMesh) {
+                // Check for different collision types based on naming
+                if (child.name.match(/^cube_|^box_/i)) {
+                    console.log(`Found box collider: ${child.name}`);
+                    boxColliders.push(child);
+                    child.visible = false; // Hide collision mesh
+                }
+                else if (child.name.match(/^sphere_/i)) {
+                    console.log(`Found sphere collider: ${child.name}`);
+                    sphereColliders.push(child);
+                    child.visible = false; // Hide collision mesh
+                }
+                else if (child.name.match(/^cylinder_/i)) {
+                    console.log(`Found cylinder collider: ${child.name}`);
+                    cylinderColliders.push(child);
+                    child.visible = false; // Hide collision mesh
+                }
+            }
+        });
+        
+        // Get model container position and rotation
+        const modelPosition = this.model.container.position.clone();
+        const modelRotation = {
+            x: this.model.container.rotation.x,
+            y: this.model.container.rotation.y,
+            z: this.model.container.rotation.z,
+            order: this.model.container.rotation.order
+        };
+        
+        console.log('Model position:', modelPosition);
+        console.log('Model rotation:', modelRotation);
+        
+        // Create physics bodies for box colliders
+        if (boxColliders.length > 0) {
+            console.log(`Creating physics for ${boxColliders.length} box colliders`);
+            const boxCollision = this.physics.addObjectFromThree({
+                meshes: boxColliders,
+                offset: modelPosition,  // Use model position as offset
+                rotation: modelRotation, // Apply model rotation to colliders
+                mass: 0, // Static objects
+                sleep: false  // Don't put them to sleep initially
+            });
+            
+            if (boxCollision) {
+                this.collisionBodies.push(boxCollision);
+                console.log('Box colliders created with position:', boxCollision.body.position);
+            }
+        }
+        
+        // Create physics bodies for sphere colliders
+        if (sphereColliders.length > 0) {
+            console.log(`Creating physics for ${sphereColliders.length} sphere colliders`);
+            const sphereCollision = this.physics.addObjectFromThree({
+                meshes: sphereColliders,
+                offset: modelPosition,
+                rotation: modelRotation,
+                mass: 0,
+                sleep: false
+            });
+            
+            if (sphereCollision) {
+                this.collisionBodies.push(sphereCollision);
+                console.log('Sphere colliders created with position:', sphereCollision.body.position);
+            }
+        }
+        
+        // Create physics bodies for cylinder colliders
+        if (cylinderColliders.length > 0) {
+            console.log(`Creating physics for ${cylinderColliders.length} cylinder colliders`);
+            const cylinderCollision = this.physics.addObjectFromThree({
+                meshes: cylinderColliders,
+                offset: modelPosition,
+                rotation: modelRotation,
+                mass: 0,
+                sleep: false
+            });
+            
+            if (cylinderCollision) {
+                this.collisionBodies.push(cylinderCollision);
+                console.log('Cylinder colliders created with position:', cylinderCollision.body.position);
+            }
+        }
+        
+        // Force bodies to be awake and active
+        this.collisionBodies.forEach(collision => {
+            if (collision.body) {
+                collision.body.wakeUp();
+                
+                // Safely check if updateAABB exists - it may not be in your version of Cannon.js
+                if (typeof collision.body.updateAABB === 'function') {
+                    collision.body.updateAABB();
+                }
+                
+                console.log(`Collision body activated at position: ${collision.body.position.x}, ${collision.body.position.y}, ${collision.body.position.z}`);
+                
+                // Enable collision detection - important to ensure car collides with these objects
+                if (collision.body.collisionResponse !== undefined) {
+                    collision.body.collisionResponse = true;
+                    console.log('Collision response enabled for body');
+                }
+                
+                // Force collision filter to match car
+                if (collision.body.collisionFilterGroup !== undefined && this.physics.car && this.physics.car.chassis && this.physics.car.chassis.body) {
+                    collision.body.collisionFilterGroup = this.physics.car.chassis.body.collisionFilterGroup;
+                    collision.body.collisionFilterMask = this.physics.car.chassis.body.collisionFilterMask;
+                    console.log('Collision filter matched with car chassis');
+                }
+            }
+        });
+        
+        const totalColliders = boxColliders.length + sphereColliders.length + cylinderColliders.length;
+        console.log(`Total collision objects created: ${this.collisionBodies.length} for ${totalColliders} colliders`);
+        
+        // Debug folder for collisions
+        if (this.debug && this.debugFolder) {
+            const collisionFolder = this.debugFolder.addFolder('Collisions');
+            
+            // Add option to show/hide colliders
+            collisionFolder.add({ showColliders: false }, 'showColliders')
+                .name('Show Colliders')
+                .onChange((value) => {
+                    // Show/hide collision meshes for debugging
+                    boxColliders.forEach(mesh => { mesh.visible = value; });
+                    sphereColliders.forEach(mesh => { mesh.visible = value; });
+                    cylinderColliders.forEach(mesh => { mesh.visible = value; });
+                });
+            
+            // Add option to show/hide physics models
+            if (this.physics && this.physics.models) {
+                collisionFolder.add(this.physics.models.container, 'visible')
+                    .name('Show Physics Models');
+            }
+            
+            // Add button to reset collisions
+            collisionFolder.add({ 
+                resetCollisions: () => {
+                    this.collisionBodies.forEach(collision => {
+                        if (collision.reset) {
+                            collision.reset();
+                            collision.body.wakeUp();
+                        }
+                    });
+                }
+            }, 'resetCollisions').name('Reset Collisions');
+        }
+    }
+
     setupAnimations() {
         // Check if the model has animations
         const animations = this.model.resource.animations
