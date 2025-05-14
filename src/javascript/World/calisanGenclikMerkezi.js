@@ -1,17 +1,21 @@
 import * as THREE from 'three'
 
 export default class CalisanGenclikMerkezi {
-    constructor(resources, objects, shadows, debug, scene) {
-        this.resources = resources
-        this.objects = objects
-        this.shadows = shadows
-        this.debug = debug
-        // We don't need the scene reference as the parent will handle adding to the scene
+    constructor(_options) {
+        this.resources = _options.resources
+        this.objects = _options.objects
+        this.shadows = _options.shadows
+        this.debug = _options.debug
+        this.scene = _options.scene // Sahne referansı ekle
         
         // Debug
         if (this.debug) {
             this.debugFolder = this.debug.addFolder('calisanGenclikMerkezi')
         }
+
+        this.container = new THREE.Object3D()
+        this.container.matrixAutoUpdate = false
+        this.container.updateMatrix()
 
         this.setModel()
     }
@@ -42,7 +46,7 @@ export default class CalisanGenclikMerkezi {
             sleep: true
         })
 
-        // We no longer need to add to scene here as the parent World class will handle that
+        this.container.add(this.model.container)
         console.log('CalisanGenclikMerkezi model created')
  
         // Debug
