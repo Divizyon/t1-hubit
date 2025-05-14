@@ -39,7 +39,7 @@ export default class CalisanGenclikMerkezi {
         this.model = this.objects.add({
             base: this.resources.items.calisanGenclikMerkezi.scene,
             collision: { children: [] }, // Empty collision object, can be passed through
-            offset: new THREE.Vector3(60, -27, 0),
+            offset: new THREE.Vector3(60, -28, 0),
             rotation: new THREE.Euler(0, 0, 0),
             shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
             mass: 0,
