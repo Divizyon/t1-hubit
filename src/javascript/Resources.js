@@ -170,6 +170,11 @@ export default class Resources extends EventEmitter {
             { name: 'greenBoxBase', source: './models/greenBox/base.glb' },
             { name: 'greenBoxCollision', source: './models/greenBox/base.glb' },
 
+            // Greenscreen images
+            { name: 'greenscreenDesert', source: './src/images/greenscreen_resimler/desert_greenscreen_.webp', type: 'texture' },
+            { name: 'greenscreenIceland', source: './src/images/greenscreen_resimler/iceland_greenscreen.webp', type: 'texture' },
+            { name: 'greenscreenLake', source: './src/images/greenscreen_resimler/lake_greenscreen.webp', type: 'texture' },
+
             // Brick
             { name: 'brickBase', source: './models/balya/balya.glb' },
             { name: 'brickCollision', source: './models/brick/collision.glb' },

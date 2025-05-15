@@ -632,7 +632,10 @@ export default class World {
       physics: this.physics,
       shadows: this.shadows,
       materials: this.materials,
-      camera: this.camera
+      camera: this.camera,
+      areas: this.areas,
+      car: this.car,
+      sounds: this.sounds
     });
 
     // Greenbox container'ını World container'ına ekle
