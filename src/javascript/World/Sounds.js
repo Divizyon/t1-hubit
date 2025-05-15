@@ -174,6 +174,17 @@ export default class Sounds
                 volumeMax: 1,
                 rateMin: 0.75,
                 rateMax: 1
+            },
+            {
+                name: 'rocketSound',
+                sounds: ['./sounds/rocket/Rocket_2.mp3'],
+                minDelta: 0,
+                velocityMin: 0,
+                velocityMultiplier: 1,
+                volumeMin: 0.5,
+                volumeMax: 1,
+                rateMin: 1,
+                rateMax: 1
             }
         ]
 

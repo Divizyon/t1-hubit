@@ -16,8 +16,11 @@ export default class KonyaGencKart {
     this.container = new THREE.Object3D();
     this.container.matrixAutoUpdate = false;
     
-    // Görüntülenen pozisyona daha yakın bir konum ayarlayalım
-    this.container.position.set(-5, 35, 0);
+    // Pozisyon parametresiyle gelebilir veya varsayılan değer kullanılır
+    this.position = _options.position ? _options.position.clone() : new THREE.Vector3(38, -22, 0);
+    
+    // Container pozisyonunu ayarla
+    this.container.position.copy(this.position);
     this.container.updateMatrix();
     
     console.log('KonyaGencKart başlatıldı, container pozisyonu:', this.container.position);
@@ -40,7 +43,7 @@ export default class KonyaGencKart {
     }
 
     // İlk olarak basit bir küp oluşturarak pozisyonun doğru olduğunu kontrol edelim
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    const geometry = new THREE.BoxGeometry(1.5 , 1.5, 1.5);
     const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
     const cube = new THREE.Mesh(geometry, material);
     cube.castShadow = true;
@@ -64,13 +67,13 @@ export default class KonyaGencKart {
         this.model = gltf.scene;
         
         // Model ölçeğini artır - görünürlük sorunu ölçekle ilgili olabilir
-        this.model.scale.set(2, 2, 2);
+        this.model.scale.set(1.5, 1.5, 1.5);
         
         // Modelin pozisyonunu sıfırla, container zaten doğru pozisyonda
         this.model.position.set(0, 0, 0);
         
         // Modeli döndür - Değeri düzelttim, makul bir açı
-        this.model.rotation.set(0, 0, Math.PI ); // Yaklaşık 45 derece
+        this.model.rotation.set(0, 0, Math.PI/2 ); // Yaklaşık 45 derece
         
         // Modeli görünür yap
         this.model.visible = true;
@@ -82,18 +85,23 @@ export default class KonyaGencKart {
         console.log('Model container\'a eklendi, pozisyon:', this.container.position);
 
         if (this.physics) {
-          this.collisionBody = new CANNON.Body({
-            mass: 0,
-            position: new CANNON.Vec3(this.container.position.x, this.container.position.y, this.container.position.z),
-            material: this.physics.materials.items.floor
-          });
-
-          // Bounding box hesapla
+          // Önce bounding box hesapla
           const bbox = new THREE.Box3().setFromObject(this.model);
           const size = bbox.getSize(new THREE.Vector3());
           console.log('Model bounding box boyutu:', size);
           
-          // Collision alanını büyüt
+          // Collision body'nin pozisyonunu container pozisyonuna göre ayarla
+          this.collisionBody = new CANNON.Body({
+            mass: 0,
+            position: new CANNON.Vec3(
+              this.container.position.x,
+              this.container.position.y,
+              this.container.position.z + (size.z * 0.4) // Z ekseninde bir offset ekleyebiliriz
+            ),
+            material: this.physics.materials.items.floor
+          });
+          
+          // Collision alanını modele göre boyutlandır
           const halfExtents = new CANNON.Vec3(
               size.x * 0.5, // Genişliği 
               size.y * 0.5, // Yüksekliği
@@ -103,6 +111,18 @@ export default class KonyaGencKart {
           this.collisionBody.addShape(boxShape);
 
           this.physics.world.addBody(this.collisionBody);
+          
+          // Modelin pozisyonu değişirse collision body'nin pozisyonunu güncelle
+          this.time.on('tick', () => {
+            if (this.collisionBody && this.container) {
+              this.collisionBody.position.set(
+                this.container.position.x,
+                this.container.position.y,
+                this.container.position.z + (size.z * 0.4)
+              );
+              this.collisionBody.quaternion.copy(this.container.quaternion);
+            }
+          });
         }
 
         // Materyal ve mesh kontrolü

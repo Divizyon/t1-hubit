@@ -58,7 +58,7 @@ export default class PopUpModule {
         description: "Divizyon Bina, Konya'nın önemli kültür ve sanat merkezlerinden biridir. Çeşitli etkinlikler ve sergiler için kullanılmaktadır."
       },
       konyaGencKart: {
-        position: new THREE.Vector2(-5, 22),
+        position: new THREE.Vector2(30, -22),
         title: "Konya Genç Kart",
         type: "info", // bilgi tipi popup
         url: "genckultur.com",
@@ -79,7 +79,7 @@ export default class PopUpModule {
         description: "Kelebekler Vadisi, Konya'nın doğal güzelliklerinden biridir. Çeşitli kelebek türlerine ev sahipliği yapmaktadır."
       },     
       alaaddinTepesi: {
-        position: new THREE.Vector2(20, -21),
+        position: new THREE.Vector2(20, -25),
         title: "Alaaddin Tepesi",
         type: "info", // bilgi tipi popup
         url: "kilicarslanyarisma.konya.bel.tr",
