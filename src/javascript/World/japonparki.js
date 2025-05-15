@@ -67,13 +67,27 @@ export default class Japonparki {
             this.addLinkButton();
 
             // Işık ekle (sadece bir kez)
-            if (!this.scene.__balikLightAdded) {
+            /*if (!this.scene.__balikLightAdded) {
                 this.scene.add(new THREE.AmbientLight(0xffffff, 2));
                 const dirLight = new THREE.DirectionalLight(0xffffff, 2);
                 dirLight.position.set(10, 4, 7.5);
                 this.scene.add(dirLight);
                 this.scene.__balikLightAdded = true;
-            }
+            }*/
+                if (!this.scene.__newtonLightAdded) {
+                    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+                    this.scene.add(ambientLight);
+    
+                    const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+                    dirLight.position.set(5, 10, 7.5);
+                    dirLight.castShadow = true;
+                    dirLight.shadow.mapSize.width = 2048;
+                    dirLight.shadow.mapSize.height = 2048;
+                    this.scene.add(dirLight);
+                    
+                    this.scene.__newtonLightAdded = true;
+                }
+    
 
             
             // Materyal ve mesh kontrolü
