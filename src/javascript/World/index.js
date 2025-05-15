@@ -31,7 +31,7 @@ import Basket from "./basket.js";
 import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
-import Newton from "./newton.js";
+import Newton from "./Newton.js";
 
 import KonyaGencKart from "./KonyaGencKart.js";
 import Cevre from './cevre.js';
@@ -972,6 +972,7 @@ export default class World {
       time: this.time,
       physics: this.physics
     });
+  }
 
   setKademe() {
     this.kademe = new Kademe({
@@ -980,9 +981,7 @@ export default class World {
       objects: this.objects,
       physics: this.physics,
       debug: this.debug
-    })
-    this.container.add(this.kademe.container)
-
+    });
+    this.container.add(this.kademe.container);
   }
-
 }
