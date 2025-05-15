@@ -36,22 +36,22 @@ export default class Resources extends EventEmitter {
             { name: 'aladdinTepesi', source: './models/alladintepesi/AlaaddinTepesi.glb' },
             // Ses Odası
             { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
-                // Stadyum
+            // Stadyum
             { name: 'stadyumModel', source: './models/stadyum/stadyum.glb' },
 
             // Konseralani
             { name: 'konseralaniModel', source: './models/konseralani/konser_alani.glb' },
             // Intro    
-           
+
             // Japonparki
             { name: 'japonparkiModel', source: './models/japonparki/japonparki.glb' },
-           
+
             // Basket
             { name: 'basketModel', source: './models/basket/basket.glb' },
-            
+
             // Cowork
             { name: 'coworkModel', source: './models/cowork/cowork.glb' },
-        
+
 
 
             // Base modeli
@@ -207,7 +207,7 @@ export default class Resources extends EventEmitter {
             { name: 'newtonSarkaci', source: './models/newton/newton.glb' },
 
             // Kademe
-            {name: 'kademe', source: './models/kademe/kademe.glb'},
+            { name: 'kademe', source: './models/kademe/kademe.glb' },
 
             // Kelebekler Vadisi
             { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
