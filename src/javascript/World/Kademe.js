@@ -14,7 +14,7 @@ export default class Kademe {
         this.container.matrixAutoUpdate = false
 
         // Model pozisyonu
-        this.position = new THREE.Vector3(-22, -6, 0)
+        this.position = new THREE.Vector3(-35, -27, 0)
 
         this._setModel()
         this._setPhysics()
