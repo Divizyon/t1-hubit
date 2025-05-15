@@ -72,7 +72,7 @@ export default class PopUpModule {
         description: "Japon Parkı, Konya'nın merkezinde yer alan, Japon kültürünü yansıtan özel bir parktır. Japon bahçe sanatının örneklerini barındırır."
       },
       kelebeklervadisi: {
-        position: new THREE.Vector2(60, 3),
+        position: new THREE.Vector2(58, 2),
         title: "Kelebekler Vadisi",
         type: "info", // bilgi tipi popup
         url: "konyatropikalkelebekbahcesi.com/tr",
