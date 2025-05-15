@@ -85,10 +85,10 @@ export default class sesOdasi {
                 z: soundPosition.z,
                 sound: "sesOdasi",
                 customSoundPath: "./sounds/car-horns/duman.mp3",
-                maxDistance: 30,
-                refDistance: 8,
+                maxDistance: 15,
+                refDistance: 4,
                 rolloffFactor: 1.2,
-                volume: 1.0,
+                volume: 0.2,
                 autoplay: true,
                 loop: true,
             })

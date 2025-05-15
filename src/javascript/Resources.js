@@ -213,7 +213,7 @@ export default class Resources extends EventEmitter {
             { name: 'kelebeklerVadisiModel', source: './models/kelebeklerVadisi/kelebeklerblockout.glb' },
 
             //CalisanGenclikMerkezi
-            { name: 'calisanGenclikMerkezi', source: './models/calisangenclikmerkezi/calisanGenclikMerkezi.glb' },
+            { name: 'CalisanGenclikMerkezi', source: './models/calisangenclikmerkezi/calisanGenclikMerkezi.glb' },
 
             //Konya Genc Kart
             { name: 'konyaGencKartModel', source: './models/konyaGencKart/3D_Ekran_Bina.glb' },
@@ -271,6 +271,12 @@ export default class Resources extends EventEmitter {
             // { name: 'eggBase', source: './models/egg/base.glb' },
             // { name: 'eggCollision', source: './models/egg/collision.glb' },
 
+            { name: 'legoParcaModel', source: './models/cevre/lego parca.glb' },
+
+            // Çevre modelleri
+            { name: 'trafikLambasiModel', source: './models/cevre/traficlamba.glb' },
+            { name: 'yonTabelasi1Model', source: './models/cevre/yontabelasi1.glb' },
+            { name: 'yonTabelasi2Model', source: './models/cevre/yontabelasi2.glb' },
             { name: 'legoParcaModel', source: './models/cevre/lego parca.glb' },
         ])
 

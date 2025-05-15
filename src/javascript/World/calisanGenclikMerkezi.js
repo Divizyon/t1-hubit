@@ -1,76 +1,135 @@
 import * as THREE from 'three'
+import CANNON from 'cannon'
+
+const DEFAULT_POSITION = new THREE.Vector3(61, -27, 1.3)
 
 export default class CalisanGenclikMerkezi {
-    constructor(_options) {
-        this.resources = _options.resources
-        this.objects = _options.objects
-        this.shadows = _options.shadows
-        this.debug = _options.debug
-        this.scene = _options.scene // Sahne referansı ekle
+    constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
+        this.scene = scene
+        this.resources = resources
+        this.objects = objects
+        this.physics = physics
+        this.debug = debug
+
+        this.rotateX = rotateX
+        this.rotateY = rotateY
+        this.rotateZ = rotateZ
         
-        // Debug
-        if (this.debug) {
-            this.debugFolder = this.debug.addFolder('calisanGenclikMerkezi')
-        }
-
         this.container = new THREE.Object3D()
-        this.container.matrixAutoUpdate = false
-        this.container.updateMatrix()
-
-        this.setModel()
+        this.position = DEFAULT_POSITION.clone()
+        
+        this._buildModel()
+        
+        // ÖNEMLİ: DivizyonBina.js'de olduğu gibi container'ı direkt sahneye ekliyoruz
+        this.scene.add(this.container)
     }
-
-    setModel() {
-        console.log('Loading CalisanGenclikMerkezi model...')
-
-        if (!this.resources.items) {
-            console.error('Resources items not initialized')
-            return
-        }
-
-        if (!this.resources.items.calisanGenclikMerkezi) {
-            console.error('CalisanGenclikMerkezi model not found in resources')
-            console.log('Available resources:', Object.keys(this.resources.items))
-            return
-        }
-       
-        // Create the model using objects.add() which returns a structured object
-        // with container, collision and other properties
-        this.model = this.objects.add({
-            base: this.resources.items.calisanGenclikMerkezi.scene,
-            collision: { children: [] }, // Empty collision object, can be passed through
-            offset: new THREE.Vector3(60, -28, 0),
-            rotation: new THREE.Euler(0, 0, 0),
-            shadow: { sizeX: 3, sizeY: 3, offsetZ: -0.6, alpha: 0.4 },
-            mass: 0,
-            sleep: true
-        })
-
-        this.container.add(this.model.container)
-        console.log('CalisanGenclikMerkezi model created')
- 
-        // Debug
-        if (this.debug && this.model && this.model.container) {
-            this.debugFolder
-                .add(this.model.container.position, 'x')
-                .name('positionX')
-                .min(-50)
-                .max(50)
-                .step(0.1)
-
-            this.debugFolder
-                .add(this.model.container.position, 'y')
-                .name('positionY')
-                .min(-50)
-                .max(50)
-                .step(0.1)
-
-            this.debugFolder
-                .add(this.model.container.position, 'z')
-                .name('positionZ')
-                .min(-50)
-                .max(50)
-                .step(0.1)
+    
+    _buildModel() {
+        try {
+            // Model dosyasını al - Resources.js'de baş harfi Büyük
+            const gltf = this.resources.items.CalisanGenclikMerkezi
+            if (!gltf || !gltf.scene) {
+                console.error('CalisanGenclikMerkezi modeli bulunamadı')
+                console.log('Mevcut kaynaklar:', Object.keys(this.resources.items))
+                return
+            }
+            
+            console.log('CalisanGenclikMerkezi modeli yüklendi')
+            
+            // Modeli klonla ve malzemeleri kopyala
+            const model = gltf.scene.clone(true)
+            model.traverse(child => {
+                if (child.isMesh) {
+                    const origMat = child.material
+                    const mat = origMat.clone()
+                    if (origMat.map) mat.map = origMat.map
+                    if (origMat.normalMap) mat.normalMap = origMat.normalMap
+                    if (origMat.roughnessMap) mat.roughnessMap = origMat.roughnessMap
+                    if (origMat.metalnessMap) mat.metalnessMap = origMat.metalnessMap
+                    mat.needsUpdate = true
+                    child.material = mat
+                    child.castShadow = true
+                    child.receiveShadow = true
+                }
+            })
+            
+            // Model pozisyonu ve dönüşü
+            model.position.copy(this.position)
+            model.rotation.set(this.rotateX, this.rotateY, this.rotateZ)
+            this.container.add(model)
+            
+            // Bounding box hesapla
+            model.updateMatrixWorld(true)
+            const bbox = new THREE.Box3().setFromObject(model)
+            const size = bbox.getSize(new THREE.Vector3())
+            
+            console.log('CalisanGenclikMerkezi model boyutları:', size)
+            
+            // Fizik gövdesi oluştur - modelin yarısı kadar boyut
+            const halfExtents = new CANNON.Vec3(
+                Math.abs(size.x) / 3, 
+                Math.abs(size.y) / 3, 
+                Math.abs(size.z) / 3
+            )
+            const boxShape = new CANNON.Box(halfExtents)
+            
+            const body = new CANNON.Body({
+                mass: 0,
+                position: new CANNON.Vec3(...this.position.toArray()),
+                material: this.physics.materials.items.floor,
+                type: CANNON.Body.STATIC
+            })
+            
+            // Dönüşü quaternion olarak ayarla
+            const quat = new CANNON.Quaternion()
+            quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ')
+            body.quaternion.copy(quat)
+            
+            body.addShape(boxShape)
+            this.physics.world.addBody(body)
+            
+            console.log('CalisanGenclikMerkezi collision eklendi, boyutlar:', halfExtents)
+            
+            // Debug için collision gösterimi ekleyelim
+            if (this.debug) {
+                const collisionBoxGeom = new THREE.BoxGeometry(
+                    halfExtents.x * 2,
+                    halfExtents.y * 2,
+                    halfExtents.z * 2
+                )
+                const wireMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff0000,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.3
+                })
+                const collisionMesh = new THREE.Mesh(collisionBoxGeom, wireMaterial)
+                collisionMesh.position.copy(this.position)
+                this.container.add(collisionMesh)
+                console.log('Collision debug gösterimi eklendi')
+            }
+            
+            // Obje sistemine ekle
+            if (this.objects) {
+                const children = model.children.slice()
+                const objectEntry = this.objects.add({
+                    base: { children },
+                    collision: { children },
+                    offset: this.position.clone(),
+                    mass: 0
+                })
+                objectEntry.collision = { body }
+                
+                if (objectEntry.container) {
+                    this.container.add(objectEntry.container)
+                }
+            }
+            
+            console.log('CalisanGenclikMerkezi modeli başarıyla kuruldu')
+            
+        } catch (error) {
+            console.error('CalisanGenclikMerkezi oluşturulurken hata:', error)
+            console.log('Hata detayları:', error.message, error.stack)
         }
     }
 } 

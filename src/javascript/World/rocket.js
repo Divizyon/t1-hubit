@@ -9,6 +9,7 @@ export default class rocket {
         this.physics = _options.physics
         this.container = _options.container
         this.debug = _options.debug
+        this.sounds = _options.sounds // Ses sistemini ekle
 
         // Properties
         this.rocketLaunchClickCount = 0
@@ -16,6 +17,10 @@ export default class rocket {
         this.rocketLandingInterval = null
         this.rocketDescentInterval = null
         this.rocketLastMaxVelocity = 0 // Fırlatmada ulaşılan maksimum hız
+        this.isInteractionEnabled = true // Etkileşimin etkin olup olmadığını kontrol eden yeni değişken
+        this.initialPosition = null // Roketin başlangıç pozisyonunu saklamak için
+        this.isLandingComplete = true // İniş tamamlandı mı
+        this.landingDelayTimeout = null // İniş sonrası bekleme süresi için timeout
 
         // Set up
         this.container = new THREE.Object3D()
@@ -45,13 +50,26 @@ export default class rocket {
         if (this.rocketLandingInterval) clearInterval(this.rocketLandingInterval)
         this.rocketLandingInterval = setInterval(() => {
             if (this.rocketIsFlying) {
+                // Sadece z eksenindeki hareketi sıfırla, x ve y'yi başlangıç konumuna sabitle
                 body.velocity.set(0, 0, 0)
+                if (this.initialPosition) {
+                    body.position.x = this.initialPosition.x
+                    body.position.y = this.initialPosition.y
+                }
                 body.position.z = Math.max(body.position.z, 10) // 10 birim yukarıda sabitleniyor
             }
         }, 50)
+        
+        // Roket yukarıda durduktan sonra etkileşimi tekrar etkinleştir
+        setTimeout(() => {
+            this.isInteractionEnabled = true
+            this.rocketAreaLabelMesh.material.opacity = 1.0 // Buton görünürlüğünü geri getir
+        }, 2100) // Roketin yukarı çıkış süresi 2000 ms, biraz fazla bekliyoruz
     }
 
     landRocket(body) {
+        this.isLandingComplete = false // İniş başladı, henüz tamamlanmadı
+        
         if (this.rocketLandingInterval) {
             clearInterval(this.rocketLandingInterval)
             this.rocketLandingInterval = null
@@ -60,18 +78,52 @@ export default class rocket {
             clearInterval(this.rocketDescentInterval)
             this.rocketDescentInterval = null
         }
+        // İniş sonrası bekleme timeout'u iptal et (eğer varsa)
+        if (this.landingDelayTimeout) {
+            clearTimeout(this.landingDelayTimeout)
+            this.landingDelayTimeout = null
+        }
+        
         body.angularVelocity.set(0, 0, 0)
         // Düz iniş animasyonu
-        const targetZ = 0.5
+        const targetZ = this.initialPosition ? this.initialPosition.z : 0.5
         const descentSpeed = -Math.abs(this.rocketLastMaxVelocity) * 0.6 || -2 // Maksimum çıkış hızının %60'ı, yoksa -2
+        
+        // İniş tamamlandığında etkileşimi tekrar etkinleştir
+        const estimatedDescentTime = (body.position.z - targetZ) / Math.abs(descentSpeed) * 1000
+        
         this.rocketDescentInterval = setInterval(() => {
             const currentZ = body.position.z
+            
+            // Sadece z ekseninde hareket et, x ve y'yi başlangıç konumuna sabitle
+            if (this.initialPosition) {
+                body.position.x = this.initialPosition.x
+                body.position.y = this.initialPosition.y
+            }
+            
             if (currentZ <= targetZ + 0.05) {
-                body.position.z = targetZ
+                // İniş tamamlandı, başlangıç konumuna ayarla
+                if (this.initialPosition) {
+                    body.position.copy(this.initialPosition)
+                } else {
+                    body.position.set(body.position.x, body.position.y, targetZ)
+                }
+                
                 body.velocity.set(0, 0, 0)
                 clearInterval(this.rocketDescentInterval)
                 this.rocketDescentInterval = null
+                
+                // İniş tamamlandı, ama etkileşimi hemen değil 1 saniye sonra etkinleştir
+                this.isLandingComplete = true
+                this.rocketAreaLabelMesh.material.opacity = 0.5 // Buton yarı saydam
+                
+                // 1 saniye sonra etkileşimi etkinleştir
+                this.landingDelayTimeout = setTimeout(() => {
+                    this.isInteractionEnabled = true
+                    this.rocketAreaLabelMesh.material.opacity = 1.0 // Buton görünürlüğünü geri getir
+                }, 1000) // 1 saniye beklet
             } else {
+                // Sadece z ekseninde hareket et
                 body.velocity.set(0, 0, descentSpeed)
             }
         }, 50)
@@ -98,6 +150,11 @@ export default class rocket {
             soundName: "brick",
             sleep: false,
         })
+
+        // Roketin başlangıç konumunu kaydet
+        if (this.model && this.model.collision && this.model.collision.body) {
+            this.initialPosition = this.model.collision.body.position.clone()
+        }
 
         // Add to container
         this.container.add(this.model.container)
@@ -140,13 +197,30 @@ export default class rocket {
         }
 
         this.rocketArea.on("interact", () => {
-            this.rocketLaunchClickCount++
+            // Etkileşim devre dışı bırakıldıysa hiçbir şey yapma
+            if (!this.isInteractionEnabled) return;
+            
+            // İniş tamamlanmadıysa etkileşim yapma
+            if (!this.isLandingComplete) return;
+            
             const body = this.model && this.model.collision && this.model.collision.body
+            if (!body) return;
+
+            this.rocketLaunchClickCount++
+            
+            // Etkileşimi devre dışı bırak ve buton görünürlüğünü azalt
+            this.isInteractionEnabled = false
+            this.rocketAreaLabelMesh.material.opacity = 0.3;
 
             if (this.rocketLaunchClickCount % 2 === 1) {
                 // LAUNCH: Fırlat, LAND yazısını göster
                 this.rocketAreaLabelMesh.material.alphaMap = this.createButtonTexture('LAND')
                 this.rocketAreaLabelMesh.material.needsUpdate = true
+                
+                // Roket fırlatma sesini çal
+                if (this.sounds) {
+                    this.sounds.play('rocketSound')
+                }
                 
                 // Duman efektini başlat
                 if (this.rocketSmokeSprite) {
@@ -165,45 +239,64 @@ export default class rocket {
                     }, 50)
                 }
                 
-                if (body) {
-                    if (body.wakeUp) body.wakeUp()
-                    if (this.rocketLandingInterval) {
-                        clearInterval(this.rocketLandingInterval)
-                        this.rocketLandingInterval = null
-                    }
-                    if (this.rocketDescentInterval) {
-                        clearInterval(this.rocketDescentInterval)
-                        this.rocketDescentInterval = null
-                    }
-                    body.velocity.set(0, 0, 0)
-                    body.angularVelocity.set(0, 0, 10)
-                    this.rocketIsFlying = true
-                    let elapsed = 0
-                    let maxVelocity = 0
-                    let interval = setInterval(() => {
-                        if (elapsed < 2000) {
-                            const force = 5 + (elapsed / 2000) * 40
-                            body.velocity.z += force * 0.05
-                            if (body.velocity.z > maxVelocity) maxVelocity = body.velocity.z
-                            elapsed += 50
-                        } else {
-                            clearInterval(interval)
-                            body.velocity.set(0, 0, 0)
-                            body.angularVelocity.set(0, 0, 0)
-                            this.rocketLastMaxVelocity = maxVelocity // Maksimum çıkış hızını kaydet
-                            this.freezeRocketInAir(body)
-                        }
-                    }, 50)
+                if (body.wakeUp) body.wakeUp()
+                if (this.rocketLandingInterval) {
+                    clearInterval(this.rocketLandingInterval)
+                    this.rocketLandingInterval = null
                 }
+                if (this.rocketDescentInterval) {
+                    clearInterval(this.rocketDescentInterval)
+                    this.rocketDescentInterval = null
+                }
+                
+                // İniş sonrası bekleme timeout'u iptal et (eğer varsa)
+                if (this.landingDelayTimeout) {
+                    clearTimeout(this.landingDelayTimeout)
+                    this.landingDelayTimeout = null
+                }
+                
+                // Roketin X ve Y pozisyonlarını başlangıç konumuna sabitle
+                if (this.initialPosition) {
+                    body.position.x = this.initialPosition.x
+                    body.position.y = this.initialPosition.y
+                }
+                
+                // Sadece Z ekseninde hareketi başlat
+                body.velocity.set(0, 0, 0)
+                body.angularVelocity.set(0, 0, 10)
+                this.rocketIsFlying = true
+                let elapsed = 0
+                let maxVelocity = 0
+                let interval = setInterval(() => {
+                    if (elapsed < 2000) {
+                        // Sadece z ekseninde kuvvet uygula
+                        const force = 5 + (elapsed / 2000) * 40
+                        body.velocity.z += force * 0.05
+                        
+                        // X ve Y pozisyonlarını sabit tut
+                        if (this.initialPosition) {
+                            body.position.x = this.initialPosition.x
+                            body.position.y = this.initialPosition.y
+                        }
+                        
+                        if (body.velocity.z > maxVelocity) maxVelocity = body.velocity.z
+                        elapsed += 50
+                    } else {
+                        clearInterval(interval)
+                        body.velocity.set(0, 0, 0)
+                        body.angularVelocity.set(0, 0, 0)
+                        this.rocketLastMaxVelocity = maxVelocity // Maksimum çıkış hızını kaydet
+                        this.freezeRocketInAir(body)
+                    }
+                }, 50)
             } else {
                 // LAND: LAUNCH yazısını göster, inişi başlat
                 this.rocketAreaLabelMesh.material.alphaMap = this.createButtonTexture('LAUNCH')
                 this.rocketAreaLabelMesh.material.needsUpdate = true
-                if (body) {
-                    if (body.wakeUp) body.wakeUp()
-                    this.rocketIsFlying = false
-                    this.landRocket(body)
-                }
+                
+                if (body.wakeUp) body.wakeUp()
+                this.rocketIsFlying = false
+                this.landRocket(body)
             }
         })
     }
