@@ -11,6 +11,7 @@ export default class Camera {
         this.renderer = _options.renderer // Three.js renderer'ı
         this.debug = _options.debug // Debug modu için
         this.config = _options.config // Yapılandırma ayarları
+        
 
         // Kamera container'ı oluştur
         this.container = new THREE.Object3D()
