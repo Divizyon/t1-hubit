@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-47, 36, 1.5); // Changed position from (-55, 38, 0) to (47, 36, 0)
+const DEFAULT_POSITION = new THREE.Vector3(-41, 35, 2); // Artık doğru yerde tanımlandı
 
 export default class Konseralani {
-  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0.5, scale = 1.0 }) {
+  constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0.5, scale = 1.5 }) {
     this.scene = scene;
     this.resources = resources;
     this.objects = objects;
@@ -20,6 +20,7 @@ export default class Konseralani {
     this.position = DEFAULT_POSITION.clone();
 
     this._buildModel();
+    this._setupDebug();
     this.scene.add(this.container);
   }
 
@@ -52,48 +53,41 @@ export default class Konseralani {
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     model.scale.set(this.scale, this.scale, this.scale); // Modeli ölçeklendir
     this.container.add(model);
+    this.model = model; // Model referansını sakla
 
-    // Bounding box hesapla
-    model.updateMatrixWorld(true);
-    const bbox = new THREE.Box3().setFromObject(model);
-    const size = bbox.getSize(new THREE.Vector3());
-
-    // Fizik gövdesi oluştur - model ölçeğini dikkate alarak boyutlandır
-    const halfExtents = new CANNON.Vec3(
-      (size.x / 3) * this.scale, 
-      (size.y / 3) * this.scale, 
-      (size.z / 2) * this.scale
-    );
-    const boxShape = new CANNON.Box(halfExtents);
-
-    const body = new CANNON.Body({
-      mass: 0,
-      position: new CANNON.Vec3(...this.position.toArray()),
-      material: this.physics.materials.items.floor
-    });
-
-    // Dönüşü quaternion olarak ayarla
-    const quat = new CANNON.Quaternion();
-    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
-    body.quaternion.copy(quat);
-
-    body.addShape(boxShape);
-    this.physics.world.addBody(body);
-
-
-    // Obje sistemine ekle
+    // Obje sistemine ekle (çarpışma olmadan)
     if (this.objects) {
       const children = model.children.slice();
       const objectEntry = this.objects.add({
         base: { children },
-        collision: { children },
         offset: this.position.clone(),
         mass: 0
       });
-      objectEntry.collision = { body };
       if (objectEntry.container) {
         this.container.add(objectEntry.container);
       }
+    }
+  }
+
+  // Modelin ölçeğini değiştirme metodu
+  setScale(newScale) {
+    this.scale = newScale;
+    
+    if (this.model) {
+      this.model.scale.set(newScale, newScale, newScale);
+    }
+  }
+
+  _setupDebug() {
+    if (this.debug) {
+      const debugFolder = this.debug.addFolder('Konser Alanı');
+      
+      // Ölçek kontrolü ekle
+      debugFolder.add(this, 'scale', 0.1, 2.0, 0.1)
+        .name('Ölçek')
+        .onChange((value) => {
+          this.setScale(value);
+        });
     }
   }
 }
