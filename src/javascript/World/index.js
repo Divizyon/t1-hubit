@@ -612,6 +612,7 @@ export default class World {
       objects: this.objects,
       areas: this.areas,
       physics: this.physics,
+      sounds: this.sounds,
       debug: this.debugFolder
     });
     this.container.add(this.rocket.container);
