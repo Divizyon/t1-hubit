@@ -38,6 +38,7 @@ import PopUpModule from "./PopUpModule.js"
 import sesOdasi from './sesOdasi.js'
 import rocket from './rocket.js'
 import ProjectsSection from "./Sections/ProjectsSection.js";
+import Kademe from "./Kademe.js";
 
 
 
@@ -134,6 +135,7 @@ export default class World {
     this.setKonyaGencKart(); // Yeni eklenen model
     this.setPopUp();
     this.setCevre(); // Çevre modelleri (trafik lambası, yön tabelası, lego parçaları vb.)
+    this.setKademe(); // Kademe modelini ekle
   }
 
   setReveal() {
@@ -369,7 +371,7 @@ export default class World {
     });
   }
 
-  
+
 
   setSounds() {
     this.sounds = new Sounds({
@@ -510,7 +512,7 @@ export default class World {
 
 
 
-  
+
 
     // Sounds.js'ye araç referansını set ediyoruz (uzamsal ses için önemli)
     if (this.sounds) {
@@ -523,13 +525,13 @@ export default class World {
 
   setRender() {
     this.render = new Render({
-      scene:     this.scene,
+      scene: this.scene,
       resources: this.resources,
-      physics:   this.physics,
-      debug:     this.debugFolder,
-      rotateX:   0,   // 
-      rotateY:   0,
-      rotateZ:   2 // Hafif sağa çevirme
+      physics: this.physics,
+      debug: this.debugFolder,
+      rotateX: 0,   // 
+      rotateY: 0,
+      rotateZ: 2 // Hafif sağa çevirme
     });
   }
 
@@ -567,8 +569,8 @@ export default class World {
 
       // x: 0,
       // y: 0
-  })
-  this.container.add(this.sections.projects.container)
+    })
+    this.container.add(this.sections.projects.container)
 
     // Projects
     this.sections.projects = new ProjectsSection({
@@ -578,8 +580,8 @@ export default class World {
 
       // x: 0,
       // y: 0
-  })
-  this.container.add(this.sections.projects.container)
+    })
+    this.container.add(this.sections.projects.container)
   }
 
   setEasterEggs() {
@@ -721,7 +723,7 @@ export default class World {
         rotateZ: 0,
         areas: this.areas
       });
-      
+
       // Container'ı doğrudan sahnede eklenmiş olarak oluşturuyoruz, bu nedenle ekstra eklemeye gerek yok
       console.log("CalisanGenclikMerkezi modeli başarıyla eklendi");
     } catch (error) {
@@ -735,9 +737,9 @@ export default class World {
       console.warn("Kelebekler Vadisi already initialized, skipping duplicate initialization");
       return;
     }
-    
+
     console.log("Initializing Kelebekler Vadisi model...");
-    
+
     this.kelebekler = new kelebeklervadisi({
       time: this.time,
       resources: this.resources,
@@ -747,23 +749,23 @@ export default class World {
       areas: this.areas, // Add areas for interaction
       sounds: this.sounds // Add sounds for interaction
     });
-    
+
     this.container.add(this.kelebekler.container);
     console.log("Kelebekler Vadisi container added to world");
   }
 
   setKonseralani() {
     this.konseralani = new Konseralani({
-      scene:     this.scene,
+      scene: this.scene,
       resources: this.resources,
-      physics:   this.physics,
-      debug:     this.debugFolder,
-      rotateX:   0,   
-      rotateY:   0, 
-      rotateZ:   Math.PI / 2// Y ekseninde 90 derece,
+      physics: this.physics,
+      debug: this.debugFolder,
+      rotateX: 0,
+      rotateY: 0,
+      rotateZ: Math.PI / 2// Y ekseninde 90 derece,
     });
   }
-  
+
   setStadyum() {
     this.stadyum = new Stadyum({
       scene: this.scene,
@@ -777,7 +779,7 @@ export default class World {
     });
     this.container.add(this.stadyum.container);
   }
-  
+
   setJaponparki() {
     this.japonparki = new Japonparki({
       scene: this.scene,
@@ -786,7 +788,7 @@ export default class World {
       areas: this.areas  // Add areas parameter
     });
   }
-  
+
   setBasket() {
     this.basket = new Basket({
       scene: this.scene,
@@ -798,7 +800,7 @@ export default class World {
       rotateZ: 0
     });
   }
-  
+
   setCowork() {
     this.cowork = new Cowork({
       scene: this.scene,
@@ -821,12 +823,12 @@ export default class World {
         areas: this.areas,
         sounds: this.sounds
       });
-      
+
       // Add the container to the world container
       if (this.konyaGencKart && this.konyaGencKart.container) {
         this.container.add(this.konyaGencKart.container);
       }
-      
+
       console.log("Konya Genç Kart modeli başarıyla eklendi");
     } catch (error) {
       console.error("Konya Genç Kart eklenirken hata oluştu:", error);
@@ -844,7 +846,7 @@ export default class World {
         sounds: this.sounds,
         objects: this.objects  // objects parametresini ekledim
       });
-      
+
       this.container.add(this.popUp.container);
       console.log("Pop-up başarıyla eklendi");
     } catch (error) {
@@ -899,16 +901,16 @@ export default class World {
   }
 
   setKonseralani() {
-  this.konseralani = new Konseralani({
-    scene:     this.scene,
-    resources: this.resources,
-    physics:   this.physics,
-    debug:     this.debugFolder,
-    rotateX:   0,   
-    rotateY:   0, 
-    rotateZ:   6
-  });
-}
+    this.konseralani = new Konseralani({
+      scene: this.scene,
+      resources: this.resources,
+      physics: this.physics,
+      debug: this.debugFolder,
+      rotateX: 0,
+      rotateY: 0,
+      rotateZ: 6
+    });
+  }
 
   setbilimmerkezi() {
     this.bilimmerkezi = new bilimmerkezi({
@@ -950,7 +952,7 @@ export default class World {
         debug: this.debugFolder,
         time: this.time
       });
-      
+
       if (this.cevre && this.cevre.container) {
         this.container.add(this.cevre.container);
         console.log("Çevre modelleri başarıyla eklendi");
@@ -960,6 +962,17 @@ export default class World {
     } catch (error) {
       console.error("Çevre modelleri eklenirken hata oluştu:", error);
     }
+  }
+
+  setKademe() {
+    this.kademe = new Kademe({
+      scene: this.scene,
+      resources: this.resources,
+      objects: this.objects,
+      physics: this.physics,
+      debug: this.debug
+    })
+    this.container.add(this.kademe.container)
   }
 
 }
