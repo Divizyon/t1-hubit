@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import CANNON from 'cannon'
 
-const DEFAULT_POSITION = new THREE.Vector3(-5, -21, .7); // Varsayılan pozisyon
-const DEFAULT_SCALE = new THREE.Vector3(1.7, 1.7, 1.7); // Varsayılan ölçek
+const DEFAULT_POSITION = new THREE.Vector3(-3, -26, .7); // Varsayılan pozisyon
+const DEFAULT_SCALE = new THREE.Vector3(2, 2, 2); // Varsayılan ölçek
 
 export default class Japonparki {
     constructor(_options) {
@@ -19,7 +19,7 @@ export default class Japonparki {
         this.position = _options.position ? _options.position.clone() : DEFAULT_POSITION.clone();
         this.scale = _options.scale ? _options.scale.clone() : DEFAULT_SCALE.clone();
         this.rotationX = _options.rotationX !== undefined ? _options.rotationX : Math.PI / 2;
-        this.rotationY = _options.rotationY !== undefined ? _options.rotationY : 3.2;
+        this.rotationY = _options.rotationY !== undefined ? _options.rotationY : 2.7;
         this.rotationZ = _options.rotationZ !== undefined ? _options.rotationZ : 0;
         
         this.setModel();
@@ -120,14 +120,14 @@ export default class Japonparki {
     addRestartButton() {
         // Buton için konum belirle
         const buttonPosition = new THREE.Vector3(
-            this.position.x-3,
-            this.position.y+3,
+            this.position.x-1.5,
+            this.position.y+3.5,
             this.position.z -0.3
         );
         
         // Buton boyutları
-        const buttonWidth = 10;
-        const buttonHeight = 4;
+        const buttonWidth = 9.5;
+        const buttonHeight = 3.5;
         const buttonDepth = 0.1;
         
         // Buton rotasyonu - derece cinsinden
@@ -166,14 +166,14 @@ export default class Japonparki {
     addSecondRestartButton() {
         // İkinci buton için konum belirle (farklı bir konumda)
         const buttonPosition = new THREE.Vector3(
-            this.position.x+4.5,  // İlk butondan farklı bir x konumu
+            this.position.x+3.8,  // İlk butondan farklı bir x konumu
             this.position.y+0.5,
             this.position.z-0.3
         );
         
         // Buton boyutları - ilk butonla aynı
         const buttonWidth = 9.5;
-        const buttonHeight = 3.8;
+        const buttonHeight = 3.5;
         const buttonDepth = 0.1;
         
         // Buton rotasyonu - ilk butonla aynı
@@ -453,18 +453,18 @@ export default class Japonparki {
         this.addCollisionBox(
             relPos1,
             new THREE.Euler(0, 0, 45),
-            new CANNON.Vec3(17, 13, 0.15),
+            new CANNON.Vec3(17, 13, 0.15)
         )
         
         // Küresel çarpışma kutusu ekle
         this.addCollisionSphere(
             spherePos,
-            7, // yarıçap
+            7 // yarıçap
         )
         
     }
     
-    addCollisionBox(position, rotation, halfExtents, color) {
+    addCollisionBox(position, rotation, halfExtents) {
         // Fizik gövdesi oluştur
         const boxShape = new CANNON.Box(halfExtents)
 
@@ -483,39 +483,9 @@ export default class Japonparki {
         this.physics.world.addBody(body)
 
         console.log("Japon parkı için collision eklendi:", body)
-        
-    }
-    
-    visualizeCollisionBox(position, rotation, halfExtents, color) {
-        // Çarpışma kutusunun görsel temsilini oluştur
-        const geometry = new THREE.BoxGeometry(
-            halfExtents.x * 2, 
-            halfExtents.y * 2, 
-            halfExtents.z * 2
-        )
-        
-        // Yarı saydam malzeme 
-        const material = new THREE.MeshBasicMaterial({ 
-            color: color,  // Parametre olarak gelen renk
-            transparent: true, 
-            opacity: 0.7,    
-            wireframe: false,  // Katı görünüm için wireframe kapalı
-            wireframeLinewidth: 2
-        })
-        
-        const collisionMesh = new THREE.Mesh(geometry, material)
-        
-        // Pozisyonu ve rotasyonu ayarla
-        collisionMesh.position.copy(position)
-        collisionMesh.rotation.copy(rotation)
-        
-        // Sahneye ekle
-        this.container.add(collisionMesh)
-        
-        console.log("Çarpışma kutusu görselleştirildi:", collisionMesh)
     }
 
-    addCollisionSphere(position, radius, color) {
+    addCollisionSphere(position, radius) {
         // Fizik gövdesi için küre şekli oluştur
         const sphereShape = new CANNON.Sphere(radius);
         
@@ -531,32 +501,6 @@ export default class Japonparki {
         this.physics.world.addBody(body);
         
         console.log("Japon parkı için küresel collision eklendi:", body);
-        
-        
-    }
-    
-    visualizeCollisionSphere(position, radius, color) {
-        // Küre geometrisi oluştur
-        const geometry = new THREE.SphereGeometry(radius, 32, 32);
-        
-        // Yarı saydam malzeme
-        const material = new THREE.MeshBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.7,
-            wireframe: false
-        });
-        
-        // Mesh oluştur
-        const sphereMesh = new THREE.Mesh(geometry, material);
-        
-        // Pozisyonu ayarla
-        sphereMesh.position.copy(position);
-        
-        // Sahneye ekle
-        this.container.add(sphereMesh);
-        
-        console.log("Küresel çarpışma kutusu görselleştirildi:", sphereMesh);
     }
 
     tick(delta) {
