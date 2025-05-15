@@ -133,6 +133,7 @@ export default class World {
 
     this.setKonyaGencKart(); // Yeni eklenen model
     this.setPopUp();
+    this.setCevre(); // Çevre modelleri (trafik lambası, yön tabelası, lego parçaları vb.)
   }
 
   setReveal() {
@@ -710,22 +711,19 @@ export default class World {
   setCalisanGenclikMerkezi() {
     try {
       this.calisanGenclikMerkezi = new CalisanGenclikMerkezi({
+        scene: this.scene,
         resources: this.resources,
         objects: this.objects,
-        shadows: this.shadows,
-        debug: this.debug,
-        scene: this.scene,
-        areas: this.areas, // Etkileşim alanları için
-        sounds: this.sounds // Ses efektleri için
+        physics: this.physics,
+        debug: this.debugFolder,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        areas: this.areas
       });
       
-      // Container'ı ekle
-      if (this.calisanGenclikMerkezi && this.calisanGenclikMerkezi.container) {
-        this.container.add(this.calisanGenclikMerkezi.container);
-        console.log("CalisanGenclikMerkezi modeli başarıyla eklendi");
-      } else {
-        console.warn("CalisanGenclikMerkezi container nesnesi bulunamadı!");
-      }
+      // Container'ı doğrudan sahnede eklenmiş olarak oluşturuyoruz, bu nedenle ekstra eklemeye gerek yok
+      console.log("CalisanGenclikMerkezi modeli başarıyla eklendi");
     } catch (error) {
       console.error("CalisanGenclikMerkezi eklenirken hata oluştu:", error);
     }
