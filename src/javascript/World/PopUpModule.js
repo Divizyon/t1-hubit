@@ -58,14 +58,14 @@ export default class PopUpModule {
         description: "Divizyon Bina, Konya'nın önemli kültür ve sanat merkezlerinden biridir. Çeşitli etkinlikler ve sergiler için kullanılmaktadır."
       },
       konyaGencKart: {
-        position: new THREE.Vector2(-5, 22),
+        position: new THREE.Vector2(30, -22),
         title: "Konya Genç Kart",
         type: "info", // bilgi tipi popup
         url: "genckultur.com",
         description: "Konya Genç Kart hakkında daha fazla bilgi almak için web sitemizi ziyaret edin."
       },
       japonparki: {
-        position: new THREE.Vector2(2, -32),
+        position: new THREE.Vector2(-15, -17),
         title: "Japon Parkı",
         type: "info", // bilgi tipi popup
         url: "www.konya.bel.tr/hizmet-binalari-ve-sosyal-tesisler/japon-parki",

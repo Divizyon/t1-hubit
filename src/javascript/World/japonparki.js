@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import CANNON from 'cannon'
 
 const DEFAULT_POSITION = new THREE.Vector3(-5, -26, .7); // Varsayılan pozisyon
-const DEFAULT_SCALE = new THREE.Vector3(1.7, 1.7, 1.7); // Varsayılan ölçek
+const DEFAULT_SCALE = new THREE.Vector3(2, 2, 2); // Varsayılan ölçek
 
 export default class Japonparki {
     constructor(_options) {
@@ -12,7 +12,8 @@ export default class Japonparki {
         this.physics = _options.physics;
         this.mixer = null;
         this.model = null;
-        this.collisionBody = null;
+        this.container = _options.container || this.scene;
+        this.car = _options.car; // Araba referansını al
         
         // Pozisyon ve rotasyon parametrelerini al veya varsayılanları kullan
         this.position = _options.position ? _options.position.clone() : DEFAULT_POSITION.clone();
@@ -60,24 +61,10 @@ export default class Japonparki {
     
             this.scene.add(this.model);
 
-          
-            if (this.physics) {
-                this.collisionBody = new CANNON.Body({
-                    mass: 0,
-                    position: new CANNON.Vec3(this.position.x, this.position.y, this.position.z + 0.2), // Pozisyonu modelden al, z değerini biraz yükselt
-                    material: this.physics.materials.items.floor
-                });
-
-                // Çarpışma küresinin boyutunu model ölçeğine göre ayarla
-                const baseRadius = 5; // Temel yarıçap
-                const scaleFactor = Math.max(this.scale.x, this.scale.y, this.scale.z); // En büyük ölçek faktörünü al
-                const radius = baseRadius * scaleFactor;
-              
-                const sphereShape = new CANNON.Sphere(radius);
-                this.collisionBody.addShape(sphereShape);
-                
-                this.physics.world.addBody(this.collisionBody);
-            }
+            // Restart butonları ekle
+            this.addRestartButton();
+            this.addSecondRestartButton();
+            this.addLinkButton();
 
             // Işık ekle (sadece bir kez)
             if (!this.scene.__balikLightAdded) {
@@ -109,6 +96,10 @@ export default class Japonparki {
                 }
             });
             
+            // Çarpışma kutuları ekle
+            if (this.physics) {
+                this.addCollisions(this.model);
+            }
 
             // Animasyonları başlat
             if (gltf.animations && gltf.animations.length > 0) {
@@ -124,6 +115,448 @@ export default class Japonparki {
                 console.warn('Hiç animasyon bulunamadı!');
             }
         });
+    }
+
+    addRestartButton() {
+        // Buton için konum belirle
+        const buttonPosition = new THREE.Vector3(
+            this.position.x-3,
+            this.position.y+3,
+            this.position.z -0.3
+        );
+        
+        // Buton boyutları
+        const buttonWidth = 10;
+        const buttonHeight = 4;
+        const buttonDepth = 0.1;
+        
+        // Buton rotasyonu - derece cinsinden
+        const rotX = 0; 
+        const rotY = 0;
+        const rotZ = 70;
+        
+        // Dereceleri radyana çevir
+        const buttonRotationX = (rotX * Math.PI) / 180;
+        const buttonRotationY = (rotY * Math.PI) / 180;
+        const buttonRotationZ = (rotZ * Math.PI) / 180;
+        
+        // Buton geometrisi oluştur
+        const buttonGeometry = new THREE.BoxGeometry(buttonWidth, buttonHeight, buttonDepth);
+        
+        // Buton materyali - tamamen görünmez
+        const buttonMaterial = new THREE.MeshStandardMaterial({
+            transparent: true,
+            opacity: 0,       // Tamamen görünmez
+            depthWrite: false // Derinlik bilgisi yazma (diğer objelerle çakışmasın)
+        });
+        
+        // Buton mesh'i oluştur
+        this.restartButton = new THREE.Mesh(buttonGeometry, buttonMaterial);
+        this.restartButton.position.copy(buttonPosition);
+        this.restartButton.rotation.set(buttonRotationX, buttonRotationY, buttonRotationZ);
+        this.restartButton.name = "restartButton";
+        
+        // Butonu sahneye ekle
+        this.scene.add(this.restartButton);
+        
+        // Buton için collision kutusu ekle
+        this.addButtonCollision(buttonPosition, buttonWidth, buttonHeight, buttonDepth, buttonRotationX, buttonRotationY, buttonRotationZ);
+    }
+    
+    addSecondRestartButton() {
+        // İkinci buton için konum belirle (farklı bir konumda)
+        const buttonPosition = new THREE.Vector3(
+            this.position.x+4.5,  // İlk butondan farklı bir x konumu
+            this.position.y+0.5,
+            this.position.z-0.3
+        );
+        
+        // Buton boyutları - ilk butonla aynı
+        const buttonWidth = 9.5;
+        const buttonHeight = 3.8;
+        const buttonDepth = 0.1;
+        
+        // Buton rotasyonu - ilk butonla aynı
+        const rotX = 0; 
+        const rotY = 0;
+        const rotZ = 70;
+        
+        // Dereceleri radyana çevir
+        const buttonRotationX = (rotX * Math.PI) / 180;
+        const buttonRotationY = (rotY * Math.PI) / 180;
+        const buttonRotationZ = (rotZ * Math.PI) / 180;
+        
+        // Buton geometrisi oluştur
+        const buttonGeometry = new THREE.BoxGeometry(buttonWidth, buttonHeight, buttonDepth);
+        
+        // Buton materyali - tamamen görünmez
+        const buttonMaterial = new THREE.MeshStandardMaterial({
+            transparent: true,
+            opacity: 0,       // Tamamen görünmez
+            depthWrite: false // Derinlik bilgisi yazma
+        });
+        
+        // Buton mesh'i oluştur
+        this.secondRestartButton = new THREE.Mesh(buttonGeometry, buttonMaterial);
+        this.secondRestartButton.position.copy(buttonPosition);
+        this.secondRestartButton.rotation.set(buttonRotationX, buttonRotationY, buttonRotationZ);
+        this.secondRestartButton.name = "secondRestartButton";
+        
+        // Butonu sahneye ekle
+        this.scene.add(this.secondRestartButton);
+        
+        // Buton için collision kutusu ekle
+        this.addSecondButtonCollision(buttonPosition, buttonWidth, buttonHeight, buttonDepth, buttonRotationX, buttonRotationY, buttonRotationZ);
+    }
+    
+    addButtonCollision(position, width, height, depth, rotX, rotY, rotZ) {
+        // Çarpışma gövdesi boyutları
+        const halfExtents = new CANNON.Vec3(
+            width/2,
+            height/2,
+            depth/2
+        );
+        
+        // Çarpışma kutusu oluştur
+        const buttonShape = new CANNON.Box(halfExtents);
+        
+        // Fizik gövdesi oluştur
+        const buttonBody = new CANNON.Body({
+            mass: 0,
+            position: new CANNON.Vec3(position.x, position.y, position.z),
+            material: this.physics.materials.items.floor
+        });
+        
+        // Şekli ekle
+        buttonBody.addShape(buttonShape);
+        
+        // Rotasyonu ayarla
+        const quat = new CANNON.Quaternion();
+        quat.setFromEuler(rotX, rotY, rotZ, 'XYZ');
+        buttonBody.quaternion.copy(quat);
+        
+        // Fizik dünyasına ekle
+        this.physics.world.addBody(buttonBody);
+        
+        // Çarpışma olayı dinle
+        buttonBody.addEventListener('collide', (event) => {
+            // Araba çarpışması kontrolü
+            if (event.body === this.physics.car.chassis.body) {
+                // Araba yeniden yaratılıyor
+                if (this.physics.car && this.physics.car.recreate) {
+                    this.physics.car.recreate();
+                }
+            }
+        });
+        
+        this.buttonBody = buttonBody;
+    }
+    
+    addSecondButtonCollision(position, width, height, depth, rotX, rotY, rotZ) {
+        // Çarpışma gövdesi boyutları
+        const halfExtents = new CANNON.Vec3(
+            width/2,
+            height/2,
+            depth/2
+        );
+        
+        // Çarpışma kutusu oluştur
+        const buttonShape = new CANNON.Box(halfExtents);
+        
+        // Fizik gövdesi oluştur
+        const buttonBody = new CANNON.Body({
+            mass: 0,
+            position: new CANNON.Vec3(position.x, position.y, position.z),
+            material: this.physics.materials.items.floor
+        });
+        
+        // Şekli ekle
+        buttonBody.addShape(buttonShape);
+        
+        // Rotasyonu ayarla
+        const quat = new CANNON.Quaternion();
+        quat.setFromEuler(rotX, rotY, rotZ, 'XYZ');
+        buttonBody.quaternion.copy(quat);
+        
+        // Fizik dünyasına ekle
+        this.physics.world.addBody(buttonBody);
+        
+        // Çarpışma olayı dinle
+        buttonBody.addEventListener('collide', (event) => {
+            // Araba çarpışması kontrolü
+            if (event.body === this.physics.car.chassis.body) {
+                // Araba yeniden yaratılıyor
+                if (this.physics.car && this.physics.car.recreate) {
+                    this.physics.car.recreate();
+                }
+            }
+        });
+        
+        this.secondButtonBody = buttonBody;
+    }
+
+    addLinkButton() {
+        // Link buton için konum belirle
+        const buttonPosition = new THREE.Vector3(
+            this.position.x-6,
+            this.position.y-13.5,
+            this.position.z-0.3
+        );
+        
+        // Buton boyutları
+        const buttonWidth = 10;
+        const buttonHeight = 15;
+        const buttonDepth = 0.1;
+        
+        // Buton rotasyonu - derece cinsinden
+        const rotX = 0; 
+        const rotY = 0;
+        const rotZ = 70;
+        
+        // Dereceleri radyana çevir
+        const buttonRotationX = (rotX * Math.PI) / 180;
+        const buttonRotationY = (rotY * Math.PI) / 180;
+        const buttonRotationZ = (rotZ * Math.PI) / 180;
+        
+        // Buton geometrisi oluştur
+        const buttonGeometry = new THREE.BoxGeometry(buttonWidth, buttonHeight, buttonDepth);
+        
+        // Buton materyali - tamamen görünmez
+        const buttonMaterial = new THREE.MeshStandardMaterial({
+            transparent: true,
+            opacity: 0,       // Tamamen görünmez
+            depthWrite: false // Derinlik bilgisi yazma
+        });
+        
+        // Buton mesh'i oluştur
+        this.linkButton = new THREE.Mesh(buttonGeometry, buttonMaterial);
+        this.linkButton.position.copy(buttonPosition);
+        this.linkButton.rotation.set(buttonRotationX, buttonRotationY, buttonRotationZ);
+        this.linkButton.name = "linkButton";
+        
+        // Butonu sahneye ekle
+        this.scene.add(this.linkButton);
+        
+        // Buton için collision kutusu ekle
+        this.addLinkButtonCollision(buttonPosition, buttonWidth, buttonHeight, buttonDepth, buttonRotationX, buttonRotationY, buttonRotationZ);
+    }
+    
+    addLinkButtonCollision(position, width, height, depth, rotX, rotY, rotZ) {
+        // Çarpışma gövdesi boyutları
+        const halfExtents = new CANNON.Vec3(
+            width/2,
+            height/2,
+            depth/2
+        );
+        
+        // Çarpışma kutusu oluştur
+        const buttonShape = new CANNON.Box(halfExtents);
+        
+        // Fizik gövdesi oluştur
+        const buttonBody = new CANNON.Body({
+            mass: 0,
+            position: new CANNON.Vec3(position.x, position.y, position.z),
+            material: this.physics.materials.items.floor
+        });
+        
+        // Şekli ekle
+        buttonBody.addShape(buttonShape);
+        
+        // Rotasyonu ayarla
+        const quat = new CANNON.Quaternion();
+        quat.setFromEuler(rotX, rotY, rotZ, 'XYZ');
+        buttonBody.quaternion.copy(quat);
+        
+        // Fizik dünyasına ekle
+        this.physics.world.addBody(buttonBody);
+        
+        // Son çarpışma zamanını takip et (çok sık çarpma durumunda tekrar tekrar açılmasın diye)
+        let lastCollisionTime = 0;
+        
+        // Çarpışma olayı dinle
+        buttonBody.addEventListener('collide', (event) => {
+            // Araba çarpışması kontrolü
+            if (event.body === this.physics.car.chassis.body) {
+                const now = Date.now();
+                
+                // Çarpışmalar arasında en az 2 saniye olsun
+                if (now - lastCollisionTime > 2000) {
+                    lastCollisionTime = now;
+                    
+                    // Kafem web sitesine yönlendir
+                    window.open('https://kafem.com.tr/', '_blank');
+                    console.log("Kafem.com.tr sitesine yönlendiriliyor...");
+                    
+                    // Arabayı hafifçe geri it
+                    this.pushCarBack(event.body);
+                }
+            }
+        });
+        
+        this.linkButtonBody = buttonBody;
+    }
+    
+    pushCarBack(carBody) {
+        // Arabayı itme gücü
+        const pushForce = 70; 
+        
+        // Arabayı geri itme vektörü
+        // Not: Buton normalde -z ekseni yönündedir, dolayısıyla +z yönünde bir kuvvet uygulayacağız
+        const pushVector = new CANNON.Vec3(
+            0,            // X: Yatay itme yok
+            -pushForce/2, // Y: Hafif aşağı yönlü itme (arabanın havaya zıplamaması için)
+            pushForce     // Z: Butondan uzaklaştıran kuvvet
+        );
+        
+        // Vektörü butonun rotasyonuna göre döndür
+        const rotatedPushVector = carBody.quaternion.vmult(pushVector);
+        
+        // Arabaya kuvvet uygula - impulse anlık bir kuvvet uygular
+        carBody.applyImpulse(rotatedPushVector, carBody.position);
+        
+        // Arabanın hızını sınırla
+        setTimeout(() => {
+            // Arabanın hızını belirli bir değerde sınırla (çok fazla hızlanmaması için)
+            const currentVelocity = carBody.velocity;
+            const maxSpeed = 15;
+            
+            if (currentVelocity.length() > maxSpeed) {
+                currentVelocity.normalize();
+                currentVelocity.scale(maxSpeed, carBody.velocity);
+            }
+        }, 50); // Çok kısa bir gecikme ile hız sınırlaması yapalım
+        
+        console.log("Araba butondan geri itildi");
+    }
+
+    addCollisions(model) {
+        // Bounding box hesapla
+        model.updateMatrixWorld(true)
+        const bbox = new THREE.Box3().setFromObject(model)
+        const size = bbox.getSize(new THREE.Vector3())
+        
+        // Göreceli konumları hesapla (Japon parkının konumuna göre)
+        const relPos1 = new THREE.Vector3(
+            this.position.x -2,
+            this.position.y-4 ,
+            this.position.z-0.65
+        );
+        
+        // Küresel çarpışma kutusu için konum
+        const spherePos = new THREE.Vector3(
+            this.position.x ,
+            this.position.y +1.5,
+            this.position.z-5.8
+        );
+        
+        // İlk çarpışma kutusu
+        this.addCollisionBox(
+            relPos1,
+            new THREE.Euler(0, 0, 45),
+            new CANNON.Vec3(17, 13, 0.15),
+        )
+        
+        // Küresel çarpışma kutusu ekle
+        this.addCollisionSphere(
+            spherePos,
+            7, // yarıçap
+        )
+        
+    }
+    
+    addCollisionBox(position, rotation, halfExtents, color) {
+        // Fizik gövdesi oluştur
+        const boxShape = new CANNON.Box(halfExtents)
+
+        const body = new CANNON.Body({
+            mass: 0,
+            position: new CANNON.Vec3(position.x, position.y, position.z),
+            material: this.physics.materials.items.floor
+        })
+
+        // Dönüşü quaternion olarak ayarla
+        const quat = new CANNON.Quaternion()
+        quat.setFromEuler(rotation.x, rotation.y, rotation.z, 'XYZ')
+        body.quaternion.copy(quat)
+
+        body.addShape(boxShape)
+        this.physics.world.addBody(body)
+
+        console.log("Japon parkı için collision eklendi:", body)
+        
+    }
+    
+    visualizeCollisionBox(position, rotation, halfExtents, color) {
+        // Çarpışma kutusunun görsel temsilini oluştur
+        const geometry = new THREE.BoxGeometry(
+            halfExtents.x * 2, 
+            halfExtents.y * 2, 
+            halfExtents.z * 2
+        )
+        
+        // Yarı saydam malzeme 
+        const material = new THREE.MeshBasicMaterial({ 
+            color: color,  // Parametre olarak gelen renk
+            transparent: true, 
+            opacity: 0.7,    
+            wireframe: false,  // Katı görünüm için wireframe kapalı
+            wireframeLinewidth: 2
+        })
+        
+        const collisionMesh = new THREE.Mesh(geometry, material)
+        
+        // Pozisyonu ve rotasyonu ayarla
+        collisionMesh.position.copy(position)
+        collisionMesh.rotation.copy(rotation)
+        
+        // Sahneye ekle
+        this.container.add(collisionMesh)
+        
+        console.log("Çarpışma kutusu görselleştirildi:", collisionMesh)
+    }
+
+    addCollisionSphere(position, radius, color) {
+        // Fizik gövdesi için küre şekli oluştur
+        const sphereShape = new CANNON.Sphere(radius);
+        
+        // Fizik gövdesi oluştur
+        const body = new CANNON.Body({
+            mass: 0,
+            position: new CANNON.Vec3(position.x, position.y, position.z),
+            material: this.physics.materials.items.floor
+        });
+        
+        // Şekli gövdeye ekle
+        body.addShape(sphereShape);
+        this.physics.world.addBody(body);
+        
+        console.log("Japon parkı için küresel collision eklendi:", body);
+        
+        
+    }
+    
+    visualizeCollisionSphere(position, radius, color) {
+        // Küre geometrisi oluştur
+        const geometry = new THREE.SphereGeometry(radius, 32, 32);
+        
+        // Yarı saydam malzeme
+        const material = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.7,
+            wireframe: false
+        });
+        
+        // Mesh oluştur
+        const sphereMesh = new THREE.Mesh(geometry, material);
+        
+        // Pozisyonu ayarla
+        sphereMesh.position.copy(position);
+        
+        // Sahneye ekle
+        this.container.add(sphereMesh);
+        
+        console.log("Küresel çarpışma kutusu görselleştirildi:", sphereMesh);
     }
 
     tick(delta) {
@@ -299,6 +732,5 @@ export default class Japonparki {
             console.error("Japon Parkı etkileşim alanı eklenirken hata oluştu:", error);
         }
     }
-
 }
 
