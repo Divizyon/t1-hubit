@@ -31,6 +31,7 @@ import Basket from "./basket.js";
 import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
+import Newton from "./newton.js";
 
 import KonyaGencKart from "./KonyaGencKart.js";
 import Cevre from './cevre.js';
@@ -121,6 +122,7 @@ export default class World {
     this.setCalisanGenclikMerkezi(); // CalisanGenclikMerkezi modelini ekler
     this.setKelebekler(); // Kelebekler Vadisi modelini ekler
     this.setbilimmerkezi(); // Bilim Merkezi modelini ekler
+    this.setNewton(); // Newton modelini ekler
     this.setroketplatformu(); // Roket Platformu modelini ekler
     this.setDivizyonBina(); // Divizyon Bina modelini ekler
 
@@ -920,7 +922,7 @@ export default class World {
       physics: this.physics,
       debug: this.debugFolder,
       areas: this.areas,
-      sounds: this.sounds // Ses efektleri için ekledim
+      sounds: this.sounds
     });
     this.container.add(this.bilimmerkezi.container);
   }
@@ -964,6 +966,13 @@ export default class World {
     }
   }
 
+  setNewton() {
+    this.newton = new Newton({
+      scene: this.scene,
+      time: this.time,
+      physics: this.physics
+    });
+
   setKademe() {
     this.kademe = new Kademe({
       scene: this.scene,
@@ -973,6 +982,7 @@ export default class World {
       debug: this.debug
     })
     this.container.add(this.kademe.container)
+
   }
 
 }
