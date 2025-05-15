@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(-40, 38, 0); // Artık doğru yerde tanımlandı
+const DEFAULT_POSITION = new THREE.Vector3(-62.5, 35, -0.5); // Artık doğru yerde tanımlandı
 
 export default class Basket {
   constructor({ scene, resources, objects, physics, debug, rotateX = 0, rotateY = 0, rotateZ = 0 }) {
@@ -49,43 +49,19 @@ export default class Basket {
 
     // Model pozisyonu ve dönüşü
     model.position.copy(this.position);
-    model.scale.set(0.6, 0.6, 0.6);
+    model.scale.set(0.5, 0.5, 0.5);
     model.rotation.set(this.rotateX, this.rotateY, this.rotateZ);
     this.container.add(model);
+    this.model = model; // Model referansını sakla
 
-    // Bounding box hesapla
-    model.updateMatrixWorld(true);
-    const bbox = new THREE.Box3().setFromObject(model);
-    const size = bbox.getSize(new THREE.Vector3());
-
-    // Fizik gövdesi oluştur
-    const halfExtents = new CANNON.Vec3(size.x / 3, size.y / 3, size.z / 2);
-    const boxShape = new CANNON.Box(halfExtents);
-
-    const body = new CANNON.Body({
-      mass: 0,
-      position: new CANNON.Vec3(...this.position.toArray()),
-      material: this.physics.materials.items.floor
-    });
-
-    // Dönüşü quaternion olarak ayarla
-    const quat = new CANNON.Quaternion();
-    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
-    body.quaternion.copy(quat);
-
-    body.addShape(boxShape);
-    this.physics.world.addBody(body);
-
-    // Obje sistemine ekle
+    // Obje sistemine ekle (çarpışma olmadan)
     if (this.objects) {
       const children = model.children.slice();
       const objectEntry = this.objects.add({
         base: { children },
-        collision: { children },
         offset: this.position.clone(),
         mass: 0
       });
-      objectEntry.collision = { body };
       if (objectEntry.container) {
         this.container.add(objectEntry.container);
       }
