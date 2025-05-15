@@ -25,6 +25,9 @@ export default class Stadyum {
     this._buildModel();
     this.scene.add(this.container);
 
+    // Çarpışma kutusunu ekle
+    this.addCollisions();
+    
     // Add interaction area if areas parameter exists
     if (this.areas) {
       this.setStadyumInteraction();
@@ -88,41 +91,6 @@ export default class Stadyum {
     baseModel.scale.set(baseScaleX, baseScaleY, baseScaleZ);
     this.container.add(baseModel);
 
-    // Bounding box hesapla
-    model.updateMatrixWorld(true);
-    const bbox = new THREE.Box3().setFromObject(model);
-    const size = bbox.getSize(new THREE.Vector3());
-
-    // Fizik gövdesi oluştur
-    // Çarpışma kutusunun boyutunu model ölçeğine göre ayarla
-    const baseHalfExtentX = size.x / 3;
-    const baseHalfExtentY = size.y / 3;
-    const baseHalfExtentZ = size.z / 2;
-    
-    const scaleFactor = Math.max(this.scale.x, this.scale.y, this.scale.z);
-    
-    const halfExtents = new CANNON.Vec3(
-      baseHalfExtentX * scaleFactor, 
-      baseHalfExtentY * scaleFactor, 
-      baseHalfExtentZ * scaleFactor
-    );
-    
-    const boxShape = new CANNON.Box(halfExtents);
-
-    const body = new CANNON.Body({
-      mass: 0,
-      position: new CANNON.Vec3(...this.position.toArray()),
-      material: this.physics.materials.items.floor
-    });
-
-    // Dönüşü quaternion olarak ayarla
-    const quat = new CANNON.Quaternion();
-    quat.setFromEuler(this.rotateX, this.rotateY, this.rotateZ, 'XYZ');
-    body.quaternion.copy(quat);
-
-    body.addShape(boxShape);
-    this.physics.world.addBody(body);
-
     // Obje sistemine ekle
     if (this.objects) {
       const children = model.children.slice();
@@ -132,11 +100,40 @@ export default class Stadyum {
         offset: this.position.clone(),
         mass: 0
       });
-      objectEntry.collision = { body };
       if (objectEntry.container) {
         this.container.add(objectEntry.container);
       }
     }
+  }
+  
+  addCollisions() {
+    // Stadyuma göre konumlandırılmış çarpışma kutusu
+    const position = new THREE.Vector3(this.position.x, this.position.y, this.position.z+5);
+    const rotation = new THREE.Euler(0, 0, 0);
+    const halfExtents = new CANNON.Vec3(8, 6, 2.5);
+    
+    this.addCollisionBox(position, rotation, halfExtents);
+  }
+    
+  addCollisionBox(position, rotation, halfExtents) {
+    // Fizik gövdesi oluştur
+    const boxShape = new CANNON.Box(halfExtents);
+
+    const body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(position.x, position.y, position.z),
+      material: this.physics.materials.items.floor
+    });
+
+    // Dönüşü quaternion olarak ayarla
+    const quat = new CANNON.Quaternion();
+    quat.setFromEuler(rotation.x, rotation.y, rotation.z, 'XYZ');
+    body.quaternion.copy(quat);
+
+    body.addShape(boxShape);
+    this.physics.world.addBody(body);
+
+    console.log("Stadyum için collision eklendi:", body);
   }
 
   setStadyumInteraction() {
