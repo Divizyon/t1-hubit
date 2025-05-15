@@ -227,28 +227,22 @@ export default class Application {
      */
     setTitle() {
         this.title = {}
-        this.title.frequency = 300
+        this.title.frequency = 120 // Ne kadar hızlı kayacak, ms cinsinden
         this.title.width = 20
         this.title.position = 0
         this.title.$element = document.querySelector('title')
-        this.title.absolutePosition = Math.round(this.title.width * 0.25)
-
-        this.time.on('tick', () => {
-            if (this.world.physics) {
-                this.title.absolutePosition += this.world.physics.car.forwardSpeed
-
-                if (this.title.absolutePosition < 0) {
-                    this.title.absolutePosition = 0
-                }
-            }
-        })
-
+    
+        // Her intervalde pozisyonu sabit hızla ilerlet
         window.setInterval(() => {
-            this.title.position = Math.round(this.title.absolutePosition % this.title.width)
-
-            document.title = `${'_'.repeat(this.title.width - this.title.position)}🚗${'_'.repeat(this.title.position)}`
+            this.title.position = (this.title.position + 1) % this.title.width
+    
+            const left = '_'.repeat(this.title.width - this.title.position)
+            const right = '_'.repeat(this.title.position)
+    
+            document.title = `${left}🚃🚃${right}`
         }, this.title.frequency)
     }
+    
 
     /**
      * Set Three.js Journey
