@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import CANNON from 'cannon'
 
-const DEFAULT_POSITION = new THREE.Vector3(-5, -26, .7); // Varsayılan pozisyon
+const DEFAULT_POSITION = new THREE.Vector3(-5, -21, .7); // Varsayılan pozisyon
 const DEFAULT_SCALE = new THREE.Vector3(1.7, 1.7, 1.7); // Varsayılan ölçek
 
 export default class Japonparki {
@@ -18,7 +18,7 @@ export default class Japonparki {
         this.position = _options.position ? _options.position.clone() : DEFAULT_POSITION.clone();
         this.scale = _options.scale ? _options.scale.clone() : DEFAULT_SCALE.clone();
         this.rotationX = _options.rotationX !== undefined ? _options.rotationX : Math.PI / 2;
-        this.rotationY = _options.rotationY !== undefined ? _options.rotationY : 2.7;
+        this.rotationY = _options.rotationY !== undefined ? _options.rotationY : 3.2;
         this.rotationZ = _options.rotationZ !== undefined ? _options.rotationZ : 0;
         
         this.setModel();

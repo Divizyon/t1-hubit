@@ -44,7 +44,7 @@ export default class PopUpModule {
         description: "Kapsül hakkında daha fazla bilgi edinmek için web sitemizi ziyaret edin."
       },
       stadyum: {
-        position: new THREE.Vector2(32, -55),
+        position: new THREE.Vector2(45, -36),
         title: "Konya Büyükşehir Stadyumu",
         type: "info", // bilgi tipi popup
         url: "stadyum.konya.bel.tr",
@@ -65,7 +65,7 @@ export default class PopUpModule {
         description: "Konya Genç Kart hakkında daha fazla bilgi almak için web sitemizi ziyaret edin."
       },
       japonparki: {
-        position: new THREE.Vector2(2, -32),
+        position: new THREE.Vector2(-6, -7.5),
         title: "Japon Parkı",
         type: "info", // bilgi tipi popup
         url: "www.konya.bel.tr/hizmet-binalari-ve-sosyal-tesisler/japon-parki",
@@ -79,7 +79,7 @@ export default class PopUpModule {
         description: "Kelebekler Vadisi, Konya'nın doğal güzelliklerinden biridir. Çeşitli kelebek türlerine ev sahipliği yapmaktadır."
       },     
       alaaddinTepesi: {
-        position: new THREE.Vector2(15, -21),
+        position: new THREE.Vector2(20, -21),
         title: "Alaaddin Tepesi",
         type: "info", // bilgi tipi popup
         url: "kilicarslanyarisma.konya.bel.tr",
