@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import CANNON from 'cannon';
 
-const DEFAULT_POSITION = new THREE.Vector3(33, -42, -2.5); // Varsayılan pozisyon
+const DEFAULT_POSITION = new THREE.Vector3(40, -42, -2.5); // Varsayılan pozisyon
 const DEFAULT_SCALE = new THREE.Vector3(1.06, 1.06, 1.06); // Varsayılan ölçek
 
 export default class Stadyum {
