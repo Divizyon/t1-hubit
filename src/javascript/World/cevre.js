@@ -13,8 +13,8 @@ export default class Cevre {
         this.container = new THREE.Object3D();
         this.container.matrixAutoUpdate = false;
 
-        // Trafik lambası ve yön tabelalarını ekle
-        this.setTrafikLambasi();
+        //  lambası ve yön tabelalarını ekle
+        this.setLambasi();
         this.setYonTabelalari();
         this.setLegoParcasi();
         this.setLegoParcasi2();
@@ -25,19 +25,19 @@ export default class Cevre {
         this.time.on('tick', () => this.update());
     }
 
-    setTrafikLambasi() {
-        // Trafik lambası modelini ekle
-        this.trafikLambasi = this.resources.items.trafikLambasiModel.scene;
+    setLambasi() {
+        //  lambası modelini ekle
+        this.Lambasi = this.resources.items.LambasiModel.scene;
         
         // Pozisyon ve rotasyon ayarları
-        this.trafikLambasi.position.set(19, -5, 0); // X: 10 birim sağda
-        this.trafikLambasi.rotation.set(0, 0, Math.PI / 2); // 45 derece döndür
+        this.Lambasi.position.set(19, -5, 0); // X: 10 birim sağda
+        this.Lambasi.rotation.set(0, 0, Math.PI / 2); // 45 derece döndür
         
         // Ölçeklendirme
-        this.trafikLambasi.scale.set(1, 1, 1);
+        this.Lambasi.scale.set(1, 1, 1);
         
         // Sahneye ekle
-        this.container.add(this.trafikLambasi);
+        this.container.add(this.Lambasi);
     }
 
     setYonTabelalari() {  //7.17, 12.20, 0.00
