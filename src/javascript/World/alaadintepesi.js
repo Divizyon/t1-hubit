@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as CANNON from 'cannon'
 
 // Varsayılan konum ve ölçek için sabitler
-const DEFAULT_POSITION = new THREE.Vector3(14, -17, 0);
+const DEFAULT_POSITION = new THREE.Vector3(19, -38, 0);
 const DEFAULT_SCALE = new THREE.Vector3(0.7, 0.7, 0.7);
 
 export default class AlaaddinTepesi {
