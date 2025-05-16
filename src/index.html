@@ -1,96 +1,220 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-
     <title>Konya Türkiye</title>
-    <meta name="description" content="Creative developer living in Paris, freelancer, former lead developer at Immersive Garden, former developer at Uzik and teacher." />
-
-    <meta itemprop=name content="Bruno Simon - Creative developer">
-    <meta itemprop="description" content="Creative developer living in Paris, freelancer, former lead developer at Immersive Garden, former developer at Uzik and teacher.">
-    <meta itemprop="image" content=https://bruno-simon.com/social/share-1200x630.png>
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Bruno Simon - Creative developer">
-    <meta name="twitter:description" content="Creative developer living in Paris, freelancer, former lead developer at Immersive Garden, former developer at Uzik and teacher.">
-    <meta name="twitter:image" content="https://bruno-simon.com/social/share-1200x600.png">
-
-    <meta property="og:site_name" content="Bruno Simon - Creative developer">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://bruno-simon.com">
-    <meta property="og:title" content="Bruno Simon - Creative developer">
-    <meta property="og:description" content="Creative developer living in Paris, freelancer, former lead developer at Immersive Garden, former developer at Uzik and teacher.">
-    <meta property="og:image" content="https://bruno-simon.com/social/share-1200x630.png">
-
+    <meta name="description" content="Konya 3D sanal dünyasına hoşgeldiniz." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/favicon/site.webmanifest">
-    <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#ff8908">
-    <meta name="apple-mobile-web-app-title" content="Bruno Simon">
-    <meta name="application-name" content="Bruno Simon">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            overflow: hidden;
+        }
+
+        .canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+        }
+
+        /* Loading Screen Styles */
+        #hubit-loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-family: 'Roboto', sans-serif;
+            transition: opacity 1s ease-out;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        /* Slideshow Background */
+        .slideshow-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .slideshow-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        .slideshow-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+
+        #hubit-title {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            letter-spacing: 3px;
+            color: #ffffff;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        #hubit-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #ffffff;
+            font-weight: 300;
+            max-width: 80%;
+            position: relative;
+            z-index: 1;
+        }
+        
+        #hubit-loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            width: 80%;
+            max-width: 400px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        #hubit-loading-bar {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        #hubit-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffffff, #e0e0e0);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        #hubit-loading-text {
+            font-size: 1rem;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        #hubit-start-button {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            outline: none;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            position: relative;
+            z-index: 1;
+        }
+        
+        #hubit-start-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(16px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .location-badge {
+            position: absolute;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            color: white;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: opacity 2s ease;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            font-weight: 300;
+            letter-spacing: 1px;
+            z-index: 1;
+        }
+        
+        @media (max-width: 768px) {
+            #hubit-title {
+                font-size: 2.5rem;
+            }
+            #hubit-subtitle {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
     <canvas class="canvas js-canvas"></canvas>
-
-    <div class="threejs-journey is-hover-none js-threejs-journey">
-        <div class="message js-message">
-            <div class="boy">
-                <div class="variant is-hi">
-                    <div class="body"></div>
-                    <div class="arm js-boy-arm"></div>
-                </div>
-                <div class="variant is-yay"></div>
-                <div class="variant is-shrugging"></div>
-            </div>
-            <div class="bubble">
-                <div class="text">Hey! You seem to really enjoy my portfolio.</div>
-                <div class="tip"></div>
-            </div>
+    
+    <!-- Enhanced Loading Screen -->
+    <div id="hubit-loading-screen">
+        <!-- Slideshow Background -->
+        <div class="slideshow-container">
+            <div class="slideshow-image" style="background-image: url('./images/welcome/japon_parki.jpg');" data-location="Japon Kyoto Parkı"></div>
+            <div class="slideshow-image" style="background-image: url('./images/welcome/kelebekler_vadisi.jpeg');" data-location="Kelebekler Vadisi"></div>
+            <div class="slideshow-image" style="background-image: url('./images/welcome/bilim_merkezi.jpg');" data-location="Konya Bilim Merkezi"></div>
+            <div class="slideshow-overlay"></div>
         </div>
-        <div class="message js-message">
-            <div class="bubble">
-                <div class="text">Would you like to learn how to create cool websites like this?</div>
-                <div class="tip"></div>
+        
+        <div class="location-badge" id="location-badge"></div>
+        
+        <h1 id="hubit-title">HUBİT KONYA</h1>
+        <h2 id="hubit-subtitle">Konya'nın 3D Dünyasına Hoşgeldiniz</h2>
+        
+        <div id="hubit-loading-container">
+            <div id="hubit-loading-bar">
+                <div id="hubit-progress"></div>
             </div>
+            <div id="hubit-loading-text">Yükleniyor...</div>
         </div>
-        <div class="message js-message is-answers">
-            <a href="#" class="answer is-no js-no">
-                <span class="background"></span>
-                <span class="hover"></span>
-                <span class="label">Nah, I'm good</span>
-            </a>
-            <a href="https://threejs-journey.com?c=p1" target="_blank" rel="noopener" class="answer is-yes js-yes">
-                <span class="background"></span>
-                <span class="hover"></span>
-                <span class="label">Yes, teach me!</span>
-            </a>
-        </div>
-        <div class="message js-message">
-            <div class="bubble">
-                <div class="text">Alright then.<br>Have fun and try not to break my car!</div>
-                <div class="tip"></div>
-            </div>
-        </div>
+        
+        <button id="hubit-start-button">Gezmeye Başla</button>
     </div>
 
     <script type="module" src="./index.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-3966601-5"></script>
-    <script>
-        window.dataLayer = window.dataLayer || []
-        function gtag(){dataLayer.push(arguments)}
-        gtag('js', new Date())
-        gtag('config', 'UA-3966601-5')
-    </script>
-
 </body>
 </html>

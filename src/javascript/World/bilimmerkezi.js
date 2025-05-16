@@ -215,8 +215,8 @@ export default class bilimmerkezi {
 
       // Link oluştur
       const linkEl = document.createElement("a");
-      linkEl.href = "https://www.bilimmerkezi.org.tr/";
-      linkEl.textContent = "www.bilimmerkezi.org.tr";
+      linkEl.href = "https://konyabilimmerkezi.com/";
+      linkEl.textContent = "konyabilimmerkezi.com";
       linkEl.target = "_blank";
       linkEl.style.display = "inline-block";
       linkEl.style.padding = "12px 25px";

@@ -187,8 +187,8 @@ export default class Resources extends EventEmitter {
             { name: 'roketModel', source: './models/roket/RoketModeli.glb' },
             { name: 'roketplatform', source: './models/roketplatform/roketplatform.glb' },
 
-            // Yol modeli
-            { name: 'roadModel', source: './models/road/road.glb' },
+            // Yol modeli - Commented out to prevent loading errors
+            // { name: 'roadModel', source: './models/road/road.glb' },
 
             // Render
             { name: 'renderModel', source: './models/render/base.glb' },
@@ -278,11 +278,11 @@ export default class Resources extends EventEmitter {
 
             { name: 'legoParcaModel', source: './models/cevre/lego parca.glb' },
 
-            // Çevre modelleri
-            { name: 'trafikLambasiModel', source: './models/cevre/traficlamba.glb' },
-            { name: 'yonTabelasi1Model', source: './models/cevre/yontabelasi1.glb' },
-            { name: 'yonTabelasi2Model', source: './models/cevre/yontabelasi2.glb' },
-            { name: 'legoParcaModel', source: './models/cevre/lego parca.glb' },
+            // Çevre modelleri - Commented out to prevent loading errors
+            // { name: 'trafikLambasiModel', source: './models/cevre/traficlamba.glb' },
+            // { name: 'yonTabelasi1Model', source: './models/cevre/yontabelasi1.glb' },
+            // { name: 'yonTabelasi2Model', source: './models/cevre/yontabelasi2.glb' },
+            // { name: 'legoParcaModel', source: './models/cevre/lego parca.glb' },
         ])
 
         this.loader.on('fileEnd', (_resource, _data) => {

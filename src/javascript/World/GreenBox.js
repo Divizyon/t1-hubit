@@ -14,30 +14,30 @@ export default class GreenBox
         this.shadows = _options.shadows
         this.materials = _options.materials
         this.camera = _options.camera
-        this.areas = _options.areas
-        this.car = _options.car
-        this.sounds = _options.sounds
-            
+            this.areas = _options.areas
+            this.car = _options.car
+            this.sounds = _options.sounds
+        
         // Set up
         this.container = new THREE.Object3D()
         this.container.matrixAutoUpdate = true
-        this.container.updateMatrix()
+            this.container.updateMatrix()
 
         // Image paths for the greenscreen
-        this.greenscreenImagePaths = [
-            './images/greenscreen_resimler/desert_greenscreen_.webp',
-            './images/greenscreen_resimler/iceland_greenscreen.webp',
-            './images/greenscreen_resimler/lake_greenscreen.webp'
-        ]
-        
-        this.currentImageIndex = -1 // No image selected initially
-        
-        // Initialize components
+            this.greenscreenImagePaths = [
+                './images/greenscreen_resimler/desert_greenscreen_.webp',
+                './images/greenscreen_resimler/iceland_greenscreen.webp',
+                './images/greenscreen_resimler/lake_greenscreen.webp'
+            ]
+            
+            this.currentImageIndex = -1 // No image selected initially
+            
+            // Initialize components
         this.setModel()
-        
+            
         // Set up interaction
-        if (this.greenBoxObject && this.areas) {
-            this.createImageButtons()
+            if (this.greenBoxObject && this.areas) {
+                this.createImageButtons()
         }
     }
 
@@ -56,65 +56,65 @@ export default class GreenBox
             y: 1.0,
             z: 1.0
         }
-
-        // Add the greenBox model
-        this.greenBoxObject = this.objects.add({
-            base: this.resources.items.greenBoxBase.scene,
-            collision: null,
-            offset: new THREE.Vector3(this.greenBox.x, this.greenBox.y, this.greenBox.z),
-            rotation: new THREE.Euler(0, 0, 0.5),
-            duplicated: true,
-            shadow: { 
-                sizeX: 0, 
-                sizeY: 0, 
-                offsetZ: -0.15, 
-                alpha: 0.5 
-            },
-            mass: 0,
-            soundName: "brick",
-        })
         
+        // Add the greenBox model
+            this.greenBoxObject = this.objects.add({
+                base: this.resources.items.greenBoxBase.scene,
+                collision: null,
+            offset: new THREE.Vector3(this.greenBox.x, this.greenBox.y, this.greenBox.z),
+                rotation: new THREE.Euler(0, 0, 0.5),
+                duplicated: true,
+                shadow: { 
+                    sizeX: 0, 
+                    sizeY: 0, 
+                    offsetZ: -0.15, 
+                    alpha: 0.5 
+                },
+                mass: 0,
+                soundName: "brick",
+            })
+            
         // Set up model
-        if (this.greenBoxObject && this.greenBoxObject.container) {
-            this.greenBoxObject.container.scale.set(
-                this.modelSize.x, 
-                this.modelSize.y, 
-                this.modelSize.z
-            );
-            
-            this.greenBoxObject.container.name = "greenBox_mainModel"
-            
+            if (this.greenBoxObject && this.greenBoxObject.container) {
+                this.greenBoxObject.container.scale.set(
+                    this.modelSize.x, 
+                    this.modelSize.y, 
+                    this.modelSize.z
+                );
+                
+                this.greenBoxObject.container.name = "greenBox_mainModel"
+                
             // Find the pureUc mesh for the greenscreen
             this.pureUcMesh = null;
             this.greenscreenMesh = null;
-            
+                
             // Traverse the model to find the pureUc mesh
-            this.greenBoxObject.container.traverse((child) => {
-                if (child.isMesh) {
-                    const originalName = child.name;
-                    child.name = `greenBox_${originalName || 'mesh'}`;
-                    
+                this.greenBoxObject.container.traverse((child) => {
+                    if (child.isMesh) {
+                        const originalName = child.name;
+                        child.name = `greenBox_${originalName || 'mesh'}`;
+                        
                     // Check if this is the pureUc mesh (primary target)
                     if (originalName && originalName.toLowerCase() === 'pureuc') {
-                        this.greenscreenMesh = child;
+                            this.greenscreenMesh = child;
                         this.pureUcMesh = child;
                         
                         // Store original material
-                        if (!child.userData) child.userData = {};
-                        child.userData.originalMaterial = child.material.clone();
-                        
+                            if (!child.userData) child.userData = {};
+                            child.userData.originalMaterial = child.material.clone();
+                            
                         // Apply initial green material for visibility
                         child.material = new THREE.MeshBasicMaterial({ 
-                            color: 0x00ff00,
+                        color: 0x00ff00,
                             side: THREE.DoubleSide
                         });
                         child.material.needsUpdate = true;
-                    }
-                }
-            });
-            
+                                }
+                            }
+                        });
+                        
             // Add collision boxes
-            this.addCollisions(this.greenBoxObject.container)
+                this.addCollisions(this.greenBoxObject.container)
         }
     }
     
@@ -517,11 +517,11 @@ export default class GreenBox
                             // Texture is taller - fit to width
                             finalTexture.repeat.set(1, textureAspect / meshAspect);
                             finalTexture.offset.y = (1 - finalTexture.repeat.y) / 2;
-                        }
+                    }
                     } 
                     else if (orientation === 'xz') {
                         const meshAspect = size.x / size.z;
-                        
+                    
                         // Scale to fill the mesh
                         if (textureAspect > meshAspect) {
                             // Texture is wider - fit to depth
@@ -531,7 +531,7 @@ export default class GreenBox
                             // Texture is taller - fit to width
                             finalTexture.repeat.set(1, textureAspect / meshAspect);
                             finalTexture.offset.y = (1 - finalTexture.repeat.y) / 2;
-                        }
+                }
                     }
                     else if (orientation === 'yz') {
                         const meshAspect = size.y / size.z;
@@ -571,22 +571,22 @@ export default class GreenBox
                     finalTexture.center.set(0.5, 0.5); // Rotate around center
                     
                     // Create material with enhanced settings for visibility
-                    const material = new THREE.MeshBasicMaterial({
+                const material = new THREE.MeshBasicMaterial({
                         map: finalTexture,
                         side: THREE.DoubleSide,
                         color: 0xffffff // Full white to show texture without tint
-                    });
-                    
-                    // Apply material
-                    this.greenscreenMesh.material = material;
-                    this.greenscreenMesh.material.needsUpdate = true;
-                    
+                });
+                
+                // Apply material
+                this.greenscreenMesh.material = material;
+                this.greenscreenMesh.material.needsUpdate = true;
+                
                     // Ensure the mesh is visible
                     this.greenscreenMesh.visible = true;
                     
                     // Bring the mesh to the front of the rendering queue
                     this.greenscreenMesh.renderOrder = 1000;
-                    
+            
                     // Play sound
                     if (this.sounds) {
                         this.sounds.play('click');
@@ -599,8 +599,8 @@ export default class GreenBox
                     // Set error state
                     this.greenscreenMesh.material = new THREE.MeshBasicMaterial({ 
                         color: 0xff0000,
-                        side: THREE.DoubleSide
-                    });
+            side: THREE.DoubleSide
+        });
                     this.greenscreenMesh.material.needsUpdate = true;
                 }
             );

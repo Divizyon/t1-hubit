@@ -33,7 +33,7 @@ export default class PopUpModule {
         position: new THREE.Vector2(26, 17),
         title: "Bilim Merkezi",
         type: "info", // bilgi tipi popup
-        url: "www.bilimmerkezi.org.tr",
+        url: "konyabilimmerkezi.com",
         description: "Konya Bilim Merkezi, bilim ve teknolojiyi halka sevdiren ve anlaşılır kılan, deneysel ve uygulamalı bir eğitim ortamıdır. Ziyaretçilerin bilimi yaşayarak ve eğlenerek öğrenmelerine imkân sağlar."
       },
       kapsul: {

@@ -28,6 +28,9 @@ export default class Application {
         this.sizes = new Sizes()
         this.resources = new Resources()
 
+        // Create the loading screen
+        this.createLoadingScreen()
+
         this.setConfig()
         this.setDebug()
         this.setRenderer()
@@ -37,6 +40,214 @@ export default class Application {
         this.setTitle()
         this.setThreejsJourney()
         this.setCoordinatesTracker()
+    }
+
+    /**
+     * Create Hubit Konya loading screen
+     */
+    createLoadingScreen() {
+        // Get references to existing loading screen elements
+        const loadingScreen = document.getElementById('hubit-loading-screen');
+        const progressBar = document.getElementById('hubit-progress');
+        const loadingText = document.getElementById('hubit-loading-text');
+        const startButton = document.getElementById('hubit-start-button');
+        const title = document.getElementById('hubit-title');
+        const subtitle = document.getElementById('hubit-subtitle');
+        const slideshowImages = document.querySelectorAll('.slideshow-image');
+        const locationBadge = document.getElementById('location-badge');
+        
+        // Make sure all necessary elements exist
+        if (!loadingScreen || !progressBar || !loadingText || !startButton || !title) {
+            console.error('Missing loading screen elements in HTML!');
+            return;
+        }
+        
+        // Initially hide the start button
+        startButton.style.display = 'none';
+        startButton.style.opacity = '0';
+        
+        // Slideshow functionality
+        let currentSlide = 0;
+        
+        // Show the first slide
+        slideshowImages[currentSlide].style.opacity = '1';
+        locationBadge.textContent = slideshowImages[currentSlide].getAttribute('data-location');
+        locationBadge.style.opacity = '1';
+        
+        // Position the location badge based on screen size
+        const positionLocationBadge = () => {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            if (windowWidth > 768) {
+                locationBadge.style.bottom = '30px';
+                locationBadge.style.right = '30px';
+            } else {
+                locationBadge.style.bottom = '20px';
+                locationBadge.style.right = '20px';
+            }
+        };
+        
+        positionLocationBadge();
+        window.addEventListener('resize', positionLocationBadge);
+        
+        // Start slideshow
+        const slideshowInterval = setInterval(() => {
+            // Fade out current slide
+            slideshowImages[currentSlide].style.opacity = '0';
+            locationBadge.style.opacity = '0';
+            
+            // Move to next slide
+            currentSlide = (currentSlide + 1) % slideshowImages.length;
+            
+            // Delay showing next slide to allow for fade-out
+            setTimeout(() => {
+                slideshowImages[currentSlide].style.opacity = '1';
+                locationBadge.textContent = slideshowImages[currentSlide].getAttribute('data-location');
+                locationBadge.style.opacity = '1';
+            }, 1000);
+        }, 6000); // Change slide every 6 seconds
+        
+        // Handle progress updates
+        this.resources.on('progress', (progress) => {
+            progressBar.style.width = `${Math.floor(progress * 100)}%`;
+            
+            // Change loading text based on progress
+            if (progress < 0.3) {
+                loadingText.textContent = 'Konya modelleri yükleniyor...';
+            } else if (progress < 0.6) {
+                loadingText.textContent = '3D dünya hazırlanıyor...';
+            } else if (progress < 0.9) {
+                loadingText.textContent = 'Neredeyse hazır...';
+            } else {
+                loadingText.textContent = 'Tamamlandı!';
+            }
+        });
+        
+        // Handle loading complete
+        this.resources.on('ready', () => {
+            loadingText.style.opacity = '0';
+            
+            // Initialize world as soon as resources are ready
+            if (!this.world) {
+                this.setWorld();
+            }
+            
+            if (this.world) {
+                // Start the world immediately
+                if (!this.world.started) {
+                    this.world.start();
+                }
+                
+                // Prepare everything but keep car hidden
+                try {
+                    // Set car position high in the sky but keep it hidden
+                    if (this.world.physics && this.world.physics.car && this.world.physics.car.chassis) {
+                        this.world.physics.car.chassis.body.position.set(0, 0, 50);
+                        this.world.physics.car.chassis.body.velocity.set(0, 0, 0);
+                        this.world.physics.car.chassis.body.angularVelocity.set(0, 0, 0);
+                        this.world.physics.car.chassis.body.sleep(); // Keep it sleeping until user starts
+                    }
+                    
+                    // Make sure car is initially hidden
+                    if (this.world.car && this.world.car.chassis && this.world.car.chassis.object) {
+                        this.world.car.chassis.object.visible = false;
+                    }
+                } catch(e) {
+                    console.warn('Error accessing car properties during initialization:', e);
+                }
+            }
+            
+            // Show the start button with animation
+            setTimeout(() => {
+                startButton.style.display = 'block';
+                
+                setTimeout(() => {
+                    startButton.style.opacity = '1';
+                    startButton.style.transform = 'translateY(0)';
+                }, 50);
+            }, 500);
+        });
+        
+        // Fallback in case the ready event doesn't fire
+        setTimeout(() => {
+            if (startButton.style.display !== 'block') {
+                console.log('Loading timeout reached, showing start button anyway');
+                progressBar.style.width = '100%';
+                loadingText.textContent = 'Tamamlandı!';
+                loadingText.style.opacity = '0';
+                
+                // Initialize world in case it hasn't been done yet
+                if (!this.world || !this.world.started) {
+                    if (!this.world) {
+                        this.setWorld();
+                    }
+                    if (this.world && !this.world.started) {
+                        this.world.start();
+                    }
+                }
+                
+                setTimeout(() => {
+                    startButton.style.display = 'block';
+                    setTimeout(() => {
+                        startButton.style.opacity = '1';
+                        startButton.style.transform = 'translateY(0)';
+                    }, 50);
+                }, 500);
+            }
+        }, 8000);
+        
+        // Handle start button click - now it just triggers the animation
+        startButton.addEventListener('click', () => {
+            // Stop the slideshow
+            clearInterval(slideshowInterval);
+            
+            // Hide loading screen with animation
+            title.style.transform = 'translateY(-100px)';
+            title.style.opacity = '0';
+            subtitle.style.opacity = '0';
+            startButton.style.opacity = '0';
+            locationBadge.style.opacity = '0';
+            
+            // Fade out loading screen
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+            }, 300);
+            
+            // World should already be initialized, just make sure
+            if (!this.world) {
+                this.setWorld();
+            }
+            
+            if (!this.world.started) {
+                this.world.start();
+            }
+            
+            try {
+                // Make car visible and wake it up
+                if (this.world.physics && this.world.physics.car && this.world.physics.car.chassis) {
+                    this.world.physics.car.chassis.body.wakeUp();
+                }
+                
+                if (this.world.car && this.world.car.chassis && this.world.car.chassis.object) {
+                    this.world.car.chassis.object.visible = true;
+                }
+            } catch(e) {
+                console.warn('Error accessing car properties:', e);
+            }
+            
+            // Reveal the world - start the animation
+            if (this.world.reveal && typeof this.world.reveal.go === 'function') {
+                this.world.reveal.go();
+            } else {
+                console.warn('World reveal not properly initialized');
+            }
+            
+            // Remove loading screen after transition
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 1000);
+        });
     }
 
     /**

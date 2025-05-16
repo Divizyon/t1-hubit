@@ -19,6 +19,13 @@ export default class Road {
 
     setModel() {
         this.model = {}
+        
+        // Check if resources and roadModel are available
+        if (!this.resources || !this.resources.items || !this.resources.items.roadModel) {
+            console.warn('Road: Resources or roadModel not available');
+            return;
+        }
+        
         this.model.mesh = this.resources.items.roadModel.scene
 
         // Material
@@ -42,7 +49,12 @@ export default class Road {
 
         this.container.add(this.model.mesh)
 
-        // Physics
+        // Physics - Add null check
+        if (!this.physics || !this.physics.world) {
+            console.warn('Road: Physics or physics.world not available');
+            return;
+        }
+        
         const shape = new CANNON.Box(new CANNON.Vec3(30, 0.1, 15))
         this.model.body = new CANNON.Body({
             mass: 0,
