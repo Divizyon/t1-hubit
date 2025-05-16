@@ -20,6 +20,7 @@ export default class Basket {
 
     this._buildModel();
     this._addBasketLight();
+    this.addCollisions(this.model);
     this.scene.add(this.container);
   }
 
@@ -66,6 +67,57 @@ export default class Basket {
         this.container.add(objectEntry.container);
       }
     }
+  }
+
+  addCollisions(model) {
+    // Bounding box hesapla
+    if (!model) return;
+    
+    model.updateMatrixWorld(true);
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3());
+    
+    // Ana çarpışma kutusu (zemin)
+    const position1 = new THREE.Vector3(-62.5, 35, -0.5);
+    const rotation1 = new THREE.Euler(0, 0, 0);
+    const halfExtents1 = new CANNON.Vec3(8, 10, 0.6);
+    
+    this.addCollisionBox(position1, rotation1, halfExtents1);
+    
+    // İkinci çarpışma kutusu (sol kenar)
+    const position2 = new THREE.Vector3(-62, 43, 0);
+    const rotation2 = new THREE.Euler(0, 0, 0); 
+    const halfExtents2 = new CANNON.Vec3(0.8, 0.8, 4);
+    
+    this.addCollisionBox(position2, rotation2, halfExtents2);
+    
+    // Üçüncü çarpışma kutusu (sağ kenar)
+    const position3 = new THREE.Vector3(-62, 26, 0);
+    const rotation3 = new THREE.Euler(0, 0, 0); 
+    const halfExtents3 = new CANNON.Vec3(0.8, 0.8, 4);
+    
+    this.addCollisionBox(position3, rotation3, halfExtents3);
+  }
+  
+  addCollisionBox(position, rotation, halfExtents) {
+    // Fizik gövdesi oluştur
+    const boxShape = new CANNON.Box(halfExtents);
+
+    const body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(position.x, position.y, position.z),
+      material: this.physics.materials.items.floor
+    });
+
+    // Dönüş quaternion olarak ayarla
+    const quat = new CANNON.Quaternion();
+    quat.setFromEuler(rotation.x, rotation.y, rotation.z, 'XYZ');
+    body.quaternion.copy(quat);
+
+    body.addShape(boxShape);
+    this.physics.world.addBody(body);
+
+    console.log("Basket sahası için collision eklendi:", body);
   }
 
   _addBasketLight() {
