@@ -32,6 +32,7 @@ import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
 import Newton from "./Newton.js";
+import Futbol from './futbol.js'
 
 import KonyaGencKart from "./KonyaGencKart.js";
 import Cevre from './cevre.js';
@@ -138,6 +139,7 @@ export default class World {
     this.setDivizyonBina();
     this.setAtmosferAlani();
     this.setStadyum();
+    this.setFutbol();
     this.setKonseralani();
     this.setJaponparki();
     this.setBasket();
@@ -917,5 +919,25 @@ export default class World {
       debug: this.debug
     });
     this.container.add(this.kademe.container);
+  }
+
+  setFutbol() {
+    this.futbol = new Futbol({
+      scene: this.scene,
+      resources: this.resources,
+      objects: this.objects,
+      physics: this.physics,
+      debug: this.debug,
+      areas: this.areas,
+      rotateX: 0,  // No X rotation
+      rotateY: Math.PI,  // 180 degrees to flip it
+      rotateZ: Math.PI/2  // 90 degrees around Z to face the car
+    })
+    
+    // Add the container to the world
+    if (this.futbol && this.futbol.container) {
+      this.container.add(this.futbol.container)
+      console.log("Soccer field and ball added successfully")
+    }
   }
 }

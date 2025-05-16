@@ -34,10 +34,10 @@ export default class Physics
     setWorld()
     {
         this.world = new CANNON.World()
-        this.world.gravity.set(0, 0, - 3.25 * 4)
+        this.world.gravity.set(0, 0, -9.82 * 3)
         this.world.allowSleep = true
-        // this.world.broadphase = new CANNON.SAPBroadphase(this.world)
-        this.world.defaultContactMaterial.friction = 0
+        this.world.broadphase = new CANNON.SAPBroadphase(this.world)
+        this.world.defaultContactMaterial.friction = 0.06
         this.world.defaultContactMaterial.restitution = 0.2
 
         // Debug
@@ -67,24 +67,60 @@ export default class Physics
     setMaterials()
     {
         this.materials = {}
-
+        
         // All materials
         this.materials.items = {}
         this.materials.items.floor = new CANNON.Material('floorMaterial')
         this.materials.items.dummy = new CANNON.Material('dummyMaterial')
         this.materials.items.wheel = new CANNON.Material('wheelMaterial')
+        this.materials.items.ball = new CANNON.Material('ballMaterial')
 
         // Contact between materials
         this.materials.contacts = {}
 
-        this.materials.contacts.floorDummy = new CANNON.ContactMaterial(this.materials.items.floor, this.materials.items.dummy, { friction: 0.05, restitution: 0.3, contactEquationStiffness: 1000 })
+        // Floor-Dummy contact
+        this.materials.contacts.floorDummy = new CANNON.ContactMaterial(
+            this.materials.items.floor,
+            this.materials.items.dummy,
+            { friction: 0.05, restitution: 0.3, contactEquationStiffness: 1000 }
+        )
         this.world.addContactMaterial(this.materials.contacts.floorDummy)
 
-        this.materials.contacts.dummyDummy = new CANNON.ContactMaterial(this.materials.items.dummy, this.materials.items.dummy, { friction: 0.5, restitution: 0.3, contactEquationStiffness: 1000 })
+        // Dummy-Dummy contact
+        this.materials.contacts.dummyDummy = new CANNON.ContactMaterial(
+            this.materials.items.dummy,
+            this.materials.items.dummy,
+            { friction: 0.5, restitution: 0.3, contactEquationStiffness: 1000 }
+        )
         this.world.addContactMaterial(this.materials.contacts.dummyDummy)
 
-        this.materials.contacts.floorWheel = new CANNON.ContactMaterial(this.materials.items.floor, this.materials.items.wheel, { friction: 0.3, restitution: 0, contactEquationStiffness: 1000 })
+        // Floor-Wheel contact (adjusted for off-road)
+        this.materials.contacts.floorWheel = new CANNON.ContactMaterial(
+            this.materials.items.floor,
+            this.materials.items.wheel,
+            { 
+                friction: 0.6,          // Increased friction for better grip
+                restitution: 0.2,       // Added some bounce for off-road feel
+                contactEquationStiffness: 1000,
+                contactEquationRelaxation: 3  // Added relaxation for softer contact
+            }
+        )
         this.world.addContactMaterial(this.materials.contacts.floorWheel)
+
+        // Ball contacts
+        this.materials.contacts.ballFloor = new CANNON.ContactMaterial(
+            this.materials.items.ball,
+            this.materials.items.floor,
+            { friction: 0.3, restitution: 0.6, contactEquationStiffness: 1000 }
+        )
+        this.world.addContactMaterial(this.materials.contacts.ballFloor)
+
+        this.materials.contacts.ballDummy = new CANNON.ContactMaterial(
+            this.materials.items.ball,
+            this.materials.items.dummy,
+            { friction: 0.3, restitution: 0.6, contactEquationStiffness: 1000 }
+        )
+        this.world.addContactMaterial(this.materials.contacts.ballDummy)
     }
 
     setFloor()
@@ -117,36 +153,37 @@ export default class Physics
         /**
          * Options
          */
-        this.car.options = {}
-        this.car.options.chassisWidth = 1.02
-        this.car.options.chassisHeight = 1.16
-        this.car.options.chassisDepth = 2.03
-        this.car.options.chassisOffset = new CANNON.Vec3(0, 0, 0.41)
-        this.car.options.chassisMass = 40
-        this.car.options.wheelFrontOffsetDepth = 0.64
-        this.car.options.wheelBackOffsetDepth = - 0.71
-        this.car.options.wheelOffsetWidth = 0.37
-        this.car.options.wheelRadius = 0.25
-        this.car.options.wheelHeight = 0.24
-        this.car.options.wheelSuspensionStiffness = 50
-        this.car.options.wheelSuspensionRestLength = 0.1
-        this.car.options.wheelFrictionSlip = 10
-        this.car.options.wheelDampingRelaxation = 1.8
-        this.car.options.wheelDampingCompression = 1.5
-        this.car.options.wheelMaxSuspensionForce = 100000
-        this.car.options.wheelRollInfluence =  0.01
-        this.car.options.wheelMaxSuspensionTravel = 0.3
-        this.car.options.wheelCustomSlidingRotationalSpeed = - 30
-        this.car.options.wheelMass = 5
-        this.car.options.controlsSteeringSpeed = 0.005 * 3
-        this.car.options.controlsSteeringMax = Math.PI * 0.17
-        this.car.options.controlsSteeringQuad = false
-        this.car.options.controlsAcceleratinMaxSpeed = 0.055 * 3 / 17
-        this.car.options.controlsAcceleratinMaxSpeedBoost = 0.11 * 3 / 17
-        this.car.options.controlsAcceleratingSpeed = 2 * 4 * 2
-        this.car.options.controlsAcceleratingSpeedBoost = 3.5 * 4 * 2
-        this.car.options.controlsAcceleratingQuad = true
-        this.car.options.controlsBrakeStrength = 0.45 * 3
+        this.car.options = {
+            chassisWidth: 1.02,
+            chassisHeight: 1.25,
+            chassisDepth: 2.03,
+            chassisOffset: new CANNON.Vec3(0, 0, 0.48),
+            chassisMass: 50,
+            wheelFrontOffsetDepth: 0.64,
+            wheelBackOffsetDepth: -0.71,
+            wheelOffsetWidth: 0.37,
+            wheelRadius: 0.28,
+            wheelHeight: 0.24,
+            wheelSuspensionStiffness: 35,
+            wheelSuspensionRestLength: 0.3,
+            wheelFrictionSlip: 2.0,
+            wheelDampingRelaxation: 2.5,
+            wheelDampingCompression: 4.2,
+            wheelMaxSuspensionForce: 70000,
+            wheelRollInfluence: 0.01,
+            wheelMaxSuspensionTravel: 0.4,
+            wheelCustomSlidingRotationalSpeed: -30,
+            wheelMass: 30,
+            controlsSteeringSpeed: 0.005 * 3,
+            controlsSteeringMax: Math.PI * 0.17,
+            controlsSteeringQuad: false,
+            controlsAcceleratinMaxSpeed: 0.055 * 3 / 17,
+            controlsAcceleratinMaxSpeedBoost: 0.11 * 3 / 17,
+            controlsAcceleratingSpeed: 2.5 * 4 * 2,
+            controlsAcceleratingSpeedBoost: 4 * 4 * 2,
+            controlsAcceleratingQuad: true,
+            controlsBrakeStrength: 0.45 * 3
+        }
 
         /**
          * Upsize down

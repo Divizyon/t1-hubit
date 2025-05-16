@@ -38,6 +38,8 @@ export default class Resources extends EventEmitter {
             { name: 'sesOdasiModel', source: './models/sesOdasi/SesOdasi.glb' },
             // Stadyum
             { name: 'stadyumModel', source: './models/stadyum/stadyum.glb' },
+            { name: 'futbolModel', source: './models/stadyum/futbol.glb' },
+            { name: 'tobModel', source: './models/stadyum/tob.glb' },
 
             // Konseralani
             { name: 'konseralaniModel', source: './models/konseralani/konser_alani.glb' },
