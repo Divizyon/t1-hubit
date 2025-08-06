@@ -34,7 +34,7 @@ import AtmosferAlani from "./AtmosferAlani.js";
 import Newton from "./Newton.js";
 import Futbol from './futbol.js'
 
-import KonyaGencKart from "./KonyaGencKart.js";
+import KonyaGencKart from "./KonyaGencKart.js"; 
 import Cevre from './cevre.js';
 import PopUpModule from "./PopUpModule.js"
 import sesOdasi from './sesOdasi.js'
@@ -906,7 +906,8 @@ export default class World {
     this.newton = new Newton({
       scene: this.scene,
       time: this.time,
-      physics: this.physics
+      physics: this.physics,
+      areas: this.areas
     });
   }
 
