@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main, develop2 ]
+    branches: [ main, develop-prod ]
   pull_request:
     branches: [ main ]
 
