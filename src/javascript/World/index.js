@@ -31,7 +31,7 @@ import Basket from "./basket.js";
 import Cowork from "./cowork.js";
 import CalisanGenclikMerkezi from "./calisanGenclikMerkezi.js";
 import AtmosferAlani from "./AtmosferAlani.js";
-import Newton from "./Newton.js";
+import Newton from "./newton.js";
 
 import KonyaGencKart from "./KonyaGencKart.js"; 
 import Cevre from './cevre.js';

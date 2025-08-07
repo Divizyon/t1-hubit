@@ -179,7 +179,6 @@ export default class Newton {
                 
                 this.scene.__newtonLightAdded = true;
             }
-    
 
             // Animasyonları başlat
             if (gltf.animations && gltf.animations.length > 0) {
