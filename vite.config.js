@@ -1,7 +1,8 @@
+import { defineConfig } from 'vite'
 import restart from 'vite-plugin-restart'
 import glsl from 'vite-plugin-glsl'
 
-export default {
+export default defineConfig({
     root: './', // Sources files (typically where index.html is)
     publicDir: './static/', // Path from "root" to static assets (files that are served as they are)
     server:
